@@ -1,0 +1,2091 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table,phi,lfm,gemma_1,gemma_2,llama,mistral
+"For each area of Atlanta give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL(mct.Most_Common_Crime_Type, 'Unknown') AS Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((c.Crime_Change / c.Cumulative_Crime_Count) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â latest_date AS Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(CASE WHEN Crime_Date >= latest_date - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â atlanta_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CROSS JOIN (SELECT MAX(Crime_Date) AS latest_date FROM atlanta_crime_data) AS max_date
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name, latest_date
+) c
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Most_Common_Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type AS Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â atlanta_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name, Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_crimes
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) mct ON c.Area_Name = mct.Area_Name
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Area_Name ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â 17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100Ãƒâ€šÃ‚Â° W; 33.77476400Ãƒâ€šÃ‚Â° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800Ãƒâ€šÃ‚Â° W; 33.81989200Ãƒâ€šÃ‚Â° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600Ãƒâ€šÃ‚Â° W; 33.83793500Ãƒâ€šÃ‚Â° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600Ãƒâ€šÃ‚Â° W; 33.80423000Ãƒâ€šÃ‚Â° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700Ãƒâ€šÃ‚Â° W; 33.68756600Ãƒâ€šÃ‚Â° N"," Here is an SQL query to fulfill the request:
+
+```sql
+WITH last_crimes AS (
+  SELECT Area_Name, MAX(Crime_Date) AS Most_Recent_Crime
+  FROM atlanta_crime_data
+  GROUP BY Area_Name
+),
+crime_counts AS (
+  SELECT Area_Name, COUNT(*) AS Total_Crimes
+  FROM atlanta_crime_data
+  GROUP BY Area_Name
+),
+crime_types AS (
+  SELECT Area_Name, Crime_Type, COUNT(*) AS Crime_Count
+  FROM atlanta_crime_data
+  GROUP BY Area_Name, Crime_Type
+),
+common_crimes AS (
+  SELECT Area_Name, Crime_Type AS Most_Common_Crime
+  FROM crime_types
+  WHERE Crime_Count = (
+    SELECT MAX(Crime_Count) 
+    FROM crime_types ct2
+    WHERE ct2.Area_Name = crime_types.Area_Name
+  )
+),
+weekly_crimes AS (
+  SELECT Area_Name,
+         COUNT(*) OVER (PARTITION BY Area_Name ORDER BY Crime_Date 
+                        RANGE BETWEEN INTERVAL '7 days' PRECEDING AND CURRENT ROW) AS Weekly_Crimes,
+         EXTRACT(WEEK FROM Crime_Date) AS Crime_Week
+  FROM atlanta_crime_data
+),
+weekly_increase AS (
+  SELECT w1.Area_Name,
+         w1.Crime_Week,
+         ((w1.Weekly_Crimes - LAG(w1.Weekly_Crimes) OVER (PARTITION BY w1.Area_Name ORDER BY w1.Crime_Week)) / LAG(w1.Weekly_Crimes) OVER (PARTITION BY w1.Area_Name ORDER BY w1.Crime_Week)) * 100 AS Weekly_Increase
+  FROM weekly_crimes w1
+)
+SELECT a.Area_Name,
+       c.Total_Crimes,
+       l.Most_Recent_Crime,
+       cm.Most_Common_Crime,
+       w.Weekly_Increase
+FROM atlanta_crime_data a
+JOIN last_crimes l ON a.Area_Name = l.Area_Name
+JOIN crime_counts c ON a.Area_Name = c.Area_Name
+JOIN common_crimes cm ON a.Area_Name = cm.Area_Name
+JOIN weekly_increase w ON a.Area_Name = w.Area_Name AND EXTRACT(WEEK FROM a.Crime_Date) = w.Crime_Week
+GROUP BY a.Area_Name, w.Weekly_Increase
+```
+
+This SQL query fulfills the request by breaking down the problem into manageable subqueries. It first summarizes the total number of crimes and the most recent crime date for each area and crime type. Then the most common crime type is calculated. The weekly increase in crimes by percentage is calculated using the count of crimes within the past 7 days and comparing it to the total number of crimes in the preceding week. Finally, these subqueries are joined together and aggregated using the `GROUP BY` clause to get the final output for each area of Atlanta.","SELECT 
+	A.Area_Name AS 'Area Name',
+	SUM(B.Crime_Count) AS 'Total Crime Count',
+	MAX(C.Crime_Date) AS 'Last Reported Date',
+	MAX(D.Crime_Type) AS 'Most Common Crime Type',
+	(
+		SELECT 
+			(SUM(CASE WHEN C.Crime_Date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) THEN B.Crime_Count ELSE 0 END)) * 100.0 / SUM(B.Crime_Count) 
+		FROM 
+			atlanta_crime_data B 
+			LEFT JOIN 
+			(
+				SELECT 
+					Area_Name,
+					COUNT(*) AS Crime_Count 
+				FROM 
+					atlanta_crime_data 
+				WHERE 
+					Report_# >= (
+						SELECT 
+							Report_# 
+						FROM 
+							atlanta_crime_data 
+						WHERE 
+							Area_Name = A.Area_Name
+						ORDER BY 
+							Report_# DESC 
+					)
+				GROUP BY 
+					Area_Name
+			) C ON 	C.Crime_Count > 0
+	) AS 'Weekly Increase in Crimes by Percent'
+FROM 
+	(SELECT 
+		Area_Name,
+		COUNT(*) AS Crime_Count 
+	FROM 
+		atlanta_crime_data 
+	WHERE 
+		Area_Name LIKE 'Atlanta%'
+	GROUP BY 
+		Area_Name
+) A 
+LEFT JOIN 
+	(SELECT 
+		Area_Name,
+		COUNT(*) AS Crime_Count 
+	FROM 
+		atlanta_crime_data 
+	GROUP BY 
+		Area_Name
+) B 
+ON 
+	B.Area_Name = A.Area_Name
+LEFT JOIN 
+	(SELECT 
+		Area_Name,
+		COUNT(DISTINCT Crime_Type) AS Crime_Types 
+	FROM 
+		atlanta_crime_data 
+	GROUP BY 
+		Area_Name
+) C 
+ON 
+	C.Area_Name = A.Area_Name
+LEFT JOIN 
+	(SELECT 
+		Area_Name, 
+		COUNT(*) AS Crime_Count 
+	FROM 
+		atlanta_crime_data 
+	GROUP BY 
+		Area_Name
+	HAVING 
+		COUNT(*) > 1
+	ORDER BY 
+		COUNT(*) DESC
+	LIMIT 1) D 
+ON 
+	D.Area_Name = A.Area_Name
+GROUP BY 
+	A.Area_Name","```sql
+SELECT a.Area_Name,
+       COUNT(c.Crime_ID) AS Total_Crimes,
+       MAX(c.Crime_Date) AS Last_Reported_Date,
+       c.Crime_Type,
+       MAX(ct.Count) OVER (PARTITION BY a.Area_Name ORDER BY c.Crime_Type) AS Most_Common_Crime,
+       100 * (COUNT(c.Crime_ID) - LAG(COUNT(c.Crime_ID), 7) OVER (PARTITION BY a.Area_Name)) / LAG(COUNT(c.Crime_ID), 7) OVER (PARTITION BY a.Area_Name) AS Weekly_Increase
+FROM atlanta_crime_data c
+JOIN (
+    SELECT Area_Name, COUNT(*) AS Count
+    FROM atlanta_crime_data
+    GROUP BY Area_Name, Crime_Type
+    ORDER BY Area_Name, Count DESC
+) ct ON c.Area_Name = ct.Area_Name AND c.Crime_Type = ct.Crime_Type
+GROUP BY a.Area_Name, c.Crime_Type
+ORDER BY a.Area_Name, c.Crime_Type;
+```","```sql
+WITH CrimeTotals AS (
+    SELECT 
+        Area_Name,
+        COUNT(Crime_ID) AS Total_Crime_Count,
+        MAX(Crime_Date) AS Last_Reported_Date,
+        Crime_Type,
+        ROW_NUMBER() OVER (PARTITION BY Area_Name ORDER BY COUNT(Crime_ID) DESC) AS rn 
+    FROM atlanta_crime_data
+    GROUP BY Area_Name, Crime_Type 
+),
+
+MostCommonCrime AS (
+    SELECT 
+        Area_Name,
+        Crime_Type 
+    FROM CrimeTotals
+    WHERE rn = 1   
+)
+
+SELECT 
+    ct.Area_Name,
+    ct.Total_Crime_Count,
+    ct.Last_Reported_Date,
+    mc.Crime_Type AS MostCommonCrime,
+    ( 
+        (ct2.Total_Crime_Count - LAG(ct2.Total_Crime_Count, 1, 0) OVER (ORDER BY ct2.Area_Name)) / 
+        LAG(ct2.Total_Crime_Count, 1, 0) OVER (ORDER BY ct2.Area_Name) 
+    ) * 100 AS WeeklyIncrease 
+FROM CrimeTotals ct
+LEFT JOIN MostCommonCrime mc ON ct.Area_Name = mc.Area_Name
+LEFT JOIN CrimeTotals ct2 ON ct.Area_Name = ct2.Area_Name 
+ORDER BY ct.Area_Name;   
+```
+
+**Explanation:**
+
+1. **`CrimeTotals` CTE:**
+   - Calculates the total crime count, `Last_Reported_Date`, and groups by `Area_Name` and `Crime_Type`.
+   - We also use `ROW_NUMBER()` to find the row with the most frequent crime type for each area. This is used later to get the most common crime type.
+
+2. **`MostCommonCrime` CTE:**
+   - Selects the `Area_Name` and the `Crime_Type` for each area for the most common crime based on `rn = 1` from the `CrimeTotals` CTE.
+
+3. **Main Query:**
+   - Joins the `CrimeTotals` CTE with the `MostCommonCrime` CTE based on `Area_Name`.
+   - Uses `LAG()` function to calculate the weekly increase in crime counts by comparing the current week's count to the previous week's count. The percentage increase is then calculated.
+
+**Important Notes:**
+
+- This query assumes your date format is consistent.  You may need to adjust it if the date format in your data is different.
+- `LAG()` function requires an `ORDER BY` clause in the subquery. Here, we assume you want to order by `Area_Name` for week-over-week comparisons. You can change this order based on your requirements.","To generate the SQL query, I'll need to understand the specific areas of Atlanta you're interested in. Could you provide me with the names of these areas?","Here is a possible SQL query to fulfill your request. Note that calculating the ""weekly increase in crimes by percentage"" is a bit complex, as it requires comparing the number of crimes for the current week to the number of crimes for the previous week. This query assumes that the ""Day_Occurred"" column contains the day of the week (e.g. ""Monday"") that the crime was reported.
+
+To get the weekly increase in crimes by percentage, we need to calculate the number of crimes for the current week and the number of crimes for the previous week. We can do this by using the WEEK() function in MySQL, which returns the week number for a given date. We can then use a conditional sum to count the number of crimes for the current week and the previous week.
+
+Here is the query:
+
+```
+SELECT 
+  Area\_Name, 
+  COUNT(*) AS Total\_Crime\_Count, 
+  MAX(Crime\_Date) AS Last\_Reported\_Date, 
+  Crime\_Type AS Most\_Common\_Crime\_Type,
+  (CURRENT\_WEEK() - 1) AS Current\_Week\_Number,
+  (SUM(CASE WHEN WEEK(Crime\_Date) = (CURRENT\_WEEK() - 2) THEN 1 ELSE 0 END)) AS Previous\_Week\_Crime\_Count,
+  (100.0 \* (COUNT(*) - SUM(CASE WHEN WEEK(Crime\_Date) = (CURRENT\_WEEK() - 2) THEN 1 ELSE 0 END)) / SUM(CASE WHEN WEEK(Crime\_Date) = (CURRENT\_WEEK() - 2) THEN 1 ELSE 0 END)) AS Weekly\_Crime\_Increase\_Percentage
+FROM 
+  atlanta\_crime\_data
+GROUP BY 
+  Area\_Name, Crime\_Type
+ORDER BY 
+  Area\_Name, Total\_Crime\_Count DESC;
+```
+
+This query will return a table with the following columns:
+
+* Area\_Name: the name of the area in Atlanta
+* Total\_Crime\_Count: the total number of crimes in the area
+* Last\_Reported\_Date: the date of the most recent crime in the area
+* Most\_Common\_Crime\_Type: the type of crime that occurred most frequently in the area
+* Current\_Week\_Number: the week number for the current week (e.g. 1 for the first week of the year)
+* Previous\_Week\_Crime\_Count: the number of crimes that occurred in the previous week
+* Weekly\_Crime\_Increase\_Percentage: the percentage increase in crimes from the previous week to the current week
+
+Note that this query assumes that you are using MySQL as your database management system. If you are using a different system, the syntax for some of the functions (e.g. WEEK(), CURRENT\_WEEK()) may be different.
+
+I hope this helps! Let me know if you have any questions or need further clarification."
+"For each area of LA give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â mct.Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((c.Crime_Change / c.Cumulative_Crime_Count) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(Crime_Date) AS Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(CASE WHEN Crime_Date >= CURDATE() - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name
+) c
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Most_Common_Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type AS Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name, Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_crimes
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) mct ON c.Area_Name = mct.Area_Name
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Area_Name ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000Ãƒâ€šÃ‚Â° N; 118.26280000Ãƒâ€šÃ‚Â° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000Ãƒâ€šÃ‚Â° N; 118.30020000Ãƒâ€šÃ‚Â° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000Ãƒâ€šÃ‚Â° N; 118.43870000Ãƒâ€šÃ‚Â° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000Ãƒâ€šÃ‚Â° N; 118.32770000Ãƒâ€šÃ‚Â° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000Ãƒâ€šÃ‚Â° N; 118.24630000Ãƒâ€šÃ‚Â° W"," Here's the SQL query based on the provided schema and natural language request:
+
+```sql
+WITH Crime_Counts AS (
+  SELECT Area_Name,
+         Crime_Type,
+         COUNT(*) AS Crime_Count,
+         MAX(Date_Reported) AS Last_Reported_Date,
+         DATEDIFF(DAY, '2020-01-01', MAX(Date_Reported)) % 7 * 1.0 / 365.0 * 100.0 AS Weekly_Percentage_Increase
+  FROM la_crime_data
+  WHERE DATEPART(YEAR, Date_Reported) = 2020
+  GROUP BY Area_Name, Crime_Type
+),
+Most_Common_Crime AS (
+  SELECT Area_Name,
+         Crime_Type,
+         RANK() OVER (PARTITION BY Area_Name ORDER BY Crime_Count DESC) as Rank
+  FROM Crime_Counts
+),
+Total_Crime_Counts AS (
+  SELECT Area_Name,
+         SUM(Crime_Count) AS Total_Crime_Count,
+         MIN(Last_Reported_Date) AS Last_Report
+  FROM Crime_Counts
+  GROUP BY Area_Name
+)
+SELECT t.Area_Name,
+       t.Total_Crime_Count,
+       t.Last_Report,
+       m.Crime_Type AS Most_Common_Crime_Type,
+       m.Rank,
+       c.Weekly_Percentage_Increase
+FROM Total_Crime_Counts t
+JOIN Most_Common_Crime m
+ON t.Area_Name = m.Area_Name
+JOIN Crime_Counts c
+ON t.Area_Name = c.Area_Name AND m.Rank = 1
+ORDER BY t.Area_Name;
+```
+
+This query does the following:
+
+1. The `Crime_Counts` CTE (Common Table Expression) generates the total count of different types of crimes in different areas, the last reported date of any crime, and the weekly increase in crimes by percentage.
+2. The `Most_Common_Crime` CTE finds the most common type of crime in each area.
+3. The `Total_Crime_Counts` CTE calculates the total crime count in each area and the last reported date.
+4. Finally, the outer query joins all three CTEs to provide the final result: the area name, total crime count, last reported date of any crime, the most common type of crime, and the weekly increase in crimes by percentage.
+
+Please note that the calculation of weekly increase in crimes by percentage is calculated as a percentage of the overall crimes reported in the year 2020 and may not be accurate due to the limited dataset. Depending on the actual requirement, this calculation can be modified or removed.","```SQL
+SELECT 
+    A.Area_Name,
+    COUNT(C.Crime_ID) AS Total_Crime_Count,
+    MAX(C.Date_Reported) AS Last_Reported_Date,
+    MAX(C.Crime_Type) AS Most_Common_Crime_Type,
+    AVG((MAX(C.Crime_Date) - MIN(C.Crime_Date))/7) * 100 AS Weekly_Increase_Percentage
+FROM
+    la_crime_data A
+INNER JOIN
+    (SELECT 
+        A.Area_Name,
+        COUNT(C.Crime_ID) AS Num_Crimes
+    FROM
+        la_crime_data C
+    WHERE
+        C.Report_# > 200
+    GROUP BY
+        A.Area_Name
+    ORDER BY
+        Num_Crimes DESC
+    LIMIT 1) B
+ON
+    A.Area_Name = B.Area_Name
+GROUP BY
+    A.Area_Name;
+```","```sql
+SELECT c.Area_Name,
+       COUNT(*) AS Total_Crimes,
+       MAX(c.Date_Reported) AS Last_Reported_Date,
+       MAX(c.Crime_Type) AS Most_Common_Crime,
+       AVG( (100 * (COUNT(*) - LAG(COUNT(*)) OVER (ORDER BY c.Area_Name, c.Date_Reported) / LAG(COUNT(*)) OVER (ORDER BY c.Area_Name, c.Date_Reported))) AS Weekly_Increase_In_Crimes
+FROM la_crime_data c
+GROUP BY c.Area_Name
+ORDER BY c.Area_Name;
+```","```sql
+WITH CrimeSummary AS (
+    SELECT
+        Area_Name,
+        COUNT(Crime_ID) AS Total_Crime_Count,
+        MAX(Date_Reported) AS Last_Reported_Date,
+        Crime_Type,
+        ROW_NUMBER() OVER (PARTITION BY Area_Name ORDER BY COUNT(Crime_ID) DESC) AS rn
+    FROM la_crime_data
+    GROUP BY Area_Name, Crime_Type
+),
+CommonCrimes AS (
+    SELECT
+        Area_Name,
+        Crime_Type
+    FROM CrimeSummary
+    WHERE rn = 1
+)
+SELECT 
+    CS.Area_Name,
+    CS.Total_Crime_Count,
+    CS.Last_Reported_Date,
+    CS.Crime_Type,
+    CC.Crime_Type AS Most_Common_Crime_Type,
+    -- Calculate weekly increase in crimes percentage  
+    -- (This part requires more sophisticated logic 
+    --  and may involve additional data or calculations)
+    --  Example using a hypothetical weekly increase:
+    --  ((SUM(CrimeCount) OVER (PARTITION BY Area_Name ORDER BY Date_Reported) - 
+    --   SUM(CrimeCount) OVER (PARTITION BY Area_Name ORDER BY Date_Reported) PRECEDING 1) / 
+    --  SUM(CrimeCount) OVER (PARTITION BY Area_Name ORDER BY Date_Reported) PRECEDING 1) * 100 AS Weekly_Increase
+FROM CrimeSummary CS
+LEFT JOIN CommonCrimes CC ON CS.Area_Name = CC.Area_Name
+
+ORDER BY CS.Area_Name;
+```
+
+**Explanation:**
+
+1. **`CrimeSummary` CTE:** 
+   - Calculates the total crime count for each `Area_Name` and `Crime_Type`.
+   - Uses `MAX(Date_Reported)` to find the last reported date for each area/crime type combination.
+   - Uses `ROW_NUMBER()` to rank crimes by count within each area, allowing us to identify the most common crime type later.
+
+2. **`CommonCrimes` CTE:**
+   - Selects the `Area_Name` and `Crime_Type` where the `rn` (rank) is 1, representing the most common crime for each area.
+
+3. **Final `SELECT` Statement:**
+   - Joins the `CrimeSummary` and `CommonCrimes` CTEs to retrieve the desired information.
+   - Fills in the `Most_Common_Crime_Type` column from the `CommonCrimes` CTE.
+   - **Notes on Weekly Increase:**
+     - The code includes a commented-out placeholder for calculating the weekly increase in crime percentage. 
+     - Implementing this functionality accurately would require additional logic to group crimes by week and perform the calculations. 
+
+**Remember:**
+
+- You might need to adjust the date formatting or calculations depending on the specifics of your `Date_Reported` column.
+- The example's weekly increase calculation is a placeholder. You'll need to refine it based on your data and requirements.","To generate the SQL query, I'll need to know the specific areas of LA you're interested in. Could you provide me with the list of areas?","Here is a SQL query that fulfills your request:
+```
+SELECT 
+  Area_Name, 
+  COUNT(*) AS Total_Crime_Count,
+  MAX(Date_Reported) AS Last_Reported_Date,
+  Crime_Type AS Most_Common_Crime_Type,
+  (SUM(CASE WHEN WEEK(Date_Reported) = WEEK(CURRENT_DATE()) THEN 1 ELSE 0 END) / COUNT(*) * 100 AS Weekly_Increase
+FROM 
+  la_crime_data
+GROUP BY 
+  Area_Name, Crime_Type
+ORDER BY 
+  Area_Name, Total_Crime_Count DESC
+LIMIT 1;
+```
+This query calculates the total crime count, last reported date of any crime, and most common crime type for each area of LA. It also calculates the weekly increase in crimes by percentage, but this calculation is based on the assumption that the current date is being used. If this is not the case, you may need to adjust the query accordingly.
+
+Note that the `WEEK()` function is used to group crimes by week. This function may not be available in all SQL implementations. In such cases, you may need to use a different method to group crimes by week.
+
+Additionally, the `CURRENT_DATE()` function is used to get the current date. This function may also not be available in all SQL implementations. If this is the case, you may need to use a different method to get the current date.
+
+Finally, the `LIMIT 1` clause is used to return only the area with the most crimes. If you want to return all areas, you can remove this clause.
+
+I hope this helps! Let me know if you have any questions or need further clarification."
+"For each area of New York give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â mct.Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((c.Crime_Change / c.Cumulative_Crime_Count) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(Crime_Date) AS Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(CASE WHEN Crime_Date >= (SELECT MAX(Crime_Date) FROM nyc_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â nyc_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name
+) c
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Most_Common_Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type AS Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â nyc_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name, Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_crimes
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) mct ON c.Area_Name = mct.Area_Name
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â c.Area_Name ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867Ãƒâ€šÃ‚Â° N; 73.87212505Ãƒâ€šÃ‚Â° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000Ãƒâ€šÃ‚Â° N; 73.86340000Ãƒâ€šÃ‚Â° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ;Ãƒâ€šÃ‚Â 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ;Ãƒâ€šÃ‚Â 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ;Ãƒâ€šÃ‚Â "," To generate the SQL query to fulfill this request, you can use the following SQL query:
+
+```sql
+WITH crime_data AS (
+  SELECT
+    Area_Name,
+    Crime_Type,
+    COUNT(*) AS crime_count,
+    MIN(Crime_Date) AS last_reported_date,
+    ROW_NUMBER() OVER (PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS row_num_by_type,
+    LAG(COUNT(*), 1) OVER (PARTITION BY Area_Name, Crime_Type ORDER BY EXTRACT(WEEK FROM Crime_Date)) AS prev_week_crime_count,
+    Crime_Date
+  FROM nyc_crime_data
+  GROUP BY Area_Name, Crime_Type, Crime_Date
+),
+ranked_crime_data AS (
+  SELECT
+    Area_Name,
+    Crime_Type,
+    crime_count,
+    last_reported_date,
+    CASE WHEN row_num_by_type = 1 THEN 'Most Common' ELSE '' END AS most_common_crime
+  FROM crime_data
+  WHERE row_num_by_type = 1
+),
+crime_increase AS (
+  SELECT
+    Area_Name,
+    Crime_Type,
+    ((crime_count - prev_week_crime_count) * 100.0) / prev_week_crime_count AS weekly_crime_increase_percentage
+  FROM crime_data
+  WHERE prev_week_crime_count IS NOT NULL
+)
+
+SELECT 
+  r.Area_Name,
+  r.Crime_Type,
+  r.crime_count,
+  r.last_reported_date,
+  r.most_common_crime,
+  c.weekly_crime_increase_percentage
+FROM ranked_crime_data r
+LEFT JOIN crime_increase c
+  ON r.Area_Name = c.Area_Name AND r.Crime_Type = c.Crime_Type;
+```
+
+This SQL query does the following:
+
+1. Creates a subquery named `crime_data` that calculates the total crime count, the last reported date, and ranks the crime types per area based on their count using the `ROW_NUMBER()` window function. It also calculates the previous week's crime count if available.
+
+2. Creates another subquery named `ranked_crime_data` that retrieves the most common crime type per area using the results from `crime_data`.
+
+3. Creates another subquery `crime_increase` that calculates the weekly crime increase percentage by comparing the current week's crime count to the previous week's crime count.
+
+4. Finally, selects the Area Name, Crime Type, Crime Count, Last Reported Date, Most Common Crime, and Weekly Crime Increase Percentage from `ranked_crime_data` joined with `crime_increase` on Area_Name and Crime_Type.
+
+This query gives you the total crime count, last reported date of any crime, and the type of crime, most common crime type, and weekly increase in crimes by percentage for each area in New York. Please note that the EXTRACT function is used to extract the week from the Crime_Date, which may vary depending on your SQL dialect (the example provided uses standard SQL).","SELECT 
+    Area_Name,
+    COUNT(Crime_ID) as Total_Crimes,
+    MAX(Crime_Date) as Last_Reported_Date,
+    Crime_Type,
+    (SELECT Crime_Type 
+     FROM nyc_crime_data 
+     WHERE Area_Name = Area_Name 
+     GROUP BY Crime_Type 
+     HAVING COUNT*1.0 / (SELECT COUNT(Crime_ID) 
+                       FROM nyc_crime_data 
+                       WHERE Area_Name = Area_Name) AS 'Frequency') as Most_Common_Crime_Type,
+    (SELECT Round((COUNT(Crime_Date) / (LEAD(COUNT(Crime_Date), 1) OVER (PARTITION BY Area_Name ORDER BY Crime_Date) - COUNT(Crime_Date)) * 100), 2)
+     FROM nyc_crime_data
+     WHERE Area_Name = Area_Name) as Weekly_Increase_Percentage
+FROM nyc_crime_data
+WHERE Area_Name = 'NYC'
+GROUP BY Area_Name, Crime_Type","```sql
+SELECT c.Area_Name,
+       COUNT(*) AS Total_Crime_Count,
+       MAX(c.Crime_Date) AS Last_Reported_Date,
+       c.Crime_Type,
+       MAX(ct.Crime_Type) AS Most_Common_Crime,
+       ((SUM(c.Crime_Count) - LAG(SUM(c.Crime_Count), 7) / LAG(SUM(c.Crime_Count), 7) * 100) AS Weekly_Increase_Percentage
+FROM nyc_crime_data c
+JOIN (SELECT Area_Name, Crime_Type, COUNT(*) Crime_Count
+      FROM nyc_crime_data
+      GROUP BY Area_Name, Crime_Type) ct ON c.Area_Name = ct.Area_Name AND c.Crime_Type = ct.Crime_Type
+GROUP BY c.Area_Name, c.Crime_Type
+ORDER BY c.Area_Name;
+```","```sql
+WITH crime_counts AS (
+    SELECT
+        Area_Name,
+        COUNT(Crime_ID) AS Total_Crime_Count,
+        MAX(Crime_Date) AS Last_Reported_Date,
+        Crime_Type,
+        ROW_NUMBER() OVER (PARTITION BY Area_Name ORDER BY Crime_ID) AS rn
+    FROM nyc_crime_data
+    GROUP BY Area_Name, Crime_Type
+),
+most_common_crimes AS (
+    SELECT
+        Area_Name,
+        Crime_Type,
+        COUNT(*) AS Crime_Count
+    FROM crime_counts
+    GROUP BY Area_Name, Crime_Type
+    ORDER BY Area_Name, Crime_Count DESC
+    LIMIT 1
+)
+
+SELECT 
+    cc.Area_Name,
+    cc.Total_Crime_Count,
+    cc.Last_Reported_Date,
+    mcc.Crime_Type AS Most_Common_Crime_Type,
+    ( 
+        (cc.Total_Crime_Count - LAG(cc.Total_Crime_Count, 1) OVER (PARTITION BY cc.Area_Name ORDER BY cc.Last_Reported_Date)) * 100.0 
+        / LAG(cc.Total_Crime_Count, 1) OVER (PARTITION BY cc.Area_Name ORDER BY cc.Last_Reported_Date)
+    ) AS Weekly_Percentage_Increase 
+FROM crime_counts cc
+JOIN most_common_crimes mcc ON cc.Area_Name = mcc.Area_Name AND cc.Crime_Type = mcc.Crime_Type
+ORDER BY cc.Area_Name;    
+```
+
+**Explanation:**
+
+1. **Common Table Expressions (CTEs):** The query uses two CTEs:
+   - `crime_counts`:
+     - Calculates the total crime count for each area and the latest crime date.
+     - Uses `ROW_NUMBER() OVER (PARTITION BY Area_Name ORDER BY Crime_ID)` to keep track of the order of crimes within each area. This will be helpful for calculating weekly percentage increases.
+   - `most_common_crimes`:
+     - Determines the most common crime type for each area based on count.
+2. **Main Query:**
+   - Selects the area name, total crime count, last reported date, most common crime type.
+   - Calculates the weekly percentage increase in crime using:
+     - `LAG(cc.Total_Crime_Count, 1) OVER (PARTITION BY cc.Area_Name ORDER BY cc.Last_Reported_Date)` to get the previous week's crime count for each area.
+     - The percentage increase formula: `((current_count - previous_count) * 100.0) / previous_count`.
+   - `JOIN`s the `crime_counts` and `most_common_crimes` CTEs to link the data.
+   - Orders the results by area name for clarity.
+
+**Note:**
+
+- This query assumes that the `Crime_Date` column represents weekdays and allows for comparing consecutive weeks. If your data structure is different (e.g., includes dates for every day), you'll need to modify the query to handle week boundaries appropriately.","To generate the SQL query for this request, I'll need to break it down into smaller parts. First, let's start with the total crime count and the last reported date of any crime for each area.","To fulfill the request, the following SQL query can be used:
+```
+SELECT 
+  Area_Name, 
+  COUNT(*) AS Total_Crime_Count,
+  MAX(Crime_Date) AS Last_Reported_Date,
+  (SELECT Crime_Type FROM nyc_crime_data c2 WHERE c2.Area_Name = c1.Area_Name GROUP BY Crime_Type ORDER BY COUNT(*) DESC LIMIT 1) AS Most_Common_Crime_Type,
+  ((SELECT COUNT(*) FROM nyc_crime_data c2 WHERE c2.Area_Name = c1.Area_Name AND c2.Crime_Date >= DATE_SUB(MAX(c1.Crime_Date), INTERVAL 7 DAY) GROUP BY WEEK(c2.Crime_Date)) - COUNT(*))/COUNT(*)*100 AS Weekly_Increase_Percentage
+FROM nyc_crime_data c1
+GROUP BY Area_Name;
+```
+This query calculates the total crime count, last reported date of any crime, most common crime type, and weekly increase in crimes by percentage for each area of New York.
+
+The total crime count is calculated using the `COUNT(*)` aggregate function, grouped by `Area_Name`.
+
+The last reported date of any crime is calculated by finding the maximum `Crime_Date` for each area, using the `MAX` aggregate function, grouped by `Area_Name`.
+
+The most common crime type is calculated by finding the crime type with the highest count for each area, using a subquery with the `COUNT(*)` aggregate function, grouped by `Crime_Type`, and then ordering by `COUNT(*)` in descending order. The `LIMIT` clause is used to select only the top result.
+
+The weekly increase in crimes by percentage is calculated by finding the number of crimes in the past 7 days for each area, using a subquery with the `COUNT(*)` aggregate function, grouped by `WEEK(Crime_Date)`, and then finding the difference between this value and the total count for each area. This value is then divided by the total count and multiplied by 100 to get the percentage change.
+
+Note that the `DATE_SUB` function is used to calculate the date 7 days prior to the max `Crime_Date` for each area, and the `WEEK` function is used to group the crimes by week. These functions may not be available in all SQL databases, so you may need to use a different method to calculate the weekly increase in crimes.
+
+Additionally, the latitude and longitude columns are not used in this query, as the request does not ask for this information. If you need to include the latitude and longitude in the results, you can include them in the `SELECT` clause, for example: `SELECT Area_Name, Latitude, Longitude, ...`
+
+I hope this helps! Let me know if you have any questions or if you need further clarification."
+"For each area of Philly give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CONCAT(FLOOR(c.`Area_#` / 10) * 10, ' - ', FLOOR(c.`Area_#` / 10) * 10 + 9) AS Area_Num_Range,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(c.Cumulative_Crime_Count) AS Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(c.Latest_Crime_Date) AS Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(c.Latest_Crime_Type) AS Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(mct.Most_Common_Crime_Type) AS Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((SUM(c.Crime_Change) / SUM(c.Cumulative_Crime_Count)) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Cumulative_Crime_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(Crime_Date) AS Latest_Crime_Date,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(CASE WHEN Crime_Date >= (SELECT MAX(Crime_Date) FROM philly_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â philly_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#`
+) c
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Most_Common_Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type AS Most_Common_Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY `Area_#` ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â philly_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#`, Crime_Type
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_crimes
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) mct ON c.`Area_#` = mct.`Area_#`
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CONCAT(FLOOR(c.`Area_#` / 10) * 10, ' - ', FLOOR(c.`Area_#` / 10) * 10 + 9)
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CONCAT(FLOOR(c.`Area_#` / 10) * 10, ' - ', FLOOR(c.`Area_#` / 10) * 10 + 9);","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059Ãƒâ€šÃ‚Â° W; 39.98584130Ãƒâ€šÃ‚Â° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260Ãƒâ€šÃ‚Â° W; 40.04046800Ãƒâ€šÃ‚Â° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032Ãƒâ€šÃ‚Â° W; 40.03096295Ãƒâ€šÃ‚Â° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850Ãƒâ€šÃ‚Â° W; 39.98460303Ãƒâ€šÃ‚Â° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745Ãƒâ€šÃ‚Â° W; 40.02040272Ãƒâ€šÃ‚Â° N"," Here is an SQL query to fulfill the request:
+
+```sql
+WITH 
+crime_stats AS (
+  SELECT
+    Area_#,
+    COUNT(Crime_ID) AS Total_Crime_Count,
+    MAX(Crime_Date) AS Last_Reported_Date,
+    Crime_Type,
+    RANK() OVER(PARTITION BY Area_# ORDER BY COUNT(Crime_ID) DESC) AS Crime_Type_Rank
+  FROM philly_crime_data
+  GROUP BY Area_#, Crime_Type
+),
+crime_percent_change AS (
+  SELECT
+    Area_#, 
+    Crime_Type,
+    LAG(COUNT(Crime_ID), 1) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date) AS Prev_Week_Count,
+    COUNT(Crime_ID) AS Current_Week_Count
+  FROM philly_crime_data
+  WHERE WEEKOFYEAR(Crime_Date) = WEEKOFYEAR(CURRENT_DATE)
+  GROUP BY Area_, Crime_Type
+),
+weekly_increase AS (
+  SELECT
+    Area_#,
+    Crime_Type,
+    ((Current_Week_Count - Prev_Week_Count) * 100) / NULLIF(Prev_Week_Count, 0) AS Weekly_Increase_Percentage
+  FROM crime_percent_change
+)
+
+SELECT 
+  cs.Area_#,
+  cs.Total_Crime_Count,
+  cs.Last_Reported_Date,
+  cs.Crime_Type AS Most_Common_Crime_Type,
+  ws.Weekly_Increase_Percentage
+FROM crime_stats cs
+LEFT JOIN weekly_increase ws
+  ON cs.Area_# = ws.Area_# AND cs.Crime_Type = ws.Crime_Type
+WHERE cs.Crime_Type_Rank = 1;
+```
+
+This query first calculates the total crime count, last reported date of any crime, and the most common crime type for each area of Philly using the `crime_stats` CTE. Then, it calculates the weekly increase in crimes by percentage using the `crime_percent_change` and `weekly_increase` CTEs. Finally, the query selects all required columns for each area. 
+
+The `LAG()` function is used in `crime_percent_change` CTE to get the previous week's crime count in order to calculate the current week's increase percentage. The `NULLIF()` function is used to handle the case where there were no crimes the previous week, which avoids division by zero errors.","SELECT Area_#,
+       COUNT(*) AS TotalCrimeCount,
+       MAX(Crime_Date) AS LastReportedDate,
+       MAX(Crime_Type) AS MostCommonCrimeType,
+       ROUND(SUM(CASE WHEN DATE_PART('day', Crime_Date) - DATE_PART('day', lag(Crime_Date) OVER (PARTITION BY Area_# ORDER BY Crime_Date)) = 7 THEN (CASE WHEN COUNT(*) - lag(COUNT(*)) OVER (PARTITION BY Area_# ORDER BY Crime_Date) > 0 THEN (COUNT(*) - lag(COUNT(*)) OVER (PARTITION BY Area_# ORDER BY Crime_Date)) / lag(COUNT(*)) OVER (PARTITION BY Area_# ORDER BY Crime_Date) ELSE 0 END END CASE) * 100, 2) AS WeeklyIncreasePercentage
+FROM philly_crime_data
+WHERE Area_# = 'Philly'
+GROUP BY Area_#","```sql
+SELECT c.Area_#,
+       COUNT(*) AS Total_Crime_Count,
+       MAX(c.Crime_Date) AS Last_Reported_Date,
+       MAX(c.Crime_Type) AS Most_Common_Crime_Type,
+       ROUND(100 * (COUNT(*) - LAG(COUNT(*), 7) OVER (ORDER BY c.Crime_Date)) / LAG(COUNT(*), 7) OVER (ORDER BY c.Crime_Date), 2) AS Weekly_Increase_Percentage
+FROM philly_crime_data c
+GROUP BY c.Area_#
+ORDER BY c.Area_#;
+```","```sql
+WITH CrimeCounts AS (
+  SELECT
+    Area_#,
+    COUNT(Crime_ID) AS Total_Crime_Count,
+    MAX(Crime_Date) AS Last_Crime_Date,
+    Crime_Type AS Crime_Type_Reported
+  FROM philly_crime_data
+  GROUP BY Area_#, Crime_Type
+),
+WeekdayCrimeChange AS (
+  SELECT 
+    Area_#,
+    DAYOFWEEK(Crime_Date) AS DayofWeek,
+    COUNT(Crime_ID) AS CrimeCount
+  FROM philly_crime_data
+  GROUP BY Area_#, DayofWeek
+)
+SELECT
+  cc.Area_#, 
+  cc.Total_Crime_Count,
+  cc.Last_Crime_Date,
+  cc.Crime_Type_Reported,
+  
+  --  Most Common Crime Type for each Area 
+  (SELECT Crime_Type 
+   FROM CrimeCounts  
+   WHERE Area_# = cc.Area_# 
+   ORDER BY COUNT(Crime_ID) DESC
+   LIMIT 1) AS Most_Common_Crime_Type,
+
+  -- Weekly Crime Increase Percentage
+  -- Assuming you need percentage increase from the previous week (adapt if needed)
+  (wcc.CrimeCount - lag(wcc.CrimeCount, 1) OVER (PARTITION BY wcc.Area_# ORDER BY wcc.DayofWeek) ) * 100.0 /  lag(wcc.CrimeCount, 1) OVER (PARTITION BY wcc.Area_# ORDER BY wcc.DayofWeek) AS WeeklyIncreasePercentage
+FROM CrimeCounts cc
+LEFT JOIN WeekdayCrimeChange wcc ON cc.Area_# = wcc.Area_# AND cc.Crime_Type_Reported = wcc.CrimeType
+ORDER BY cc.Area_#;
+
+```
+
+**Explanation:**
+
+1. **`CrimeCounts` CTE:**
+   - Calculates the total crime count, last crime date, and reported crime type for each area.
+   - `GROUP BY Area_#, Crime_Type` groups the data by area and crime type for aggregation.
+
+2. **`WeekdayCrimeChange` CTE:**
+   - Calculates the crime count for each day of the week (Sunday = 1, Saturday = 7) within each area.
+   - This is required to calculate the weekly change percentage.
+
+3. **Main `SELECT` Statement:**
+   - Joins `CrimeCounts` and `WeekdayCrimeChange` to combine the data.
+   - Selects the area number, total crime count, last crime date, reported crime type.
+   - **Calculates Most Common Crime Type:**
+     - Uses a subquery to find the most frequent crime type within each area based on count.
+   - **Calculates Weekly Increase Percentage:**
+     - Uses the `lag()` window function to get the crime count from the previous week.
+     - Calculates the percentage increase using the formula:
+       `(current_week_count - previous_week_count) / previous_week_count * 100`.
+
+**Important Notes:**
+
+- **Date Format:** Make sure the `Crime_Date` column in your table is in a consistent date format that SQL understands.
+- **Weekly Trend:** This query assumes a Sunday-to-Saturday week. You might need to adjust the column reference `DayofWeek` or the logic if your week definition is different.
+
+
+
+Let me know if you have any other SQL queries you'd like help with!","To generate the SQL query, I'll need to understand the specific areas of Philly you're interested in. Could you provide me with the area IDs or names?","I will provide a SQL query to get most of the information you requested, except for the ""weekly increase in crimes by percentage"". This is because we don't have enough data to calculate a meaningful weekly increase. Here's the SQL query:
+
+```sql
+SELECT 
+    Area_#,
+    COUNT(Crime_ID) AS total_crime_count,
+    MAX(Crime_Date) AS last_reported_date,
+    (SELECT Crime_Type FROM philly_crime_data WHERE Area_# = area_data.Area_# AND Crime_Date = area_data.last_reported_date LIMIT 1) AS last_crime_type,
+    (SELECT Crime_Type FROM (
+        SELECT Crime_Type, COUNT(*) as crime_count
+        FROM philly_crime_data
+        WHERE Area_# = area_data.Area_#
+        GROUP BY Crime_Type
+        ORDER BY crime_count DESC
+        LIMIT 1
+    ) as subquery) AS most_common_crime_type
+FROM (
+    SELECT Area_#, MAX(Crime_Date) AS last_reported_date
+    FROM philly_crime_data
+    GROUP BY Area_#
+) as area_data
+GROUP BY Area_#;
+```
+
+The query does the following:
+
+1. Finds the most recent crime date and total crime count for each area by using the subquery `area_data`
+2. Joins that information with the original table to get the last crime type for each area
+3. Uses another subquery to find the most common crime type for each area"
+"For each crime type in LA, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Total_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(a.Crime_Date) AS Last_Date_Reported,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(a.Area_Name) AS Last_Area_Reported,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM la_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data a
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name AS Most_Common_Area
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type, Area_Name
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_areas
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000Ãƒâ€šÃ‚Â° N; 118.26280000Ãƒâ€šÃ‚Â° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000Ãƒâ€šÃ‚Â° N; 118.30020000Ãƒâ€šÃ‚Â° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000Ãƒâ€šÃ‚Â° N; 118.43870000Ãƒâ€šÃ‚Â° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000Ãƒâ€šÃ‚Â° N; 118.32770000Ãƒâ€šÃ‚Â° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000Ãƒâ€šÃ‚Â° N; 118.24630000Ãƒâ€šÃ‚Â° W"," Here's an SQL query that fulfills the request:
+
+```sql
+WITH crimes_by_week AS (
+  SELECT 
+    Crime_Type,
+    EXTRACT(WEEK FROM Crime_Date) AS week_of_year,
+    COUNT(*) OVER(PARTITION BY Crime_Type, EXTRACT(WEEK FROM Crime_Date)) AS crime_count,
+    ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY Crime_Date DESC) AS rn
+  FROM 
+    la_crime_data
+  WHERE 
+    Area_Name = 'LA'
+),
+crime_week_comparison AS (
+  SELECT
+    c1.Crime_Type,
+    c1.week_of_year,
+    c1.crime_count,
+    LAG(c1.crime_count) OVER (PARTITION BY c1.Crime_Type ORDER BY c1.week_of_year) AS prev_week_count,
+    (c1.crime_count - COALESCE(LAG(c1.crime_count) OVER (PARTITION BY c1.Crime_Type ORDER BY c1.week_of_year), 0)) / COALESCE(LAG(c1.crime_count) OVER (PARTITION BY c1.Crime_Type ORDER BY c1.week_of_year), 1) AS week_increase_percentage
+  FROM 
+    crimes_by_week c1
+),
+most_common_areas AS (
+  SELECT
+    Crime_Type,
+    Area_Name,
+    COUNT(*) OVER (PARTITION BY Crime_Type, Area_Name) AS count_in_area,
+    ROW_NUMBER() OVER (PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS rn_in_type
+  FROM
+    la_crime_data
+),
+top_crimes_data AS (
+  SELECT
+    c.Crime_Type,
+    COUNT(*) AS total_count,
+    MAX(c.Date_Reported) AS last_reported_date,
+    MAX(CASE WHEN m.rn_in_type = 1 THEN m.Area_Name END) AS most_common_area,
+    cw.week_increase_percentage
+  FROM
+    la_crime_data c
+  LEFT JOIN
+    most_common_areas m ON c.Crime_Type = m.Crime_Type AND c.Area_Name = m.Area_Name
+  LEFT JOIN
+    crime_week_comparison cw ON c.Crime_Type = cw.Crime_Type AND c.Date_Reported = cw.week_of_year
+  GROUP BY
+    c.Crime_Type,
+    cw.week_increase_percentage
+)
+SELECT 
+  Crime_Type,
+  total_count,
+  last_reported_date,
+  first_value(Address) OVER (PARTITION BY Crime_Type ORDER BY Date_Reported DESC) AS last_reported_area,
+  most_common_area,
+  week_increase_percentage
+FROM 
+  top_crimes_data
+WHERE 
+  rn_in_type = 1
+ORDER BY 
+  Crime_Type;
+```
+
+This SQL query uses several Common Table Expressions (CTEs) to divide the work into manageable parts. It first calculates the crime count by week and assigns row numbers based on the recentness of the report. Then, it calculates the week-over-week percentage increase in the crime count using the LAG window function. It also determines the most common area for each crime type using the ROW_NUMBER() window function. Finally, the query groups data into the final output table and applies the first_value() window function to get the last reported area for each crime type. The output is sorted by Crime_Type.","SELECT 
+    Crime_Type, 
+    COUNT(Crime_Type) AS Total_Count, 
+    MAX(Date_Reported) AS Last_Reported_Date, 
+    Area_Name AS Last_Reported_Area, 
+    (
+        SELECT 
+            Area_Name 
+        FROM
+            la_crime_data 
+        WHERE
+            Crime_Type = (SELECT MAX(Crime_Type) FROM la_crime_data) 
+        LIMIT 1
+    ) AS Most_Common_Area, 
+    ((
+        SELECT 
+            COUNT(Crime_Type) 
+        FROM
+            la_crime_data 
+        WHERE
+            Week(Date_Reported) = (SELECT MAX(Week(Date_Reported)) FROM la_crime_data)) - 
+        (
+        SELECT 
+            COUNT(Crime_Type) 
+        FROM
+            la_crime_data 
+        WHERE
+            Week(Date_Reported - INTERVAL 1 WEEK) = (SELECT MAX(Week(Date_Reported - INTERVAL 1 WEEK)) FROM la_crime_data)) * 100 / 
+        (
+        SELECT 
+            COUNT(Crime_Type) 
+        FROM
+            la_crime_data 
+        WHERE
+            Week(Date_Reported - INTERVAL 1 WEEK) = (SELECT MAX(Week(Date_Reported - INTERVAL 1 WEEK)) FROM la_crime_data))
+        AS Percentage_Increase_In_This_Crime_Type_By_Week 
+FROM
+    la_crime_data 
+GROUP BY 
+    Crime_Type;","```sql
+WITH weekly_counts AS (
+    SELECT DATE_FORMAT(c.Date_Reported, '%Y-%m-%W') AS week,
+           c.Crime_Type,
+           COUNT(*) AS count
+    FROM la_crime_data c
+    GROUP BY c.Crime_Type, week
+)
+
+SELECT ct.Crime_Type,
+       COUNT(wc.count) AS total_count,
+       MAX(ld.Date_Reported) AS last_reported_date,
+       ld.Area_Name AS last_reported_area,
+       MAX(la.Area_Name) AS most_common_area,
+       ((COUNT(wc.count) - LAG(COUNT(wc.count), 1) OVER (ORDER BY wc.week)) * 100.0 / LAG(COUNT(wc.count), 1) OVER (ORDER BY wc.week)) AS weekly_increase
+FROM weekly_counts wc
+JOIN la_crime_data la ON la.Crime_ID = wc.Crime_Type
+GROUP BY ct.Crime_Type
+ORDER BY ct.Crime_Type;
+```","While I can help you structure the query, pulling the exact ""percentage increase by week"" requires more information and potentially the calculation to be performed outside the SQL query.  However, I can give you the foundation to calculate most of what you requested. 
+
+Here's a SQL query to get most of the information you need:
+
+```sql
+WITH CrimeCounts AS (
+    SELECT
+        Crime_Type,
+        COUNT(*) AS Total_Count,
+        MAX(Date_Reported) AS Last_Reported_Date,
+        MAX(Area_Name) AS Last_Reported_Area  
+    FROM
+        la_crime_data
+    GROUP BY 
+        Crime_Type
+),
+MostCommonAreas AS (
+    SELECT
+        Crime_Type,
+        Area_Name,
+        COUNT(*) AS Total_Instances
+    FROM
+        la_crime_data
+    GROUP BY
+        Crime_Type, Area_Name
+    HAVING 
+        COUNT(*) = (SELECT MAX(COUNT(*)) FROM la_crime_data GROUP BY Crime_Type, Area_Name)
+) 
+SELECT 
+    cc.Crime_Type,
+    cc.Total_Count,
+    cc.Last_Reported_Date,
+    cc.Last_Reported_Area,
+    mca.Area_Name AS MostCommonArea
+FROM CrimeCounts cc
+LEFT JOIN MostCommonAreas mca ON cc.Crime_Type = mca.Crime_Type;    
+```
+
+**Explanation:**
+
+1. **`WITH` Clauses:**
+   - **`CrimeCounts`:** Calculates the total count, last reported date, and last reported area for each crime type.
+   - **`MostCommonAreas`:** Finds the most common area for each crime type by grouping by `Crime_Type` and `Area_Name`, and selecting the area with the maximum count for each `Crime_Type`.
+
+2. **Final `SELECT` Statement:**
+   - Joins the `CrimeCounts` and `MostCommonAreas` CTEs based on `Crime_Type`.
+   - Retrieves the desired information: `Crime_Type`, total count, last reported date, last reported area, and the most common area.
+
+**To calculate the weekly percentage increase, you'd need to:**
+
+1. Group the data by week (using a function like `DATE_TRUNC('week', Date_Reported)`).
+2. Calculate the difference in counts between consecutive weeks.
+3. Divide the difference by the previous week's count to get the percentage change.  This is best done using tools outside of pure SQL (like Python or a data visualization tool) to handle the weekly groupings and calculations.","To fulfill the request, I'll need to join the `la_crime_data` table with itself to compare weekly counts. This will involve a self-join with a week-based filter. Let's start with the first part, which is to get the total count, last reported date, and last reported area for each crime type. Here's the SQL query for that:
+
+```sql
+SELECT 
+    Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(Date_Reported) AS Last_Reported_Date,
+    MAX(Area_Name) AS Last_Reported_Area
+FROM 
+    la_crime_data
+GROUP BY 
+    Crime_Type;
+```
+
+This query will give us the total count, last reported date, and last reported area for each crime type. Once we have this, we can proceed with the self-join for the weekly comparison.","Here's an SQL query that fulfills the request. However, please note that this query might not be the most efficient one because it involves multiple subqueries and calculations. Also, it's assumed that the table has a column for the week of the crime report (e.g. extracting the week from the `Date_Reported` using a function such as `EXTRACT(WEEK FROM Date_Reported)` in PostgreSQL or `WEEKOFYEAR(Date_Reported)` in MySQL).
+
+```sql
+SELECT 
+  Crime_Type,
+  COUNT(*) AS total_count,
+  MAX(Date_Reported) AS last_reported_date,
+  Area_Name AS last_reported_area,
+  (SELECT Area_Name 
+   FROM la_crime_data 
+   WHERE Crime_Type = cte.Crime_Type 
+   GROUP BY Area_Name, Crime_Type 
+   ORDER BY COUNT(*) DESC 
+   LIMIT 1) AS most_common_area,
+  ROUND(100.0 * (SUM(CASE WHEN cte.this_week = 1 THEN 1 ELSE 0 END) - SUM(CASE WHEN cte.prev_week = 1 THEN 1 ELSE 0 END)) / SUM(CASE WHEN cte.prev_week = 1 THEN 1 ELSE 0 END), 2) AS pct_increase_by_week
+FROM (
+  SELECT 
+    Crime_Type,
+    Date_Reported,
+    Area_Name,
+    EXTRACT(WEEK FROM Date_Reported) AS this_week,
+    EXTRACT(WEEK FROM DATE_SUB(Date_Reported, INTERVAL 7 DAY)) AS prev_week
+  FROM la_crime_data
+  WHERE Area_Name IS NOT NULL
+) cte
+GROUP BY Crime_Type
+ORDER BY total_count DESC;
+```
+
+This query calculates the:
+
+1. total count of each crime type
+2. the date of the most recent crime report
+3. the last reported area for each crime type
+4. the most common area for each crime type
+5. the percentage increase in each crime type by week
+
+The subquery (cte) calculates the week number for each crime report, and the main query aggregates the results.
+
+The percentage increase in each crime type by week is calculated as:
+`(this_week - prev_week) / prev_week * 100`
+
+Please adjust the week calculations based on the SQL variant you're using. The provided query may work with slight modifications in PostgreSQL and MySQL. For other SQL variants, you may need to use different functions or syntax for extracting the week and subtracting dates."
+"For each crime type in New York, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Total_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(a.Crime_Date) AS Last_Date_Reported,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(a.Area_Name) AS Last_Area_Reported,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM nyc_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â nyc_crime_data a
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name AS Most_Common_Area
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Area_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â nyc_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type, Area_Name
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_areas
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867Ãƒâ€šÃ‚Â° N; 73.87212505Ãƒâ€šÃ‚Â° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000Ãƒâ€šÃ‚Â° N; 73.86340000Ãƒâ€šÃ‚Â° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ;Ãƒâ€šÃ‚Â 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ;Ãƒâ€šÃ‚Â 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ;Ãƒâ€šÃ‚Â "," Here is a SQL query that might fulfill your request:
+
+Please note that calculating the percentage increase in the crime rate by week might be complicated because it requires having data for multiple weeks. In this SQL query, I'm assuming we have access to weekly data and will be using the 'LAG' function to get the previous week's data for comparison. If that's not your case, you might need to adjust the query or use a different strategy to calculate this.
+
+```sql
+WITH crime_count_by_week AS (
+    SELECT 
+        Crime_Type,
+        Extract(week from Crime_Date) as Week_Number,
+        Count(*) as Crime_Count
+    FROM 
+        nyc_crime_data
+    WHERE 
+        Crime_Type IS NOT NULL
+    GROUP BY
+        Crime_Type, 
+        Week_Number
+),
+percentage_increase_by_week AS (
+    SELECT 
+        Crime_Type,
+        Week_Number,
+        LAG(Crime_Count, 1) OVER (PARTITION BY Crime_Type ORDER BY Week_Number) as Previous_Week_Count,
+        Crime_Count,
+        (Crime_Count::float - COALESCE(Previous_Week_Count, Crime_Count)) / COALESCE(Previous_Week_Count, 1) as Percentage_Increase
+    FROM
+        crime_count_by_week
+),
+crime_aggregates AS (
+    SELECT 
+        Crime_Type,
+        Sum(Crime_Count) as Total_Count,
+        Max(Crime_Date) as Last_Reported_Date,
+        Max(Area_Name) as Last_Reported_Area,
+        Max(Crime_Count) OVER(PARTITION BY Crime_Type ORDER BY Crime_Count DESC) as Most_Common_Area_Count
+    FROM
+        nyc_crime_data
+    GROUP BY
+        Crime_Type
+)
+SELECT 
+    cga.Crime_Type,
+    cga.Total_Count,
+    cga.Last_Reported_Date,
+    cga.Last_Reported_Area,
+    MAX(CASE WHEN cgs.Most_Common_Area_Count = cga.Total_Count THEN cpw.Area_Name ELSE NULL END) as Most_Common_Area,
+    MAX(cpw.Percentage_Increase) as Percentage_Increase_by_Week
+FROM 
+    crime_aggregates cga
+LEFT JOIN 
+    crime_aggregates cgs ON cga.Crime_Type = cgs.Crime_Type
+LEFT JOIN
+    percentage_increase_by_week cpw ON cga.Crime_Type = cpw.Crime_Type
+GROUP BY
+    cga.Crime_Type, 
+    cga.Total_Count, 
+    cga.Last_Reported_Date, 
+    cga.Last_Reported_Area
+;
+```
+
+This query performs several tasks:
+
+1. Calculates the total crime count, last reported date, and last reported area for each crime type.
+2. Constructs a percentage increase calculation using a window function (LAG), assuming weekly data.
+3. Aggregates data in various ways to determine total counts per crime type, while the common area is determined by finding the area with the maximum count.
+4. The final SELECT ensures we get the format of each crime type and their respective details even if there was no increase in crime or if there was no most common area (zero increase/no area with the highest count).","SELECT Crime_Type, 
+       COUNT(*) as Total_Count,
+       MAX(Crime_Date) as Last_Reported_Date,
+       MAX(Area_Name) as Last_Reported_Area,
+       (SELECT Area_Name 
+        FROM nyc_crime_data   
+        WHERE Crime_Class = Crime_Type 
+        GROUP BY Area_Name
+        ORDER BY COUNT(*) DESC 
+        LIMIT 1) as Most_Common_Area,
+       (SELECT COUNT(*) 
+        FROM nyc_crime_data as D1 
+        JOIN nyc_crime_data as D2 
+        ON D1.Report_# < D2.Report_#
+        WHERE D1.Crime_Class = Crime_Type AND D2.Crime_Class = Crime_Type AND D2.Report_# = D1.Report_# + 7
+        GROUP BY D1.Crime_Type) as Percentage_Increase_Last_Week
+FROM nyc_crime_data 
+WHERE Crime_Class IN 
+    (SELECT Crime_Class 
+     FROM nyc_crime_data 
+     WHERE Area_Name = 
+        (SELECT Area_Name 
+         FROM nyc_crime_data 
+         WHERE City = 'New York')
+     GROUP BY Crime_Class
+     ORDER BY COUNT(*) DESC)
+GROUP BY Crime_Type;","```SQL
+WITH WeeklyStats AS (
+    SELECT DATE_FORMAT(c.Crime_Date, '%Y-%W') AS Week,
+           c.Crime_Type,
+           COUNT(*) AS CrimeCount
+    FROM nyc_crime_data c
+    WHERE c.City = 'New York'
+    GROUP BY c.Crime_Type, Week
+)
+
+SELECT w.Crime_Type,
+       COUNT(w.CrimeCount) AS TotalCount,
+       MAX(c.Crime_Date) AS LastReportedDate,
+       MAX(c.Area_Name) AS LastReportedArea,
+       MAX(ca.Area_Name) AS MostCommonArea,
+       ((COUNT(w.CrimeCount) - LAG(COUNT(w.CrimeCount), 1) OVER (ORDER BY w.Week)) / LAG(COUNT(w.CrimeCount), 1) OVER (ORDER BY w.Week)) * 100 AS WeeklyIncrease
+FROM WeeklyStats w
+JOIN nyc_crime_data c ON w.Crime_Type = c.Crime_Type AND w.Week = DATE_FORMAT(c.Crime_Date, '%Y-%W')
+JOIN (SELECT Crime_Type, Area_Name, COUNT(*) AS AreaCount
+      FROM nyc_crime_data
+      GROUP BY Crime_Type, Area_Name) ca ON w.Crime_Type = ca.Crime_Type
+GROUP BY w.Crime_Type
+ORDER BY w.Crime_Type;
+```","```sql
+WITH WeeklyCrimeCounts AS (
+
+    -- Calculate weekly crime counts for each crime type
+    SELECT 
+        Crime_Type,
+        DATE_TRUNC('week', Crime_Date) AS WeekDate, -- Extract week number
+        COUNT(*) AS CrimeCount
+    FROM nyc_crime_data
+    GROUP BY 1, 2
+),
+LastReportedAreas AS (
+    SELECT 
+        Crime_Type,
+        MAX(Crime_Date) AS LastReportedDate,
+        Area_Name AS LastReportedArea 
+    FROM nyc_crime_data
+    GROUP BY 1
+)
+
+SELECT 
+    wc.Crime_Type,  
+    wc.CrimeCount, -- Total count for each crime type
+    lr.LastReportedDate, 
+    lr.LastReportedArea, -- Last reported date and area
+    (
+        -- Calculate most common area (this assumes you want to find the area with the highest crime count)
+        SELECT Area_Name 
+        FROM nyc_crime_data
+        WHERE Crime_Type = wc.Crime_Type 
+        GROUP BY Area_Name
+        ORDER BY COUNT(*) DESC
+        LIMIT 1 
+    ) AS MostCommonArea, 
+    -- Calculate percentage increase by week.  This requires more data points over time
+    -- currently this query will just show the total count for each type.
+
+FROM 
+    WeeklyCrimeCounts wc
+JOIN
+    LastReportedAreas lr ON wc.Crime_Type = lr.Crime_Type;     
+``` 
+
+
+**Explanation:**
+
+1. **Common Table Expressions (CTEs):**  
+   - The query uses CTEs (`WeeklyCrimeCounts` and `LastReportedAreas`) to break down the complex logic into more manageable chunks. CTEs are temporary named result sets.
+
+2. **`WeeklyCrimeCounts` CTE:**
+   - Calculates the weekly crime counts for each crime type.
+   - `DATE_TRUNC('week', Crime_Date)`  groups crimes by the start of the week (sunday).
+
+3. **`LastReportedAreas` CTE:**
+   - Finds the last reported date and area for each crime type.
+
+4. **Main Query:**
+   - Joins the `WeeklyCrimeCounts` and `LastReportedAreas` CTEs to combine the data.
+   - Selects relevant columns, including the crime type, total count, last reported date, last reported area, and the most common area for each type.
+   - **Note on Missing Week-by-Week Increase:**  Calculating the percentage increase by week requires more historical data. You'd need to track crime counts over multiple weeks for each crime type to make accurate comparisons.
+
+
+
+**To use this query:**
+
+- Replace `nyc_crime_data` with the actual name of your table.
+- Execute the query in your SQL environment.  
+
+**Remember**:
+
+- This query assumes you have data spanning at least multiple weeks to accurately calculate week-by-week crime increases.","To generate the SQL query, I'll need to understand the specific crime type you're interested in. Could you specify the crime type you want to analyze?","To fulfill this request, we'll need to write a somewhat complex SQL query that involves multiple subqueries and aggregate functions. Here's a possible solution:
+
+```sql
+WITH total_crime_count AS (
+  SELECT Crime_Type, COUNT(*) AS total_count
+  FROM nyc_crime_data
+  WHERE Crime_Class = 'FELONY' AND Crime_Date <= CURDATE()
+  GROUP BY Crime_Type
+),
+last_reported_date AS (
+  SELECT Crime_Type, MAX(Crime_Date) AS last_reported_date
+  FROM nyc_crime_data
+  WHERE Crime_Class = 'FELONY'
+  GROUP BY Crime_Type
+),
+last_reported_area AS (
+  SELECT c1.Crime_Type, c1.Area_Name
+  FROM nyc_crime_data c1
+  JOIN (
+    SELECT Crime_Type, MAX(Crime_Date) AS max_date
+    FROM nyc_crime_data
+    WHERE Crime_Class = 'FELONY'
+    GROUP BY Crime_Type
+  ) c2
+  ON c1.Crime_Type = c2.Crime_Type AND c1.Crime_Date = c2.max_date
+),
+most_common_area AS (
+  SELECT Crime_Type, Area_Name, COUNT(*) AS count
+  FROM nyc_crime_data
+  WHERE Crime_Class = 'FELONY'
+  GROUP BY Crime_Type, Area_Name
+  ORDER BY total_count DESC
+  LIMIT 1
+),
+weekly_crime_count AS (
+  SELECT Crime_Type, COUNT(*) AS weekly_count
+  FROM nyc_crime_data
+  WHERE Crime_Class = 'FELONY' AND Crime_Date >= CURDATE() - INTERVAL 7 DAY
+  GROUP BY Crime_Type
+)
+SELECT
+  t.Crime_Type,
+  t.total_count,
+  ld.last_reported_date,
+  la.Area_Name AS last_reported_area,
+  mca.Area_Name AS most_common_area,
+  ROUND(100.0 * (wc.weekly_count - tc.total_count) / tc.total_count, 2) AS percentage_increase
+FROM
+  total_crime_count t
+  JOIN last_reported_date ld ON t.Crime_Type = ld.Crime_Type
+  JOIN last_reported_area la ON t.Crime_Type = la.Crime_Type
+  JOIN most_common_area mca ON t.Crime_Type = mca.Crime_Type
+  JOIN weekly_crime_count wc ON t.Crime_Type = wc.Crime_Type
+  JOIN total_crime_count tc ON t.Crime_Type = tc.Crime_Type;
+```
+
+This query involves six common table expressions (CTEs) to break down the problem into smaller pieces:
+
+1. `total_crime_count` calculates the total count of each crime type.
+2. `last_reported_date` finds the last reported date for each crime type.
+3. `last_reported_area` finds the area where each crime type was last reported.
+4. `most_common_area` finds the most common area for each crime type.
+5. `weekly_crime_count` counts the number of crimes reported for each crime type in the last week.
+6. The final `SELECT` statement joins these CTEs together to get the desired output.
+
+Note that this query uses MySQL syntax and assumes that the `Crime_Date` column is stored as a date type. You may need to adjust the query slightly depending on the specific SQL dialect and table schema you are working with."
+"For each crime type in Philly, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Total_Count,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(a.Crime_Date) AS Last_Date_Reported,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MAX(a.`Area_#`) AS Last_Area_Reported,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM philly_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â philly_crime_data a
+LEFT JOIN (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#` AS Most_Common_Area
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_#`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â philly_crime_data
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type, `Area_#`
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ) ranked_areas
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â a.Crime_Type ASC;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059Ãƒâ€šÃ‚Â° W; 39.98584130Ãƒâ€šÃ‚Â° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260Ãƒâ€šÃ‚Â° W; 40.04046800Ãƒâ€šÃ‚Â° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032Ãƒâ€šÃ‚Â° W; 40.03096295Ãƒâ€šÃ‚Â° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850Ãƒâ€šÃ‚Â° W; 39.98460303Ãƒâ€šÃ‚Â° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745Ãƒâ€šÃ‚Â° W; 40.02040272Ãƒâ€šÃ‚Â° N"," Here is one way to write the SQL query:
+
+```sql
+WITH crime_summary AS (
+  SELECT 
+    Crime_Type,
+    COUNT(*) AS total_count,
+    MAX(Crime_Date) AS last_reported_date,
+    MAX(Area_#) AS last_reported_area
+  FROM 
+    philly_crime_data
+  GROUP BY 
+    Crime_Type
+),
+common_area AS (
+  SELECT 
+    Crime_Type, 
+    Area_# AS most_common_area
+  FROM
+    (SELECT 
+      Crime_Type,
+      Area_#,
+      RANK() OVER (PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS area_rank
+    FROM 
+      philly_crime_data
+    GROUP BY 
+      Crime_Type, Area_#) subquery
+  WHERE 
+    area_rank = 1
+),
+percent_increase AS (
+  SELECT
+    Crime_Type,
+    (EXTRACT(WEEK FROM MAX(Crime_Date)) - EXTRACT(WEEK FROM MIN(Crime_Date))) / EXTRACT(WEEK FROM MIN(Crime_Date)) * 100 AS percentage_increase
+  FROM
+    philly_crime_data
+  GROUP BY 
+    Crime_Type
+)
+SELECT 
+  cs.Crime_Type,
+  cs.total_count,
+  cs.last_reported_date,
+  cs.last_reported_area,
+  ca.most_common_area,
+  COALESCE(pi.percentage_increase, 0) AS percentage_increase_by_week
+FROM 
+  crime_summary cs
+JOIN 
+  common_area ca ON cs.Crime_Type = ca.Crime_Type
+LEFT JOIN 
+  percent_increase pi ON cs.Crime_Type = pi.Crime_Type
+ORDER BY
+  cs.Crime_Type 
+```
+
+This SQL query starts by creating three Common Table Expressions (CTEs): `crime_summary`, `common_area`, and `percent_increase`.
+
+- In the `crime_summary` CTE, we select the crime type, count the total number of crimes for each type, and determine the maximum (latest) crime date and area number (for the last reported area).
+- In the `common_area` CTE, we rank the areas by the number of crimes for each type, using the `RANK()` window function. Then, we filter for the top-ranked area, which is the most common area for each crime type.
+- In the `percent_increase` CTE, we calculate the percentage increase in crime occurrences by week using the `EXTRACT()` function and the formula `(MAX(WEEK) - MIN(WEEK)) / MIN(WEEK) * 100`.
+
+Finally, we select the data from the three CTEs, joining them by the `Crime_Type` column. We also handle cases where the percentage increase might be missing by applying the `COALESCE()` function, which replaces null values with zero.","SELECT 
+  Crime_Type, 
+  COUNT(Crime_Type) AS Total_Count, 
+  MAX(Crime_Date) AS Last_Reported_Date, 
+  MAX(Area_#) AS Last_Reported_Area,
+  (SELECT COUNT(*) FROM philly_crime_data WHERE Crime_Type=z AND Area_# = (SELECT MAX(Area_#) FROM philly_crime_data WHERE Crime_Type=z)) AS Most_Common_Area_For_Crime_Type,
+  ((COUNT(Crime_Type) - LAG(COUNT(Crime_Type)) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date))/LAG(COUNT(Crime_Type)) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date))*100 AS Percentage_Increase_in_Crime_Type_ByWeek
+FROM
+  philly_crime_data
+WHERE
+  YEAR(Crime_Date) = YEAR(CURRENT_DATE)
+GROUP BY 
+  Crime_Type;","```sql
+WITH WeeklyCounts AS (
+    SELECT
+        ct.Crime_Type,
+        YEAR(cr.Crime_Date) * 100 + WEEK(cr.Crime_Date) AS Week,
+        COUNT(*) AS CrimeCount
+    FROM philly_crime_data AS cr
+    JOIN crime_types AS ct ON cr.Crime_Type = ct.Crime_Type
+    GROUP BY ct.Crime_Type, Week
+)
+
+SELECT
+    ct.Crime_Type,
+    COUNT(pc.Crime_ID) AS TotalCount,
+    MAX(pc.Crime_Date) AS LastReportedDate,
+    MAX(pc.Area_) AS LastReportedArea,
+    MAX(a.Area_) AS MostCommonArea,
+    ((COUNT(pc.Crime_ID) - wo.CrimeCount) / wo.CrimeCount) * 100 AS `% Increase`
+FROM philly_crime_data AS pc
+JOIN WeeklyCounts AS wo ON pc.Crime_Date >= DATE_SUB(wo.Crime_Date, INTERVAL 7 DAY) AND pc.Crime_Date <= wo.Crime_Date
+JOIN crime_types AS ct ON pc.Crime_Type = ct.Crime_Type
+JOIN areas AS a ON pc.Area_ = a.Area_
+GROUP BY ct.Crime_Type
+ORDER BY ct.Crime_Type;
+```","It's challenging to provide a precise SQL query to fulfill this request without knowing the exact implementations of your database and how ""most common area"" is defined. 
+
+However, I can give you a structured query that addresses most of the points and you can modify it based on your specific requirements and table structure. 
+
+```sql
+WITH CrimeSummary AS (
+    SELECT 
+        Crime_Type,
+        COUNT(Crime_ID) AS Total_Count,
+        MAX(Crime_Date) AS Last_Reported_Date,  
+        MAX(Area_#) AS Last_Reported_Area
+    FROM philly_crime_data
+    GROUP BY Crime_Type
+),
+AreaFrequency AS (
+    SELECT 
+        Crime_Type,
+        Area_#,
+        COUNT(*) AS Occurrence_Count
+    FROM philly_crime_data
+    GROUP BY Crime_Type, Area_#
+)
+SELECT 
+    CS.Crime_Type,
+    CS.Total_Count,
+    CS.Last_Reported_Date,
+    CS.Last_Reported_Area,
+    (
+        SELECT Area_# 
+        FROM AreaFrequency
+        WHERE Crime_Type = CS.Crime_Type
+        ORDER BY Occurrence_Count DESC 
+        LIMIT 1
+    ) AS Most_Common_Area  
+FROM CrimeSummary CS;
+```
+
+**Explanation:**
+
+1. **CrimeSummary CTE:**
+   - Calculates the total count, last reported date, and last reported area for each crime type.
+
+2. **AreaFrequency CTE:**
+   - Calculates the occurrence count of each crime type in each area.
+
+3. **Final SELECT Statement:**
+   - Combines the `CrimeSummary` and `AreaFrequency` results to get the requested information.
+   - Uses a subquery to find the most common area for each crime type (based on highest occurrence count).
+
+**To calculate the percentage increase in crime type by week, you will need:**
+
+- **A Week Column:** Add a column to `philly_crime_data` that represents the week of the year for each report. This might involve date manipulation using functions like `DATE_TRUNC('week', Crime_Date)`.
+- **Group By Week:** Modify the query to group by the week column.
+- **Difference Calculation:** Use comparison functions (e.g., `LAG()`, `LEAD()`) or window functions to calculate the percentage change in crime count between weeks.
+
+Remember to adapt this query to your specific database schema and data format.","To generate the SQL query, I'll need to understand the specific crime types you're interested in. Could you specify which crime types you want to analyze?","To write the SQL query to fulfill the given natural language request, we will need to use various SQL functions such as COUNT, MAX, GROUP BY, and JOIN to get the desired information. Here's the query to get the total count, last reported date, last reported area, and most common area for each crime type in Philly:
+
+```sql
+SELECT Crime_Type,
+       COUNT(*) AS Total_Count,
+       MAX(Crime_Date) AS Last_Reported_Date,
+       MAX(Area_#) AS Last_Reported_Area,
+       (SELECT Area_#
+        FROM philly_crime_data 
+        WHERE Crime_Type = t.Crime_Type
+        GROUP BY Area_#
+        ORDER BY COUNT(*) DESC
+        LIMIT 1) AS Most_Common_Area
+FROM philly_crime_data t
+GROUP BY Crime_Type;
+```
+
+However, calculating the percentage increase in this crime type by week would be much more complicated, as it would require comparing the count of crimes for each type for a specific week with the count for the previous week. Unfortunately, the given table does not include information on weeks or any column to join with a date table. Therefore, it's not possible to provide an SQL query to calculate the percentage increase in this crime type by week with the provided schema.
+
+To calculate the percentage increase in crime types by week, you would need to have a date table with week information (e.g., a separate table with a column for the date of the crime or a timestamp column with date and time information in the same table). Then, you could join the two tables using the date or timestamp information to get the week information and calculate the percentage increase."
+Give count of each crime type for each month in LA.,"SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â MONTH(lcd.Crime_Date) AS Month,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CASEÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BURGLARY' THEN 'BURGLARY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'ROBBERY' THEN 'ROBBERY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ELSE 'Other'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â END AS Crime_Type_Grouped,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Crime_Count
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data lcd
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Month,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type_Grouped
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Month,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type_Grouped;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000Ãƒâ€šÃ‚Â° N; 118.26280000Ãƒâ€šÃ‚Â° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000Ãƒâ€šÃ‚Â° N; 118.30020000Ãƒâ€šÃ‚Â° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000Ãƒâ€šÃ‚Â° N; 118.43870000Ãƒâ€šÃ‚Â° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000Ãƒâ€šÃ‚Â° N; 118.32770000Ãƒâ€šÃ‚Â° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000Ãƒâ€šÃ‚Â° N; 118.24630000Ãƒâ€šÃ‚Â° W"," To fulfill this natural language request, you can use the following SQL query:
+
+```
+SELECT 
+    Crime_Type,
+    EXTRACT(MONTH FROM Crime_Date) AS Month,
+    EXTRACT(YEAR FROM Crime_Date) AS Year,
+    COUNT(*) AS Count
+FROM 
+    la_crime_data
+WHERE 
+    Area_Name = 'Los Angeles'
+GROUP BY
+    Crime_Type,
+    Month,
+    Year
+ORDER BY
+    Year,
+    Month;
+```
+
+This query selects the `Crime_Type`, extracts the `Month` and `Year` from the `Crime_Date`, counts the number of occurrences for each combination of `Crime_Type`, `Month`, and `Year`, and filters the rows where the `Area_Name` is 'Los Angeles'. The result is grouped by `Crime_Type`, `Month`, and `Year`, and ordered by `Year` and `Month`.","SELECT 
+  Crime_Type,
+  DATE_FORMAT(Date_Reported, '%M') as 'Month',
+  COUNT(*) as 'Count'
+FROM 
+  la_crime_data
+WHERE 
+  Area_Name = 'LA'
+GROUP BY 
+  Crime_Type,
+  Month
+ORDER BY 
+  Crime_Type,
+  Month","```sql
+SELECT c.Crime_Type, DATE_FORMAT(c.Crime_Date, '%M') AS Month
+FROM la_crime_data AS c
+WHERE c.Area_Name = 'LA'
+GROUP BY c.Crime_Type, c.Crime_Date
+ORDER BY c.Crime_Type, c.Crime_Date;
+```","```sql
+SELECT
+    strftime('%Y-%m', Crime_Date) AS Crime_Month,
+    Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    la_crime_data
+GROUP BY
+    Crime_Month, Crime_Type
+ORDER BY
+    Crime_Month, Crime_Type;
+``` 
+
+This query will:
+
+1. **Extract the year and month from the `Crime_Date` column** using the `strftime()` function and format it as `YYYY-MM`. We alias this as `Crime_Month`.
+2. **Group the results** by `Crime_Month` and `Crime_Type`.
+3. **Count the number of crimes** for each group using `COUNT(*)` and alias it as `Crime_Count`.
+4. **Order the results** by `Crime_Month` and then `Crime_Type`. 
+
+
+
+Let me know if you have any other SQL requests!","To fulfill your request, I'll need to know the specific months you're interested in. Could you provide those?","To get the count of each crime type for each month in LA, you can use the following SQL query:
+```
+SELECT 
+  DATE_FORMAT(Crime_Date, '%Y-%m') AS Month, 
+  Crime_Type, 
+  COUNT(*) AS Count
+FROM 
+  la_crime_data
+WHERE 
+  Area_Name = 'LA'
+GROUP BY 
+  Month, 
+  Crime_Type;
+```
+This query extracts the month and year from the `Crime_Date` column using the `DATE_FORMAT` function, and then groups the data by month and crime type. The `COUNT` function is used to get the count of records for each group. The `WHERE` clause is used to filter the data for LA only.
+
+Please note that I made the assumption that the `Area_Name` field contains the value 'LA' for crimes that occurred in Los Angeles. If this is not the case, you will need to adjust the `WHERE` clause to correctly filter the data for Los Angeles.
+
+Here is an example of the output you can expect from this query:
+
+| Month | Crime\_Type | Count |
+| --- | --- | --- |
+| 2020-08 | BURGLARY FROM VEHICLE | 1 |
+| 2020-08 | THEFT OF IDENTITY | 1 |
+| 2020-09 | BURGLARY FROM VEHICLE | 1 |
+| 2020-11 | BIKE - STOLEN | 1 |
+| 2020-10 | SHOPLIFTING-GRAND THEFT ($950.01 & OVER) | 1 |
+
+This output shows the count of each crime type for each month in Los Angeles. For example, there was 1 instance of burglary from vehicle in August 2020, and 1 instance of bike theft in November 2020."
+Give count of each crime type for each hour of the day in LA.,"SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FLOOR(lcd.Crime_Time / 100) + 1 AS Hour,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CASEÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BURGLARY' THEN 'BURGLARY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'ROBBERY' THEN 'ROBBERY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ELSE 'Other'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â END AS Crime_Type_Grouped,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Count
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data lcd
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Hour,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type_Grouped
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Hour ASC,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type_Grouped ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000Ãƒâ€šÃ‚Â° N; 118.26280000Ãƒâ€šÃ‚Â° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000Ãƒâ€šÃ‚Â° N; 118.30020000Ãƒâ€šÃ‚Â° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000Ãƒâ€šÃ‚Â° N; 118.43870000Ãƒâ€šÃ‚Â° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000Ãƒâ€šÃ‚Â° N; 118.32770000Ãƒâ€šÃ‚Â° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000Ãƒâ€šÃ‚Â° N; 118.24630000Ãƒâ€šÃ‚Â° W"," Here is an SQL query that can be used to fulfill the given natural language request:
+
+```sql
+SELECT 
+    Crime_Type,
+    EXTRACT(HOUR FROM Crime_Time) AS Hour_of_Day,
+    COUNT(*) AS Crime_Count
+FROM 
+    la_crime_data
+WHERE 
+    Area_Name = 'LA'
+GROUP BY 
+    Crime_Type, Hour_of_Day
+ORDER BY 
+    Crime_Type, Hour_of_Day;
+```
+
+This query extracts the hour of the day from the `Crime_Time` column and groups the records by `Crime_Type` and `Hour_of_Day`. The `COUNT(*)` function is used to count the occurrences of each crime type within each hour of the day in LA. Finally, the records are sorted by `Crime_Type` and `Hour_of_Day`.","SELECT 
+    Crime_Time, 
+    Crime_Type, 
+    COUNT(*) AS count 
+FROM la_crime_data 
+WHERE Area_Name = 'LA'
+GROUP BY 
+    CAST(Crime_Time as TIME), 
+    Crime_Type 
+ORDER BY 
+    CAST(Crime_Time as TIME);","```sql
+SELECT c.Crime_Type, DATE_FORMAT(c.Crime_Time, '%H') AS Hour, COUNT(*) AS Count
+FROM la_crime_data AS c
+WHERE c.City = 'LA'
+GROUP BY c.Crime_Type, c.Crime_Time
+ORDER BY Hour, Crime_Type
+```","```sql
+SELECT
+    strftime('%H', Crime_Time) AS Hour,
+    Crime_Type,
+    COUNT(*) AS CrimeCount
+FROM
+    la_crime_data
+WHERE
+    LEFT(Area_Name, 2) = 'LA' -- Assuming 'LA' indicates crimes in Los Angeles
+GROUP BY
+    Hour, Crime_Type
+ORDER BY
+    Hour, Crime_Type;
+```
+
+**Explanation:**
+
+1. **`SELECT strftime('%H', Crime_Time) AS Hour, Crime_Type, COUNT(*) AS CrimeCount`**: 
+   - Selects the hour extracted from `Crime_Time` using `strftime('%H')` and aliases it as `Hour`.
+   - Selects the `Crime_Type`.
+   - Counts the number of occurrences for each combination of `Hour` and `Crime_Type` using `COUNT(*)` and aliases it as `CrimeCount`.
+
+2. **`FROM la_crime_data`**: Specifies the table to retrieve data from.
+
+3. **`WHERE LEFT(Area_Name, 2) = 'LA'`**: Filters the data to include only crimes where the `Area_Name` starts with 'LA', assuming this indicates crimes in Los Angeles.
+
+4. **`GROUP BY Hour, Crime_Type`**: Groups the results by `Hour` and `Crime_Type` to count crimes for each unique combination.
+
+5. **`ORDER BY Hour, Crime_Type`**: Orders the results first by hour and then alphabetically by crime type for better readability.
+
+
+
+Let me know if you need to modify the filtering criteria or have any other specific requirements!","To fulfill your request, I'll need to aggregate the crime data by hour of the day. Could you specify the time range you're interested in for the LA crime data?","Here is the SQL query to get the count of each crime type for each hour of the day in LA:
+```
+SELECT 
+  DATE_PART('hour', Crime_Time) AS Hour,
+  Crime_Type,
+  COUNT(*) AS Count
+FROM
+  la_crime_data
+WHERE
+  Area_Name = 'LA'
+GROUP BY
+  Hour, Crime_Type
+ORDER BY
+  Hour, Crime_Type;
+```
+This query uses the `DATE_PART` function to extract the hour from the `Crime_Time` column, then groups the results by hour and crime type, and counts the number of occurrences for each group. The results are then ordered by hour and crime type.
+
+Note: This query assumes that the `Crime_Time` column is stored in a time-related data type and that the time is in 24 hour format. Also, the 'LA' value in the `WHERE` clause should be changed to the appropriate value for the area of Los Angeles that you want to consider."
+Give count of each crime type for each day of the week in LA.,"SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â DAYOFWEEK(lcd.Crime_Date) AS Crime_Day_Number,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â DAYNAME(lcd.Crime_Date) AS Crime_Day_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CASEÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BURGLARY' THEN 'BURGLARY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'ROBBERY' THEN 'ROBBERY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN lcd.Crime_Type = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ELSE 'Other'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â END AS Crime_Type_Grouped,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS Crime_Count
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â la_crime_data lcd
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Day_Number,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Day_Name,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type_Grouped
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Day_Number,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Crime_Type_Grouped;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000Ãƒâ€šÃ‚Â° N; 118.26280000Ãƒâ€šÃ‚Â° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000Ãƒâ€šÃ‚Â° N; 118.30020000Ãƒâ€šÃ‚Â° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000Ãƒâ€šÃ‚Â° N; 118.43870000Ãƒâ€šÃ‚Â° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000Ãƒâ€šÃ‚Â° N; 118.32770000Ãƒâ€šÃ‚Â° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000Ãƒâ€šÃ‚Â° N; 118.24630000Ãƒâ€šÃ‚Â° W"," To fulfill the request, we can use the following SQL query:
+
+```sql
+SELECT 
+  DAYNAME(Crime_Date) AS DayOfWeek,
+  Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM 
+  la_crime_data
+WHERE 
+  Area_Name = 'LA'
+GROUP BY 
+  DayOfWeek, Crime_Type
+ORDER BY 
+  DayOfWeek, Crime_Type;
+```
+
+This query does the following:
+1. Filters the data by the 'Area_Name' to be equal to 'LA'.
+2. Uses the `DAYNAME()` function to extract the day of the week from the 'Crime_Date'.
+3. Groups the data by 'DayOfWeek' and 'Crime_Type', which allows us to count the occurrences of each crime type for each day of the week.
+4. Uses the `COUNT(*)` function to calculate the number of crimes for each group.
+5. Orders the results by 'DayOfWeek' and 'Crime_Type' to maintain a consistent and readable format.","SELECT 
+    DATE_PART('dow', Crime_Date) AS Day_of_Week,
+    Crime_Type, 
+    COUNT(*) AS Count_of_Crimes
+FROM la_crime_data
+WHERE Date_Reported LIKE '2020%' AND Area_Name = 'LA'
+GROUP BY 
+    DATE_PART('dow', Crime_Date),
+    Crime_Type;","```sql
+SELECT c.Crime_Type, DAY(c.Crime_Date) AS Day, COUNT(*) AS Count
+FROM la_crime_data c
+WHERE c.Area_Name = 'LA'
+GROUP BY c.Crime_Type, DAY(c.Crime_Date)
+ORDER BY c.Crime_Type, DAY(c.Crime_Date);
+```","```sql
+SELECT 
+    strftime('%w', Crime_Date) AS DayOfWeek, -- 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+    Crime_Type,
+    COUNT(*) AS CrimeCount
+FROM 
+    la_crime_data
+GROUP BY 
+    DayOfWeek, Crime_Type
+ORDER BY 
+    DayOfWeek, Crime_Type; 
+```
+
+**Explanation:**
+
+* **`strftime('%w', Crime_Date) AS DayOfWeek`**: This extracts the day of the week as a number (0-6) from the `Crime_Date` column using the `strftime()` function.
+* **`Crime_Type, COUNT(*) AS CrimeCount`**: This groups the results by `DayOfWeek` and `Crime_Type` and counts the number of crimes for each combination, aliasing the count as `CrimeCount`.
+* **`GROUP BY DayOfWeek, Crime_Type`**: This groups the results by day of the week and crime type.
+* **`ORDER BY DayOfWeek, Crime_Type`**:  This orders the results first by day of the week and then by crime type.
+
+
+This query will give you a count of each crime type for each day of the week in LA.","To fulfill the request, I'll need to aggregate the crime data by day of the week. Could you specify the date range for the analysis?","Here is an SQL query to get the count of each crime type for each day of the week in LA:
+```
+SELECT 
+  DATE_PART('day', Date_Reported) AS Day, 
+  DATE_PART('dow', Date_Reported) AS Day_Of_Week, 
+  Crime_Type, 
+  COUNT(*) AS Count
+FROM 
+  la_crime_data
+WHERE 
+  Area_Name = 'LA'
+GROUP BY 
+  DATE_PART('day', Date_Reported), 
+  DATE_PART('dow', Date_Reported), 
+  Crime_Type
+ORDER BY 
+  DATE_PART('day', Date_Reported), 
+  Crime_Type;
+```
+This query uses the `DATE_PART` function to extract the day of the week (`dow`) and the day of the month (`day`) from the `Date_Reported` column. It then groups the results by these values, as well as the `Crime_Type` column, and counts the number of rows in each group.
+
+Note that the `Area_Name` column is used to filter the results to only include crimes reported in LA. You may need to modify this query if the schema of the `la_crime_data` table is different than what was provided.
+
+I hope this helps! Let me know if you have any questions."
+"For each area in LA, give count of each crime type.","SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `la_crime_data`.`Area_Name` AS `Area_Name`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CASEÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'BURGLARY' THEN 'BURGLARY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'ROBBERY' THEN 'ROBBERY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN `la_crime_data`.`Crime_Type` = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ELSE 'Other'
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â END AS `Crime_Type_Grouped`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(*) AS `Count`
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `la_crime_data`
+GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_Name`,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Crime_Type_Grouped`
+ORDER BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Area_Name` ASC,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â `Crime_Type_Grouped` ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000Ãƒâ€šÃ‚Â° N; 118.26280000Ãƒâ€šÃ‚Â° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000Ãƒâ€šÃ‚Â° N; 118.30020000Ãƒâ€šÃ‚Â° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000Ãƒâ€šÃ‚Â° N; 118.43870000Ãƒâ€šÃ‚Â° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000Ãƒâ€šÃ‚Â° N; 118.32770000Ãƒâ€šÃ‚Â° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000Ãƒâ€šÃ‚Â° N; 118.24630000Ãƒâ€šÃ‚Â° W"," To fulfill this request, you can use the SQL `GROUP BY` clause to group the crime records by `Area_Name` and `Crime_Type`, and then use the `COUNT` function to count the number of occurrences for each combination. Here's an example SQL query:
+
+```sql
+SELECT Area_Name, Crime_Type, COUNT(*) AS Crime_Count
+FROM la_crime_data
+GROUP BY Area_Name, Crime_Type
+ORDER BY Area_Name, Crime_Type;
+```
+
+This query will return a table showing the count of each type of crime in each area of LA. The result is ordered by `Area_Name` and `Crime_Type`, but you can modify the `ORDER BY` clause to sort the data in any way you prefer.","SELECT Area_Name, Crime_Type, COUNT(Crime_Type) as Crime_Count
+FROM la_crime_data
+GROUP BY Area_Name, Crime_Type","```sql
+SELECT c.Area_Name, ct.Crime_Type, COUNT(*) AS Count
+FROM la_crime_data c
+JOIN Crime_Types ct ON c.Crime_Type = ct.Crime_Type
+GROUP BY c.Area_Name, ct.Crime_Type
+ORDER BY c.Area_Name, ct.Crime_Type;
+```","```sql
+SELECT 
+    Area_Name,
+    Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM la_crime_data
+GROUP BY Area_Name, Crime_Type;
+``` 
+
+This query will:
+
+1. **SELECT** the `Area_Name` and `Crime_Type` columns, along with a count of occurrences (`COUNT(*) AS Crime_Count`).
+2. **FROM** the `la_crime_data` table.
+3. **GROUP BY** both `Area_Name` and `Crime_Type` to aggregate the counts for each unique combination.
+
+
+This will give you a table showing the count of each crime type for every area in Los Angeles.","To fulfill the request, I'll need to aggregate the crime data by area and crime type. Here's the SQL query:
+
+```sql
+SELECT 
+    Area_Name, 
+    Crime_Type, 
+    COUNT(*) as Crime_Count
+FROM 
+    la_crime_data
+GROUP BY 
+    Area_Name, 
+    Crime_Type
+ORDER BY 
+    Area_Name, 
+    Crime_Count DESC;
+```
+
+This query will give you the count of each crime type for each area in LA, sorted by the area and then by the crime count in descending order.","Here is an SQL query to fulfill your request:
+```
+SELECT Area_Name, Crime_Type, COUNT(*) as count
+FROM la_crime_data
+GROUP BY Area_Name, Crime_Type
+ORDER BY Area_Name, COUNT(*) DESC;
+```
+This query will group the data by the `Area_Name` and `Crime_Type` columns and then count the number of rows in each group. The results will be ordered by `Area_Name` and then by the count of crimes in descending order."

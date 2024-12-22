@@ -1,0 +1,69 @@
+Project Skills Development
+
+In this project, we developed skills in three levels: L1, L2, and L3. We learned both general-level skills and technical skills. These skills are useful both at the research level and industry level after graduation. These skills enabled us to successfully complete this project.
+
+L1 Skills
+
+General Skills
+
+    Reading and Comprehension:
+    Reading, interpreting, and extracting useful information from research papers, prompt engineering guides, and metabase documentation guided the project forward. This helped structure a clear and concise final project report.
+
+    Logical Reasoning:
+    Structured prompts for LLMs to generate SQL queries from natural language inputs. This enhanced logical reasoning by mapping user intentions to SQL commands.
+
+    Fact vs. Opinion:
+    Confronted preconceived notions and assumptions. For example, while we assumed Gemma2 would outperform Gemma1 in SQL query generation but with higher latency, Gemma1 performed better. This highlighted the importance of data-driven insights over subjective opinions.
+
+Technical Skills
+
+    Programming Techniques:
+    Used Python to integrate various parts of the project, including running LLMs, validating SQL queries, and computing metrics. Automated pipelines for SQL query generation and metric computation saved time and reduced manual effort, allowing for testing queries on Metabase.
+
+    Tool Familiarity:
+    Integrated and utilized open-source APIs to access LLMs and run queries on Metabase, enabling effective SQL generation and data visualization.
+
+    SQL Basics:
+    Debugged and validated generated SQL queries using parsers and validation frameworks, ensuring syntactic correctness and proper results.
+
+L2 Skills
+
+General Skills
+
+    Applying Theory in Practice:
+    Applied theoretical knowledge from NLP and machine learning, such as metrics and comparisons, to real-world tasks like SQL generation using LLM APIs.
+
+    Validating Assumptions:
+    Tested assumptions throughout the project. For example, initial assumptions that NLP metrics like BLEU and Rouge would fully evaluate SQL performance were refined. Running SQL queries on Metabase provided a more comprehensive evaluation.
+
+Technical Skills
+
+    Advanced Prompt Engineering:
+    Explored zero-shot, one-shot, and few-shot prompting techniques, improving LLM performance by crafting ideal prompts for syntactically and contextually correct SQL queries.
+
+    Innovative Synergy:
+    Combined advanced prompt engineering, automation, and feedback loops for better and faster SQL query generation using an automated pipeline.
+
+    Framework Integration:
+    Integrated LLMs with Metabase and evaluation frameworks into a real-time system for data visualization and SQL query performance evaluation.
+
+L3 Skills
+
+General Skills
+
+    Trend Recognition:
+    Observed the growing adoption of LLMs in real-time systems and applied these trends to the NORP domain, emphasizing domain-specific models for better performance.
+
+    Generalization/Specialization:
+    Understood the limitations of general-purpose LLMs (e.g., Gemma, Llama) and the advantages of fine-tuned models specialized for code generation.
+
+    Systems Thinking:
+    Evaluated trade-offs between centralized cloud systems and decentralized local deployments. Resource constraints emphasized the practicality of open-source APIs over local deployments.
+
+Technical Skills
+
+    Advanced AI/ML Understanding:
+    Analyzed metrics and insights comparing model performance and latency. Fine-tuned models like LFM excelled in SQL query generation, reinforcing their value for future projects.
+
+    LLM Deployment:
+    Gained knowledge of resource allocation and LLM codebases, deploying LLMs on the PACE cluster. Recognized limitations in training time and resources, which led to the practical decision of using open-source APIs.

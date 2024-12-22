@@ -1,0 +1,885 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table
+Give total crimes occurred in Atlanta on each day of the week,"SELECT
+  DAYOFWEEK(`atlanta_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  DAYOFWEEK(`atlanta_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`atlanta_crime_data`.`Crime_Date`) ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give total crimes occurred in Atlanta during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    atlanta_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give total crimes occurred in Atlanta at each hour of the day,"SELECT
+  CASE
+    WHEN HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s')) = 0 THEN 24
+    ELSE HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s'))
+  END AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give total count of crimes in Atlanta grouped by week since January 2009,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`atlanta_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `atlanta_crime_data`.`Report_#`) AS `count`
+FROM
+  `atlanta_crime_data`
+WHERE
+  `atlanta_crime_data`.`Crime_Date` >= convert_tz(
+    '2009-01-05 00:00:00.000',
+    'America/New_York',
+    @@session.time_zone
+  )
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`atlanta_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`atlanta_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give total crimes occurred in LA on each day of the week,"SELECT
+  DAYOFWEEK(`la_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  DAYOFWEEK(`la_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`la_crime_data`.`Crime_Date`) ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give total crimes occurred in LA during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    la_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give total crimes occurred in LA at each hour of the day,"SELECT
+  FLOOR(`la_crime_data`.`Crime_Time` / 100) + 1 AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give total count of crimes in LA grouped by week,"SELECT
+  STR_TO_DATE(
+    CONCAT(YEARWEEK(`la_crime_data`.`Crime_Date`), ' Sunday'),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `la_crime_data`.`Report_#`) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(YEARWEEK(`la_crime_data`.`Crime_Date`), ' Sunday'),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(YEARWEEK(`la_crime_data`.`Crime_Date`), ' Sunday'),
+    '%X%V %W'
+  ) ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give total crimes occurred in New York on each day of the week,"SELECT
+  DAYOFWEEK(`nyc_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  DAYOFWEEK(`nyc_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`nyc_crime_data`.`Crime_Date`) ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give total crimes occurred in New York during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    nyc_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give total crimes occurred in New York at each hour of the day,"SELECT
+  HOUR(`nyc_crime_data`.`Crime_Time`) + 1 AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give total count of crimes in New York grouped by week since January 2023,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`nyc_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `nyc_crime_data`.`Report_#`) AS `count`
+FROM
+  `nyc_crime_data`
+WHERE
+  `nyc_crime_data`.`Crime_Date` >= convert_tz(
+    '2023-01-02 00:00:00.000',
+    'America/New_York',
+    @@session.time_zone
+  )
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`nyc_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`nyc_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give total crimes occurred in Philly on each day of the week,"SELECT
+  DAYOFWEEK(`philly_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  DAYOFWEEK(`philly_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`philly_crime_data`.`Crime_Date`) ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give total crimes occurred in Philly during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    philly_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give total crimes occurred in Philly at each hour of the day,"SELECT
+  HOUR(`philly_crime_data`.`Crime_Time`) + 1 AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give total count of crimes in Philly grouped by week,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`philly_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `philly_crime_data`.`Crime_ID`) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`philly_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`philly_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give the amount of crimes in each area of Atlanta,"SELECT
+  `atlanta_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `atlanta_crime_data`.`Area_Name`
+ORDER BY
+  `atlanta_crime_data`.`Area_Name` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give the amount of crimes in each area of LA,"SELECT
+  `la_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `la_crime_data`.`Area_Name`
+ORDER BY
+  `la_crime_data`.`Area_Name` ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give the amount of crimes in each area of New York,"SELECT
+  `nyc_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `nyc_crime_data`.`Area_Name`
+ORDER BY
+  `nyc_crime_data`.`Area_Name` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give the amount of crimes in each area of Philly,"SELECT
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 AS `Area_#`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10
+ORDER BY
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+"For each coordinate in latitude and longitude of Atlanta spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+  Latitude,
+  Longitude,
+  Most_Common_Crime_Type,
+  count
+FROM (
+  SELECT
+    (
+      FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+    ) + 33.64 AS Latitude,
+    (
+      FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+    ) + -84.55 AS Longitude,
+    Crime_Type AS Most_Common_Crime_Type,
+    COUNT(*) AS count,
+    ROW_NUMBER() OVER(PARTITION BY
+      (
+        FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+      ) + 33.64,
+      (
+        FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+      ) + -84.55
+    ORDER BY COUNT(*) DESC
+    ) AS crime_rank
+  FROM
+    `atlanta_crime_data`
+  GROUP BY
+    Latitude,
+    Longitude,
+    Crime_Type
+) AS ranked_crimes
+WHERE
+  crime_rank = 1
+ORDER BY
+  Latitude ASC,
+  Longitude ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+"For each coordinate in latitude and longitude of Atlanta spaced by 0.01 degrees, give the total crime count.","SELECT
+  (
+    FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+  ) + 33.64 AS `Latitude`,
+  (
+    FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+  ) + -84.55 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  (
+    FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+  ) + 33.64,
+  (
+    FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+  ) + -84.55
+ORDER BY
+  (
+    FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+  ) + 33.64 ASC,
+  (
+    FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+  ) + -84.55 ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+"For each coordinate in latitude and longitude of LA spaced by 0.01 degrees, give the total crime count.","SELECT
+  FLOOR((`la_crime_data`.`Latitude` / 0.01)) * 0.01 AS `Latitude`,
+  (
+    FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.01)) * 0.01
+  ) + -118.66 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  FLOOR((`la_crime_data`.`Latitude` / 0.01)) * 0.01,
+  (
+    FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.01)) * 0.01
+  ) + -118.66
+ORDER BY
+  FLOOR((`la_crime_data`.`Latitude` / 0.01)) * 0.01 ASC,
+  (
+    FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.01)) * 0.01
+  ) + -118.66 ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+"For each coordinate in latitude and longitude of LA spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+  Latitude,
+  Longitude,
+  Most_Common_Crime_Type,
+  count
+FROM (
+  SELECT
+    FLOOR((`la_crime_data`.`Latitude` / 0.015)) * 0.015 AS Latitude,
+    (
+      FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.015)) * 0.015
+    ) + -118.66 AS Longitude,
+    Crime_Type AS Most_Common_Crime_Type,
+    COUNT(*) AS count,
+    ROW_NUMBER() OVER(PARTITION BY
+      FLOOR((`la_crime_data`.`Latitude` / 0.015)) * 0.015,
+      (
+        FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.015)) * 0.015
+      ) + -118.66
+    ORDER BY COUNT(*) DESC
+    ) AS crime_rank
+  FROM
+    `la_crime_data`
+  GROUP BY
+    Latitude,
+    Longitude,
+    Crime_Type
+) AS ranked_crimes
+WHERE
+  crime_rank = 1
+ORDER BY
+  Latitude ASC,
+  Longitude ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+"For each coordinate in latitude and longitude of New York spaced by 0.01 degrees, give the total crime count.","SELECT
+  (
+    FLOOR(((`nyc_crime_data`.`Latitude` - 40.49) / 0.01)) * 0.01
+  ) + 40.49 AS `Latitude`,
+  (
+    FLOOR(((`nyc_crime_data`.`Longitude` - -74.27) / 0.01)) * 0.01
+  ) + -74.27 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  (
+    FLOOR(((`nyc_crime_data`.`Latitude` - 40.49) / 0.01)) * 0.01
+  ) + 40.49,
+  (
+    FLOOR(((`nyc_crime_data`.`Longitude` - -74.27) / 0.01)) * 0.01
+  ) + -74.27
+ORDER BY
+  (
+    FLOOR(((`nyc_crime_data`.`Latitude` - 40.49) / 0.01)) * 0.01
+  ) + 40.49 ASC,
+  (
+    FLOOR(((`nyc_crime_data`.`Longitude` - -74.27) / 0.01)) * 0.01
+  ) + -74.27 ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+"For each coordinate in latitude and longitude of New York spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+  Latitude,
+  Longitude,
+  Most_Common_Crime_Type,
+  count
+FROM (
+  SELECT
+    FLOOR((Latitude - 40.49) / 0.01) * 0.01 + 40.49 AS Latitude,
+    FLOOR((Longitude - -74.27) / 0.01) * 0.01 - 74.27 AS Longitude,
+    Crime_Type AS Most_Common_Crime_Type,
+    COUNT(*) AS count,
+    ROW_NUMBER() OVER(PARTITION BY
+      FLOOR((Latitude - 40.49) / 0.01) * 0.01 + 40.49,
+      FLOOR((Longitude - -74.27) / 0.01) * 0.01 - 74.27
+    ORDER BY COUNT(*) DESC
+    ) AS crime_rank
+  FROM
+    nyc_crime_data
+  WHERE
+    Latitude != 0
+    AND Longitude != 0
+  GROUP BY
+    Latitude,
+    Longitude,
+    Crime_Type
+) AS ranked_crimes
+WHERE
+  crime_rank = 1
+ORDER BY
+  Latitude ASC,
+  Longitude ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+"For each coordinate in latitude and longitude of Philly spaced by 0.01 degrees, give the total crime count.","SELECT
+  (
+    FLOOR(((`philly_crime_data`.`Latitude` - 39.86) / 0.01)) * 0.01
+  ) + 39.86 AS `Latitude`,
+  (
+    FLOOR(((`philly_crime_data`.`Longitude` - -75.28) / 0.01)) * 0.01
+  ) + -75.28 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  (
+    FLOOR(((`philly_crime_data`.`Latitude` - 39.86) / 0.01)) * 0.01
+  ) + 39.86,
+  (
+    FLOOR(((`philly_crime_data`.`Longitude` - -75.28) / 0.01)) * 0.01
+  ) + -75.28
+ORDER BY
+  (
+    FLOOR(((`philly_crime_data`.`Latitude` - 39.86) / 0.01)) * 0.01
+  ) + 39.86 ASC,
+  (
+    FLOOR(((`philly_crime_data`.`Longitude` - -75.28) / 0.01)) * 0.01
+  ) + -75.28 ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+"For each coordinate in latitude and longitude of Philly spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+    Latitude,
+    Longitude,
+    Most_Common_Crime_Type,
+    count
+FROM (
+    SELECT
+        FLOOR((Latitude - 39.86) / 0.01) * 0.01 + 39.86 AS Latitude,
+        FLOOR((Longitude + 75.28) / 0.01) * 0.01 - 75.28 AS Longitude,
+        Crime_Type AS Most_Common_Crime_Type,
+        COUNT(*) AS count,
+        ROW_NUMBER() OVER(PARTITION BY
+            FLOOR((Latitude - 39.86) / 0.01) * 0.01 + 39.86,
+            FLOOR((Longitude + 75.28) / 0.01) * 0.01 - 75.28
+            ORDER BY COUNT(*) DESC
+        ) AS crime_rank
+    FROM
+        philly_crime_data
+    WHERE
+        Latitude != 0
+        AND Longitude != 0
+    GROUP BY
+        FLOOR((Latitude - 39.86) / 0.01) * 0.01 + 39.86,
+        FLOOR((Longitude + 75.28) / 0.01) * 0.01 - 75.28,
+        Crime_Type
+) AS ranked_crimes
+WHERE
+    crime_rank = 1
+ORDER BY
+    Latitude ASC,
+    Longitude ASC;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give the total count of each crime type in Atlanta,"SELECT
+  `atlanta_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `atlanta_crime_data`.`Crime_Type`
+ORDER BY
+  `atlanta_crime_data`.`Crime_Type` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+"For each crime type in Atlanta, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+    a.Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(a.Crime_Date) AS Last_Date_Reported,
+    MAX(a.Area_Name) AS Last_Area_Reported,
+    ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+    IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM atlanta_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+    atlanta_crime_data a
+LEFT JOIN (
+    SELECT
+        Crime_Type,
+        Area_Name AS Most_Common_Area
+    FROM (
+        SELECT
+            Crime_Type,
+            Area_Name,
+            ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            atlanta_crime_data
+        GROUP BY
+            Crime_Type, Area_Name
+    ) ranked_areas
+    WHERE
+        crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+    a.Crime_Type
+ORDER BY
+    a.Crime_Type ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give the total count of each crime type in LA,"SELECT
+  `la_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `la_crime_data`.`Crime_Type`
+ORDER BY
+  `la_crime_data`.`Crime_Type` ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give the total count of each crime type in New York,"SELECT
+  `nyc_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `nyc_crime_data`.`Crime_Type`
+ORDER BY
+  `nyc_crime_data`.`Crime_Type` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give the total count of each crime type in Philly,"SELECT
+  `philly_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  `philly_crime_data`.`Crime_Type`
+ORDER BY
+  `philly_crime_data`.`Crime_Type` ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+"For each area in Atlanta, give count of each crime type.","SELECT
+  `atlanta_crime_data`.`Area_Name` AS `Area_Name`,
+  `atlanta_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `atlanta_crime_data`.`Area_Name`,
+  `atlanta_crime_data`.`Crime_Type`
+ORDER BY
+  `atlanta_crime_data`.`Area_Name` ASC,
+  `atlanta_crime_data`.`Crime_Type` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+"For each area in New York, give count of each crime type.","SELECT
+  `nyc_crime_data`.`Crime_Type` AS `Crime_Type`,
+  `nyc_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `nyc_crime_data`.`Crime_Type`,
+  `nyc_crime_data`.`Area_Name`
+ORDER BY
+  `nyc_crime_data`.`Crime_Type` ASC,
+  `nyc_crime_data`.`Area_Name` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+"For each area in Philly, give count of each crime type.","SELECT
+  `philly_crime_data`.`Crime_Type` AS `Crime_Type`,
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 AS `Area_#`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  `philly_crime_data`.`Crime_Type`,
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10
+ORDER BY
+  `philly_crime_data`.`Crime_Type` ASC,
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give count of each crime type for each day of the week in Atlanta.,"SELECT
+  DAYOFWEEK(acd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(acd.Crime_Date) AS Crime_Day_Name,
+  acd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM
+  atlanta_crime_data acd
+WHERE
+  DAYOFWEEK(acd.Crime_Date) IS NOT NULL
+GROUP BY
+  DAYOFWEEK(acd.Crime_Date),
+  DAYNAME(acd.Crime_Date),
+  acd.Crime_Type
+ORDER BY
+  Crime_Day_Number,
+  acd.Crime_Type;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give count of each crime type for each hour of the day in Atlanta.,"SELECT
+  CASE
+    WHEN HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s')) = 0 THEN 24
+    ELSE HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s'))
+  END AS `Crime_Hour`,
+  `atlanta_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  CASE
+    WHEN HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s')) = 0 THEN 24
+    ELSE HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s'))
+  END,
+  `atlanta_crime_data`.`Crime_Type`
+ORDER BY
+  `Crime_Hour` ASC,
+  `Crime_Type` ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give count of each crime type for each month in Atlanta.,"SELECT
+    MONTH(acd.Crime_Date) AS Month,
+    acd.Crime_Type AS Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    atlanta_crime_data acd
+GROUP BY
+    MONTH(acd.Crime_Date),
+    acd.Crime_Type
+ORDER BY
+    MONTH(acd.Crime_Date),
+    acd.Crime_Type;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+Give count of each crime type for each day of the week in New York.,"SELECT
+  DAYOFWEEK(ncd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(ncd.Crime_Date) AS Crime_Day_Name,
+  ncd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM
+  nyc_crime_data ncd
+WHERE
+  DAYOFWEEK(ncd.Crime_Date) IS NOT NULL
+GROUP BY
+  DAYOFWEEK(ncd.Crime_Date),
+  DAYNAME(ncd.Crime_Date),
+  ncd.Crime_Type
+ORDER BY
+  Crime_Day_Number,
+  ncd.Crime_Type;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give count of each crime type for each hour of the day in New York.,"SELECT
+  HOUR(ncd.Crime_Time) + 1 AS Hour,
+  ncd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Count
+FROM
+  nyc_crime_data ncd
+GROUP BY
+  Hour,
+  ncd.Crime_Type
+ORDER BY
+  Hour ASC,
+  ncd.Crime_Type ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give count of each crime type for each month in New York.,"SELECT
+    MONTH(ncd.Crime_Date) AS Month,
+    ncd.Crime_Type AS Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    nyc_crime_data ncd
+GROUP BY
+    MONTH(ncd.Crime_Date),
+    ncd.Crime_Type
+ORDER BY
+    MONTH(ncd.Crime_Date),
+    ncd.Crime_Type;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+Give count of each crime type for each day of the week in Philly.,"SELECT
+  DAYOFWEEK(pcd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(pcd.Crime_Date) AS Crime_Day_Name,
+  pcd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM
+  philly_crime_data pcd
+GROUP BY
+  DAYOFWEEK(pcd.Crime_Date),
+  DAYNAME(pcd.Crime_Date),
+  pcd.Crime_Type
+ORDER BY
+  Crime_Day_Number,
+  pcd.Crime_Type;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give count of each crime type for each hour of the day in Philly.,"SELECT
+  HOUR(pcd.Crime_Time) + 1 AS Hour,
+  pcd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Count
+FROM
+  philly_crime_data pcd
+GROUP BY
+  Hour,
+  pcd.Crime_Type
+ORDER BY
+  Hour ASC,
+  pcd.Crime_Type ASC;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give count of each crime type for each month in Philly.,"SELECT
+    MONTH(pcd.Crime_Date) AS Month,
+    pcd.Crime_Type AS Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    philly_crime_data pcd
+GROUP BY
+    MONTH(pcd.Crime_Date),
+    pcd.Crime_Type
+ORDER BY
+    MONTH(pcd.Crime_Date),
+    pcd.Crime_Type;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"

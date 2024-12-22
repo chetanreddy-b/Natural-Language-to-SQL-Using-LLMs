@@ -1,0 +1,31 @@
+All the python libraries that are required to run the code
+
+openai          # For OpenRouter.AI API
+openai==0.28    # For Groq API
+pandas
+numpy
+os
+Groq from Groq 
+chardet
+shutil
+time
+rouge_scorer from rouge_score 
+matplotlib.pyplot
+sqlparse
+difflib
+sentence_bleu from ntlk.translate.bleu_score
+score from bert_score
+ngrams from nltk.util
+collections from Counter
+warnings
+json
+
+On colab, you will only have to run the following install commands - Only install one openai version at a time
+
+!pip install openai         # For OpenRouter.AI API
+!pip install openai==0.28   # For Groq API
+!pip install groq 
+!pip install rouge-score
+!pip install bert-score
+!pip install nltk
+!pip install sqlparse

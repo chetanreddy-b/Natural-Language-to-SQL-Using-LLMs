@@ -1,0 +1,1106 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table,phi,lfm
+"For each zipcode in Atlanta, give the change in average house rent from 2019 to 2022, i.e., from pre-COVID to post-COVID period.","select substring(housing_rent.zipcode, 7, 10) as zcta, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) - h.rent_weighted_avg as decimal(8,2)) as rent_change
+from housing_rent join 
+(select zipcode, (sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as rent_weighted_avg
+from housing_rent where year=2019 group by zipcode) as h on h.zipcode=housing_rent.zipcode
+where year=2022 
+group by housing_rent.zipcode","housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," To fulfill the natural language request, the following SQL query can be created:
+
+```sql
+SELECT
+    pre_covid.zipcode,
+    post_covid.avg_rent AS avg_post_covid_rent,
+    pre_covid.avg_rent AS avg_pre_covid_rent,
+    (post_covid.avg_rent - pre_covid.avg_rent) AS change_in_rent
+FROM
+    (
+    SELECT
+        zipcode,
+        AVG((rent_value_min + rent_value_max) / 2) AS avg_rent
+    FROM
+        housing_rent
+    WHERE
+        year = 2019 AND zipcode IN (SELECT DISTINCT zipcode FROM housing_rent WHERE string_match(zipcode, '^30*', true)) 
+    GROUP BY
+        zipcode
+    ) AS pre_covid
+JOIN
+    (
+    SELECT
+        zipcode,
+        AVG((rent_value_min + rent_value_max) / 2) AS avg_rent
+    FROM
+        housing_rent
+    WHERE
+        year = 2022 AND zipcode IN (SELECT DISTINCT zipcode FROM housing_rent WHERE string_match(zipcode, '^30*', true)) 
+    GROUP BY
+        zipcode
+    ) AS post_covid
+ON
+    pre_covid.zipcode = post_covid.zipcode;
+```
+
+This SQL query does the following:
+
+1. Subselects a list of unique Atlanta zipcodes (`^30*`) from the `housing_rent` table.
+2. It then joins two grouped subqueries, each one of them calculating the average house rent for pre-COVID (2019) and post-COVID (2022) periods for individual Atlanta zipcodes.
+3. The final result displays the zipcode, the average rent for pre-COVID and post-COVID periods, and the difference (change) in average rent between the periods.","Given the schema of the table referencing a national zip code detail, we would modify the SQL query to reference the full basis of zcta5 codes that denote Atlanta, Georgia. Since the named entity 'Atlanta' refers to a subset of the table explicitly, we'll use a WHERE clause to filter our search criteria to only those related to Atlanta. The schema of the table obviously includes 'zipcode' which would signify those zipcodes within the Atlanta setting.
+
+Other conditions:
+
+1. We'll make use of two subqueries to calculate the average rents for the years 2019 and 2022.
+2. We'll find a way to relate the change in average rent from 2019 to 2022 for every zipcode in the specified area to those zipcodes related to Atlanta.
+
+```sql
+SELECT
+    zipcode,
+    (Rent2022 - Rent2019) AS Rent_Change
+FROM
+(
+    SELECT
+        zipcode,
+        AVG(rent_value_min) AS Rent2019,
+        AVG(rent_value_min) AS Rent2022
+    FROM
+        housing_rent
+    WHERE
+        year IN (2019, 2022) AND
+        zipcode IN
+        (
+            SELECT
+                zipcode
+            FROM
+                housing_rent
+            WHERE
+                city_name = 'Atlanta'
+        )
+    GROUP BY
+        zipcode
+) AS AvgRentPerZip
+```
+
+This code selects zip codes from the 'housing_rent' table where the city_name is 'Atlanta'. For these zip code locations, it calculates the average rent value for 2019 and 2022. Finally, it calculates the difference between the average rent from 2019 and 2022 for each zip code location."
+"For each zipcode in Georgia, give the change in average house rent from 2017 to 2022.","select substring(housing_value.zipcode, 7, 10) as zcta, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) - h.housing_value_weighted_avg as decimal(8,2)) as change_in_housing_value
+from housing_value join 
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg
+from housing_value where year=2017 group by zipcode) as h on h.zipcode=housing_value.zipcode
+where year=2022 
+group by housing_value.zipcode","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," To fulfill the request, we first need to calculate the average house rent for each zipcode in Georgia for the years 2017 and 2022 separately. After we have the average values for each of these years, we can find the difference in average house rent for each zipcode.
+
+Here's an SQL query to achieve this:
+
+```sql
+SELECT r1.zipcode,
+       (r2.avg_rent - r1.avg_rent) AS rent_change
+FROM (
+    SELECT a.zipcode, AVG(b.house_value_min) AS avg_rent
+    FROM housing_value a
+    JOIN housing_value b ON a.zipcode = b.zipcode AND b.year = 2017
+    WHERE a.year = 2022
+    GROUP BY a.zipcode
+) r1
+JOIN (
+    SELECT zipcode, AVG(house_value_min) AS avg_rent
+    FROM housing_value
+    WHERE year = 2017 AND zipcode IN(
+        SELECT DISTINCT a.zipcode
+        FROM housing_value a
+        JOIN housing_value b ON a.zipcode = b.zipcode AND b.year = 2022)
+    GROUP BY zipcode
+) r2 ON r1.zipcode = r2.zipcode
+```
+
+This query consists of multiple parts:
+- The first and second subqueries (`r1` and `r2`) calculate the average house rent for the years 2017 and 2022 separately.
+- The `JOIN` statement connects the two subqueries based on the `zipcode` column, ensuring that each zipcode in the output is present for both years.
+- The final `SELECT` statement calculates the change in average house rent by subtracting the average rent in 2017 from the average rent in 2022 for each zipcode.
+
+Note: This solution assumes that the `house_value_min` column can be used as an approximation of the average rent value in each zipcode. If more accurate rent values are available, you can adjust the query accordingly.","SELECT 
+    h1.zipcode,
+    AVG(t1.house_value_avg) - AVG(t2.house_value_avg) AS change_in_average_house_rent
+FROM 
+    housing_value AS h1
+    JOIN (
+        SELECT 
+            zipcode,
+            AVG(house_value_avg) AS house_value_avg
+        FROM 
+            housing_value
+        WHERE 
+            year IN (2022)
+        GROUP BY 
+            zipcode
+    ) AS t1 ON h1.zipcode = t1.zipcode
+    JOIN (
+        SELECT 
+            zipcode,
+            AVG(house_value_avg) AS house_value_avg
+        FROM 
+            housing_value
+        WHERE 
+            year IN (2017)
+        GROUP BY 
+            zipcode
+    ) AS t2 ON h1.zipcode = t2.zipcode
+WHERE 
+    h1.state = 'Georgia'
+GROUP BY 
+    h1.zipcode;"
+"For each year, get rent and value of house averaged over all zip codes.","select STR_TO_DATE(CONCAT(house_rent_value.year, '-01-01'), '%Y-%m-%d') AS year_date, avg(rent_weighted_average) as rent, avg(house_value_weighted_average) as house_value 
+from
+(select rent_avg.*, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode) as house_rent_value 
+group by year;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," Here is the SQL query that fulfills the request:
+
+```sql
+SELECT hv.year, 
+       AVG((hv.house_value_min + hv.house_value_max) / 2) AS average_house_value, 
+       AVG((hr.rent_value_min + hr.rent_value_max) / 2) AS average_rent_value
+FROM housing_value hv
+JOIN housing_rent hr ON (hv.year = hr.year AND hv.id = hr.id AND hv.zipcode = hr.zipcode)
+GROUP BY hv.year;
+```
+
+This query joins the 'housing_value' and 'housing_rent' tables based on 'year', 'id', and 'zipcode' columns. It calculates the average house value and average rent value by taking the average of the minimum and maximum value for each property. The result is grouped by 'year' to obtain the average values for each year.","SELECT 
+    year, 
+    AVG(rent_value) as avg_rent, 
+    AVG(house_value) as avg_value
+FROM
+    housing_value
+INNER JOIN
+    housing_rent
+ON
+    housing_value.id = housing_rent.id
+GROUP BY
+    year;"
+"For each zip code, get rent and value of house averaged over all years.","select substring(zipcode, 7, 10) as zip, avg(rent_weighted_average) as rent, avg(house_value_weighted_average) as house_value 
+from
+(select rent_avg.*, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode) as house_rent_value 
+group by zip;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," Assuming you want to take the average value of the `house_value_min` and `house_value_max` from the `housing_value` table and the average of the `rent_value_min` and `rent_value_max` from the `housing_rent` table for each `zipcode`, you can write a SQL query using `JOIN` and `GROUP BY` like this:
+
+```sql
+SELECT 
+    hv.zipcode, 
+    AVG((hv.house_value_min + hv.house_value_max) / 2) AS avg_house_value, 
+    AVG((hr.rent_value_min + hr.rent_value_max) / 2) AS avg_rent_value
+FROM 
+    housing_value hv
+JOIN 
+    housing_rent hr ON hv.zipcode = hr.zipcode AND hv.year = hr.year
+GROUP BY 
+    hv.zipcode
+```
+
+This query joins the `housing_value` and `housing_rent` tables on `zipcode` and `year`, and then groups the result by `zipcode`. It calculates the average house value and average rent value for each zipcode.
+
+Please, note if you have a meaningful value in either `housing_value` or `housing_rent` table, you may consider joining the tables on `zipcode`, then grouping by `zipcode`, and calculating the averages per group. The provided solution assumes you want to average all the values in both columns together, which may not be precisely correct depending on your situation.","SELECT 
+    zipcode,
+    AVG(house_value_min) as average_house_value_min,
+    AVG(house_value_max) as average_house_value_max,
+    AVG(rent_value_min) as average_rent_value_min,
+    AVG(rent_value_max) as average_rent_value_max
+FROM 
+    housing_value
+JOIN 
+    housing_rent ON housing_value.zipcode = housing_rent.zipcode AND housing_value.year = housing_rent.year
+GROUP BY 
+    zipcode"
+"For each zip code, get the average rent and maintenance cost for households without mortgage.","select substring(rent_affordability.zipcode, 7, 10) as zcta, rent_affordability.rent_weighted_avg, maintenance_costs.maintenance_weighted_avg_without_mortgage
+from 
+(select zipcode, (sum(number_of_units*((income_percent_min+income_percent_max)/2))/sum(number_of_units)) as maintenance_weighted_avg_without_mortgage from household_income_percent_without_mortgage where year=2022 group by zipcode) as maintenance_costs,
+(select zipcode, (sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as rent_weighted_avg from housing_rent where year=2022 group by zipcode) as rent_affordability
+where maintenance_costs.zipcode = rent_affordability.zipcode;","household_income_percent_without_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 1,694; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 1,400; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 945; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 2,309; 35; 100
+2015; 8600000US30005; ZCTA5 30005; 3,788; 0; 20
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," To fulfill this request, you can write the following SQL query using JOIN to combine the relevant tables and GROUP BY to calculate the averages for each zip code:
+
+```sql
+SELECT
+  h.zipcode,
+  AVG((h.rent_value_min + h.rent_value_max) / 2) AS avg_rent,
+  AVG((m.maintenance_cost_min + m.maintenance_cost_max) / 2) AS avg_maintenance_cost
+FROM
+  housing_rent h
+JOIN
+  household_income_percent_without_mortgage m
+ON
+  h.year = m.year
+  AND h.id = m.id
+  AND h.zipcode = m.zipcode
+  AND h.number_of_units = m.number_of_units
+WHERE
+  m.income_percent_min >= 0
+GROUP BY
+  h.zipcode;
+```
+
+This query will select each unique zip code and calculate the average rent and maintenance cost across all the matching records in the combined tables. The JOIN operation is specified using the year, id, zipcode, and number_of_units columns for both tables. Additionally, it's specified to ignore households with a positive income_percent_min value, as the question asks for households without a mortgage (i.e., income_percent_min >= 0).
+
+This will result in a table like:
+
+| Zipcode | avg_rent | avg_maintenance_cost |
+|---------|----------|----------------------|
+| 30004   | average_post_calculation | average_post_calculation |
+| 30005   | average_post_calculation | average_post_calculation |
+(Note: Replace ""average_post_calculation"" with the actual calculated averages)","<SQL query= ""SELECT hhpw.zipcode AS zipcode, AVG(housing_rent.rent_value_min + housing_rent.maintenance_cost) AS average_rent_and_maintenance_cost FROM household_income_percent_without_mortgage hhpw INNER JOIN housing_rent ON hhpw.zipcode = housing_rent.zipcode AND hhpw.year = housing_rent.year WHERE hhpw.income_percent_min > (SELECT income_percent_min FROM household_income_percent_without_mortgage WHERE income_percent_max IS NOT NULL) GROUP BY hhpw.zipcode;"">"
+"For year 2022 and for each zipcode, get average rent value and house price.","select rent_avg.year, rent_avg.zipcode, rent_avg.rent_weighted_average, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode and rent_avg.year=2022;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," To fulfill the request, you can write the following SQL query:
+
+```sql
+SELECT 
+  hv.zipcode,
+  AVG((hv.house_value_min + hv.house_value_max) / 2) as avg_house_value,
+  AVG((hr.rent_value_min + hr.rent_value_max) / 2) as avg_rent_value
+FROM 
+  housing_value hv
+JOIN 
+  housing_rent hr ON hv.id = hr.id AND hv.zipcode = hr.zipcode
+WHERE 
+  hv.year = 2022 AND hr.year = 2022
+GROUP BY 
+  hv.zipcode;
+```
+
+This query performs an inner join between the `housing_value` and `housing_rent` tables on their `id` and `zipcode` columns. It selects the `zipcode` column and calculates the average house value and rent value for each zipcode in the year 2022. The average is obtained by averaging the minimum and maximum values of house values and rent values respectively.","SELECT hv.zipcode, 
+       AVG(hv.house_value_min) as average_rent_value,
+       AVG(hv.house_value_max) as average_house_price
+FROM housing_value hv
+WHERE hv.year = 2022
+GROUP BY hv.zipcode;
+
+SELECT hr.zipcode,
+       AVG(hr.rent_value_min) as average_rent_value,
+       AVG(hr.rent_value_max) as average_rent_price
+FROM housing_rent hr
+WHERE hr.year = 2022
+GROUP BY hr.zipcode;"
+"For each zipcode, get average rent value and house price.","select substring(zipcode, 7, 10) as zip, avg(rent_weighted_average) as rent, avg(house_value_weighted_average) as house_value 
+from
+(select rent_avg.*, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode) as house_rent_value 
+group by zip;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," To fulfill the request, we will need to join the `housing_value` and `housing_rent` tables on their common columns (`year`, `id`, `zipcode`, and `number_of_units`). Then, we'll group by `zipcode` and use aggregate functions AVG() to calculate the average rent value and average house price for each zipcode. Here is the SQL query that accomplishes this:
+
+```sql
+SELECT 
+    hv.zipcode,
+    AVG((hv.house_value_min + hv.house_value_max) / 2) AS avg_house_price,
+    AVG((hr.rent_value_min + hr.rent_value_max) / 2) AS avg_rent_value
+FROM housing_value hv
+JOIN housing_rent hr
+ON hv.year = hr.year
+    AND hv.id = hr.id
+    AND hv.zipcode = hr.zipcode
+    AND hv.number_of_units = hr.number_of_units
+GROUP BY hv.zipcode;
+```
+
+This query will provide the average house price and average rent value for each zipcode based on the given schema and table entries.","SELECT h.zipcode,
+       AVG(hr.rent_value_min) AS avg_rent,
+       AVG(h.house_value_min) AS avg_price
+FROM housing_value h
+JOIN housing_rent hr ON h.zipcode = hr.zipcode
+WHERE h.year = 2015
+GROUP BY h.zipcode;"
+Get total housing units in 2022 grouped by zipcode.,"select substring(zipcode, 7, 10) as zcta, sum(total_units) as total_units from
+(select zipcode, sum(number_of_units) as total_units from housing_value where year=2022 group by zipcode union all select zipcode, sum(number_of_units) as total_units from housing_rent where year=2022 group by zipcode) h group by zipcode;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," Here is the SQL query to fulfill the given request:
+
+```sql
+SELECT 
+  zipcode, 
+  SUM(number_of_units) AS total_housing_units
+FROM 
+  (
+    SELECT 
+      zipcode, 
+      number_of_units, 
+      year
+    FROM 
+      housing_value 
+    UNION ALL 
+    SELECT 
+      zipcode, 
+      number_of_units, 
+      year 
+    FROM 
+      housing_rent
+  ) AS combined_data
+WHERE 
+  year = 2022
+GROUP BY 
+  zipcode
+ORDER BY 
+  total_housing_units DESC;
+```
+
+This query combines data from both `housing_value` and `housing_rent` tables using `UNION ALL` for the year 2022, then groups them by `zipcode` and calculates the sum of the `number_of_units` to get the total housing units in that year. It also orders the results by the total housing units in descending order.","Since housing_value and housing_rent are separate tables which don't include housing units for each year, we cannot directly get total housing units in 2022 grouped by zipcode according to given schema. But we can use the number_of_units value to get the total number of housing units in a specific area:
+
+SELECT 
+  zipcode,
+  YEAR(id) as year,
+  SUM(number_of_units) as Total_Units
+FROM
+  housing_value
+WHERE 
+  YEAR(id) = 2022
+GROUP BY 
+  zipcode;"
+"For all years after 2016, for each zipcode get percentage of marginalized communities (black, asian, american indian & alaskan native, native hawaiian & pacific inlander) and average SMOCAPI.","select substring(demographic_race.zipcode,7,10) as zcta, 100*(avg(black) + avg(asian) + avg(american_indian_and_alaska_native) + avg(native_hawaiian_and_other_pacific_islander))/avg(race_total_population) as 'Percent Marginalized Communities', sum(number_of_units*(income_percent_max+income_percent_min)/2)/sum(number_of_units) as smocapi
+from demographic_race join household_income_percent_with_mortgage on demographic_race.zipcode=household_income_percent_with_mortgage.zipcode where demographic_race.year>2016 and household_income_percent_with_mortgage.year>2016
+group by demographic_race.zipcode","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)
+household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161
+
+2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"," To fulfill the request, we need to join the demographic_race and household_income_percent_with_mortgage tables on the year and zipcode columns. Then we need to select the year, zipcode, marginalized communities' percentage, and average SMOCAPI for those years after 2016. We can calculate the percentage of marginalized communities by summing the columns for black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, and then dividing by the race_total_population column. The average SMOCAPI can be calculated by averaging the income_percent_max column.
+
+Here is the SQL query to fulfill the request:
+
+```sql
+SELECT 
+    dr.year,
+    dr.zipcode,
+    (SUM(dr.black) + SUM(dr.american_indian_and_alaska_native) + SUM(dr.asian) + SUM(dr.native_hawaiian_and_other_pacific_islander)) / SUM(dr.race_total_population) AS marginalized_communities_percentage,
+    AVG(hinmp.income_percent_max) AS avg_smocaPI
+FROM
+    demographic_race dr
+INNER JOIN
+    household_income_percent_with_mortgage hinmp
+        ON dr.year = hinmp.year AND dr.zipcode = hinmp.zipcode
+WHERE
+    dr.year > 2016
+GROUP BY
+    dr.year,
+    dr.zipcode;
+```
+
+This query joins the two tables on the year and zipcode columns, calculates the sum of the marginalized communities per zipcode, divides it by the race_total_population to get the percentage, and averages the income_percent_max column to get the average SMOCAPI. The WHERE clause filters only the years greater than 2016, and then we group the data by year and zipcode to get the desired metrics for each zipcode in the selected years.","SELECT year,
+       zipcode,
+       SUM(CASE 
+            WHEN one_race = 'Black alone' OR 
+                 two_or_more_races = 'Black alone' OR
+                 two_or_more_races = 'Black alone' OR
+                 two_or_more_races = 'American Indian and Alaska Native alone' OR
+                 two_or_more_races = 'Native Hawaiian and Other Pacific Islander alone' 
+            THEN race_total_populatio
+            ELSE 0 
+         END) as marginalized_communities,
+       AVG(income_percent_max) as average_SMOCAPI 
+FROM demographic_race 
+JOIN household_income_percent_with_mortgage 
+ON demographic_race.zipcode = household_income_percent_with_mortgage.zipcode 
+WHERE year > 2016 
+GROUP BY year, zipcode"
+"For each zipcode, get mean commute time and average housing value.","select substring(housing_affordability.zipcode, 7, 10) as zcta, housing_affordability.housing_value_weighted_avg, mean_commute.mean_time
+from 
+(select zipcode, avg(mean_travel_time) as mean_time from economic_commute_to_work where year=2022 group by zipcode) as mean_commute,
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg from housing_value where year=2022 group by zipcode) as housing_affordability
+where mean_commute.zipcode = housing_affordability.zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," To fulfill the request, we assume that we have a third table with the commute time information. If the commute time information is provided in another table, the query will need to be adjusted accordingly.
+
+Let's say that we have a table named `commute_data` with the following schema:
+
+commute_data (year, id, zipcode, avg_commute_time)
+
+The SQL query would be:
+
+```sql
+SELECT
+  econ.zipcode,
+  AVG(cmt.avg_commute_time) AS mean_commute_time,
+  AVG((hv.house_value_min + hv.house_value_max) / 2) AS mean_housing_value
+FROM economic_income_and_benefits econ
+JOIN housing_value hv
+  ON econ.id = hv.id AND econ.zipcode = hv.zipcode
+JOIN commute_data cmt
+  ON econ.id = cmt.id AND econ.zipcode = cmt.zipcode
+WHERE econ.year = 2015
+GROUP BY econ.zipcode
+```
+
+This query joins the necessary tables based on their common columns, calculates the average commute time and the mean housing value for each zipcode, filters the data for the year 2015, and then groups the results by zipcode.
+
+Note that if commute time data is not available in a separate table, this query will not be able to return the requested results. In such a case, we need to provide alternative data sources for commute time information.","SELECT 
+    zipcode, 
+    AVG(house_value_min) as average_housing_value, 
+    AVG(total_households) as mean_commute_time
+FROM 
+    economic_income_and_benefits
+JOIN 
+    housing_value 
+ON 
+    economic_income_and_benefits.zipcode = housing_value.zipcode
+WHERE 
+    year = 2015
+GROUP BY 
+    zipcode;"
+Get average housing rent and mean household income across all zipcodes for the year 2022.,"select rent_avg.*, economic_income_and_benefits.mean_household_income
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, economic_income_and_benefits
+where rent_avg.year = economic_income_and_benefits.year and rent_avg.zipcode = economic_income_and_benefits.zipcode and rent_avg.year=2022;","housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)
+economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999
+
+2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"," To fulfill your request, you can use the following SQL query. This query joins the two tables on the year and zipcode fields, and then calculates the average housing rent and mean household income for each zipcode for the year 2022.
+
+```sql
+SELECT 
+    hr.zipcode,
+    AVG((hr.rent_value_min + hr.rent_value_max) / 2) AS avg_housing_rent,
+    AVG(ei.mean_household_income) AS avg_household_income
+FROM 
+    housing_rent hr
+JOIN
+    economic_income_and_benefits ei
+ON
+    hr.year = ei.year AND hr.zipcode = ei.zipcode
+WHERE
+    hr.year = 2022
+GROUP BY
+    hr.zipcode;
+```
+
+This query joins the `housing_rent` and `economic_income_and_benefits` tables on their year and zipcode fields. Then it filters the results to only include records from the year 2022. The `GROUP BY` clause is used to group the results by zipcode, and the `AVG` function is used to calculate the average housing rent and mean household income for each group.","SELECT AVG(hr.rent_value_max) AS average_housing_rent, EIB.mean_household_income AS mean_household_income
+FROM housing_rent hr JOIN economic_income_and_benefits eib ON hr.zipcode = eib.zipcode
+WHERE hr.year = 2022
+GROUP BY eib.mean_household_income"
+"For each zipcode, get percentage of units with mortgage and median household income.","select m.zipcode, avg(units_with_mortgage)/avg(units_with_mortgage+units_without_mortgage), avg(median_household_income)
+from housing_mortgage as m join economic_income_and_benefits as e on m.zipcode=e.zipcode
+group by m.zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)
+housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00
+
+2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"," To fulfill the request, we can use a SQL query that joins the two tables based on the year and id attributes, and then computes the percentage of units with mortgage and the median household income for each zipcode. 
+
+Here is the SQL query to get the required information:
+
+```sql
+SELECT 
+    eia.zipcode AS 'Zipcode',
+    (h.units_with_mortgage::FLOAT / h.total_households::FLOAT) * 100 AS 'Percentage of units with mortgage',
+    eia.median_household_income AS 'Median Household Income'
+FROM economic_income_and_benefits AS eia
+INNER JOIN housing_mortgage AS h
+    ON eia.year = h.year AND eia.id = h.id
+GROUP BY eia.zipcode
+ORDER BY eia.zipcode;
+```
+
+This query first joins the `economic_income_and_benefits` (aliased as `eia`) and `housing_mortgage` (aliased as `h`) tables on the `year` and `id` columns to relate the data for each zipcode. 
+
+Then, it calculates the percentage of units with mortgage by dividing the `units_with_mortgage` by the `total_households` and multiplying the result by 100. Next, the query selects the `median_household_income` from the `economic_income_and_benefits` table.
+
+Finally, it groups the results by `zipcode` and orders the output by `zipcode`.
+
+Note that the original table schema does not have a `total_households` column necessary to compute the percentage of units with mortgage. If the `total_households` value is instead the `total_households` from the `economic_income_and_benefits` table, you can modify the query as follows:
+
+```sql
+SELECT 
+    eia.zipcode AS 'Zipcode',
+    (h.units_with_mortgage::FLOAT / eia.total_households::FLOAT) * 100 AS 'Percentage of units with mortgage',
+    eia.median_household_income AS 'Median Household Income'
+FROM economic_income_and_benefits AS eia
+INNER JOIN housing_mortgage AS h
+    ON eia.year = h.year AND eia.id = h.id
+GROUP BY eia.zipcode
+ORDER BY eia.zipcode;
+```","SELECT
+    housing_mortgage.zipcode,
+    housing_mortgage.year,
+    (housing_mortgage.units_with_mortgage * 100.0 / (housing_mortgage.units_with_mortgage + housing_mortgage.units_without_mortgage)) AS mortgage_percentage,
+    economic_income_and_benefits.median_household_income
+FROM
+    housing_mortgage
+JOIN
+    economic_income_and_benefits ON economic_income_and_benefits.zipcode = housing_mortgage.zipcode AND economic_income_and_benefits.year = housing_mortgage.year
+ORDER BY
+    mortgage_percentage DESC,
+    housing_mortgage.year ASC,
+    housing_mortgage.zipcode ASC;"
+"For each zipcode in the year 2022, get average housing value and median household income.","SELECT
+  `source`.`zipcode` AS `zipcode`,
+  `source`.`house_value_weighted_average` AS `house_value_weighted_average`,
+  `Economic Income And Benefits`.`median_household_income` AS `Economic Income And Benefits__median_household_income`
+FROM
+  (
+    select
+      zipcode,
+      cast(
+        (
+          sum(
+            number_of_units * ((house_value_min + house_value_max) / 2)
+          ) / sum(number_of_units)
+        ) as decimal(8, 2)
+      ) as house_value_weighted_average
+    from
+      housing_value
+    where
+      year = 2022
+    group by
+      zipcode
+  ) AS `source`
+ 
+LEFT JOIN `economic_income_and_benefits` AS `Economic Income And Benefits` ON `source`.`zipcode` = `Economic Income And Benefits`.`zipcode`
+WHERE
+  `Economic Income And Benefits`.`year` = 2022
+LIMIT
+  1048575","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," To fulfill the request, we can use the following SQL query:
+
+```sql
+SELECT 
+    ei.zipcode,
+    AVG(hv.house_value_min + hv.house_value_max) / 2 AS avg_housing_value,
+    AVG(ei.median_household_income) AS avg_median_income
+FROM 
+    economic_income_and_benefits AS ei
+JOIN 
+    housing_value AS hv ON ei.zipcode = hv.zipcode AND ei.year = hv.year
+WHERE 
+    ei.year = 2022
+GROUP BY 
+    ei.zipcode;
+```
+
+This query does the following:
+
+- Joins the `economic_income_and_benefits` table (`ei` alias) and `housing_value` table (`hv` alias) based on `zipcode` and `year` columns. This ensures that the corresponding data from both tables is combined for each row.
+- Filters the rows from the joined tables to only include those from the year 2022.
+- Groups the result by `zipcode`, as we want to find average housing value and median household income for each zipcode.
+- Calculates the average housing value by taking the average of `house_value_min` and `house_value_max` for each zipcode.
+- Calculates the average median household income by taking the average of `median_household_income` for each zipcode.","```sql
+WITH average_housing_value AS (
+    SELECT 
+        '2022' AS year,
+        zipcode,
+        AVG(house_value_min) AS average_housing_value    
+    FROM housing_value
+    GROUP BY zipcode
+),
+median_household_income AS (
+    SELECT
+        '2022' AS year,
+        zipcode,
+        median_household_income
+    FROM economic_income_and_benefits
+    WHERE YEAR = 2022 
+    AND zipcode IN (
+        SELECT zipcode FROM average_housing_value
+    )
+)
+
+SELECT 
+    avg.year,
+    avg.zipcode,
+    avg.average_housing_value,
+    income.median_household_income
+FROM average_housing_value avg
+JOIN median_household_income income
+ON avg.zipcode = income.zipcode;
+```"
+"For each zipcode of Georgia, find the change in percentage of population with no health insurance from year 2017 to 2022.","SELECT substring(economic_health_insurance.zipcode, 7, 10) as zip, 100*no_health_insurance/total_population - avg_no_health_insurance.a as change_from_average
+FROM economic_health_insurance 
+join (select zipcode, avg(100*no_health_insurance/total_population) as a
+    from economic_health_insurance where year=2017 group by zipcode) as avg_no_health_insurance 
+on avg_no_health_insurance.zipcode=economic_health_insurance.zipcode
+where economic_health_insurance.year=2022;","economic_health_insurance (year, id, zipcode, total_population, with_health_insurance, no_health_insurance)","2015; 8600000US30005; ZCTA5 30005; 38,887; 35,420; 3,467
+2015; 8600000US30008; ZCTA5 30008; 30,186; 20,842; 9,344
+2015; 8600000US30009; ZCTA5 30009; 14,703; 13,475; 1,228
+2015; 8600000US30011; ZCTA5 30011; 14,600; 11,707; 2,893
+2015; 8600000US30012; ZCTA5 30012; 26,548; 19,800; 6,748"," Here is an SQL query that will fulfill the request:
+
+```sql
+WITH no_insurance_2017 AS (
+  SELECT
+    zipcode,
+    no_health_insurance as no_insurance_2017
+  FROM economic_health_insurance
+  WHERE year = 2017
+  AND state = 'GA' -- assuming there is a state column
+),
+no_insurance_2022 AS (
+  SELECT
+    zipcode,
+    no_health_insurance as no_insurance_2022
+  FROM economic_health_insurance
+  WHERE year = 2022
+  AND state = 'GA'
+),
+percentage_change AS (
+  SELECT
+    a.zipcode,
+    ((b.no_insurance_2022 - a.no_insurance_2017) / a.no_insurance_2017) * 100 AS percent_change
+  FROM no_insurance_2017 a
+  JOIN no_insurance_2022 b
+  ON a.zipcode = b.zipcode
+)
+SELECT *
+FROM percentage_change
+ORDER BY percent_change DESC;
+```
+
+This query creates three common table expressions (CTEs):
+1. `no_insurance_2017`: selects no health insurance data for zipcodes in Georgia in 2017.
+2. `no_insurance_2022`: selects no health insurance data for zipcodes in Georgia in 2022.
+3. `percentage_change`: calculates the percentage change in no health insurance population from 2017 to 2022 for each zipcode.
+
+Finally, it selects the results ordered by the percentage change in descending order.
+
+Make sure to replace `'GA'` with the correct state abbreviation if your table schema uses a different state representation.","SELECT ehi.zipcode, (
+        (SUM(ehi1.no_health_insurance) / SUM(ehi1.total_population)) - (SUM(ehi2.no_health_insurance) / SUM(ehi2.total_population))
+    ) * 100
+FROM economic_health_insurance ehi
+JOIN economic_health_insurance ehi1 ON ehi.zipcode = ehi1.zipcode AND ehi.year = 2017
+JOIN economic_health_insurance ehi2 ON ehi.zipcode = ehi2.zipcode AND ehi.year = 2022
+WHERE ehi.state = 'Georgia'
+GROUP BY ehi.zipcode;"
+"For each zipcode in year 2022, get percentage of population with no health insurance and average house rent.","select health_ins.*, rent_avg.rent_weighted_average from 
+(SELECT year, zipcode, 100*(no_health_insurance/total_population) as no_health_insurance
+FROM economic_health_insurance 
+where economic_health_insurance.year=2022) as health_ins,
+(select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent group by year, zipcode) as rent_avg
+where rent_avg.zipcode = health_ins.zipcode;","economic_health_insurance (year, id, zipcode, total_population, with_health_insurance, no_health_insurance)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30005; ZCTA5 30005; 38,887; 35,420; 3,467
+2015; 8600000US30008; ZCTA5 30008; 30,186; 20,842; 9,344
+2015; 8600000US30009; ZCTA5 30009; 14,703; 13,475; 1,228
+2015; 8600000US30011; ZCTA5 30011; 14,600; 11,707; 2,893
+2015; 8600000US30012; ZCTA5 30012; 26,548; 19,800; 6,748
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"," To fulfill this request, you can use the following SQL query:
+
+```sql
+SELECT 
+    e.zipcode,
+    (CAST(e.no_health_insurance AS FLOAT) / CAST(e.total_population AS FLOAT)) * 100 AS no_insurance_percentage,
+    AVG(h.rent_value_min + h.rent_value_max) / 2 AS avg_rent
+FROM
+    economic_health_insurance e
+JOIN
+    housing_rent h
+ON
+    e.year = h.year AND e.zipcode = h.zipcode
+WHERE
+    e.year = 2022
+GROUP BY
+    e.zipcode;
+``` 
+
+This query will join the `economic_health_insurance` and `housing_rent` tables using the zipcode and `year` columns. Then it restricts the data to the year 2022 by using `WHERE`. The query then groups by zipcode and calculates the percentage of population without health insurance (`no_insurance_percentage`) and the average rental value (`avg_rent`) for the residential properties in that zipcode.","SELECT 
+    ehi.zipcode, 
+    YEAR(2022) AS year, 
+    (SUM(ehi.no_health_insurance) / SUM(ehi.total_population)) * 100 AS no_health_insurance_percentage, 
+    AVG(housing_rent.rent_value_min) AS average_house_rent 
+FROM 
+    economic_health_insurance AS ehi 
+    JOIN housing_rent ON housing_rent.zipcode = ehi.zipcode 
+WHERE 
+    ehi.year = 2022 
+GROUP BY 
+    ehi.zipcode, 
+    year;"
+"For each zipcode in year 2022, get percentage of population with no health insurance and average housing price.","select health_ins.*, housing_val.housing_value_weighted_avg from 
+(SELECT year, zipcode, 100*(no_health_insurance/total_population) as no_health_insurance
+FROM economic_health_insurance 
+where economic_health_insurance.year=2022) as health_ins,
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg
+from housing_value where year=2022 group by zipcode) as housing_val
+where housing_val.zipcode = health_ins.zipcode;","economic_health_insurance (year, id, zipcode, total_population, with_health_insurance, no_health_insurance)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 38,887; 35,420; 3,467
+2015; 8600000US30008; ZCTA5 30008; 30,186; 20,842; 9,344
+2015; 8600000US30009; ZCTA5 30009; 14,703; 13,475; 1,228
+2015; 8600000US30011; ZCTA5 30011; 14,600; 11,707; 2,893
+2015; 8600000US30012; ZCTA5 30012; 26,548; 19,800; 6,748
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," To fulfill this request, we need to join the `economic_health_insurance` and `housing_value` tables by `year` and `zipcode`, and then calculate the percentage of population with no health insurance and average housing price for each `zipcode` in the year 2022. Here's the SQL query:
+
+```sql
+SELECT 
+  ehi.zipcode,
+  ROUND((ehi.no_health_insurance::FLOAT / ehi.total_population * 100), 2) AS no_insurance_percentage,
+  ROUND(AVG((hv.house_value_min + hv.house_value_max) / 2), 2) AS avg_house_price
+FROM economic_health_insurance ehi
+JOIN housing_value hv
+  ON ehi.zipcode = hv.zipcode
+  AND ehi.year = hv.year
+WHERE ehi.year = 2022
+GROUP BY ehi.zipcode
+ORDER BY no_insurance_percentage DESC, avg_house_price;
+```
+
+This query joins the `economic_health_insurance` and `housing_value` tables on `zipcode` and `year`. It filters the rows for the year 2022. Then, it groups the result by `zipcode`, and calculates the percentage of population with no health insurance using the `no_health_insurance` and `total_population` columns. It also calculates the average housing price using the `house_value_min`, `house_value_max`, and `number_of_units` columns. Finally, it rounds the results to two decimal places and orders the result by `no_insurance_percentage` descending and `avg_house_price`.","SELECT 
+    YEAR, 
+    ZIPCODE, 
+    (no_health_insurance::float / total_population::float) * 100 AS no_health_insurance_percentage, 
+    AVG(house_value_min + (house_value_max - house_value_min)/2) AS average_housing_price
+FROM economic_health_insurance
+JOIN housing_value ON economic_health_insurance.year = housing_value.year AND economic_health_insurance.zipcode = housing_value.zipcode
+WHERE YEAR = 2022
+GROUP BY WEEK, ZIPCODE"
+"For each zipcode in Georgia, get the change in percentage of population commuting via public transport from year 2017 to 2022.","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, ((public_transport/total_workers)*100 - commute_old.public_transport_percent) as commute_change
+FROM economic_commute_to_work 
+join (select zipcode, (public_transport/total_workers)*100 as public_transport_percent
+    from economic_commute_to_work where year=2017) as commute_old 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ; 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ; 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ; 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ; "," Here is an SQL query that fulfills your natural language request:
+
+```sql
+WITH mode_of_transport AS (
+    SELECT
+        zipcode,
+        SUM(CASE
+            WHEN year = 2017 THEN public_transport
+            ELSE 0
+        END)/SUM(CASE
+            WHEN year = 2017 THEN total_workers
+            ELSE 0
+        END) * 100 AS percent_2017,
+        SUM(CASE
+            WHEN year = 2022 THEN public_transport
+            ELSE 0
+        END)/SUM(CASE
+            WHEN year = 2022 THEN total_workers
+            ELSE 0
+        END) * 100 AS percent_2022
+    FROM
+        economic_commute_to_work
+    WHERE
+        zipcode LIKE 'GA%' -- filter for georgia zipcodes
+        AND year IN (2017, 2022)
+    GROUP BY
+        zipcode
+)
+
+SELECT
+    zipcode,
+    percent_2017,
+    percent_2022,
+    (percent_2022 - percent_2017) AS change_in_percentage
+FROM
+    mode_of_transport
+ORDER BY
+    change_in_percentage DESC;
+```
+
+This query first calculates the percentage of workers using public transport for each zipcode involving Georgia for years 2017 and 2022 using a Common Table Expression (CTE). Then, these two percentages are subtracted to find the change in percentage. Finally, the result is sorted by the change in percentage in descending order.","SELECT 
+    zipcode, 
+    (SELECT AVG(CASE WHEN year = 2022 THEN public_transport END) - AVG(CASE WHEN year = 2017 THEN public_transport END) 
+     FROM economic_commute_to_work
+     WHERE year IN (2017, 2022) AND zipcode = e.zipcode 
+     GROUP BY zipcode) as percentage_change_public_transport
+FROM 
+    (SELECT DISTINCT zipcode
+     FROM economic_commute_to_work
+     WHERE year = 2017 AND state = 'GA') as e;"
+"In year 2022, for each zipcode in Georgia, get the percentage of population with associate and bachelors degree or higher and average housing price.","select substring(h.zipcode, 7, 10) as zcta, ((associate_degree+bachelors_degree_or_higher)/population_25_years_and_over)*100 as education_attaimnemt_percent, h.housing_value_weighted_avg
+from social_education_attainment join 
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg
+from housing_value where year=2022 group by zipcode) as h on h.zipcode=social_education_attainment.zipcode
+where year=2022;","social_education_attainment (year, id, zipcode, population_25_years_and_over, less_than_9th_grade, 9th_to_12th_grade_no_diploma, high_school_graduate, some_college_no_degree, associate_degree, bachelors_degree, graduate_or_professional_degree, high_school graduate_or_higher, bachelors_degree_or_higher)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 23,756; 279; 467; 2,062; 3,507; 1,441; 9,764; 6,236; 0; 0
+2015; 8600000US30008; ZCTA5 30008; 20,488; 2,121; 2,366; 5,329; 4,558; 1,297; 3,440; 1,377; 0; 0
+2015; 8600000US30009; ZCTA5 30009; 10,293; 281; 253; 1,571; 2,008; 977; 3,459; 1,744; 0; 0
+2015; 8600000US30011; ZCTA5 30011; 9,390; 459; 786; 3,478; 2,012; 737; 1,288; 630; 0; 0
+2015; 8600000US30012; ZCTA5 30012; 17,005; 1,507; 2,105; 6,380; 3,608; 1,026; 1,610; 769; 0; 0
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," To fulfill the request, we can use SQL's JOIN and aggregation functions like SUM and AVG. The following is a sample query:
+
+```sql
+SELECT
+    e.zipcode,
+    (SUM(e.associate_degree + e.bachelors_degree + e.graduate_or_professional_degree) / SUM(e.population_25_years_and_over)) * 100 AS percentage_population_higher_ed,
+    AVG((h.house_value_min + h.house_value_max) / 2) AS avg_housing_price
+FROM
+    social_education_attainment e
+JOIN
+    housing_value h ON e.zipcode = h.zipcode AND e.year = h.year
+WHERE
+    e.year = 2022
+    AND e.zipcode IN (SELECT
+                      sq.zipcode FROM social_education_attainment sq
+                      WHERE sq.state = 'Georgia'
+                      GROUP BY sq.zipcode)
+GROUP BY
+    e.zipcode
+ORDER BY
+    e.zipcode;
+```
+
+In the above query:
+- We join the `social_education_attainment` (aliased as `e`) and `housing_value` (aliased as `h`) tables based on the `zipcode` and `year` columns. (Assuming that the `housing_value` table also has a state column or there is another table that indicates state for each zipcode.)
+- We filter the data for the year 2022 and only consider zipcodes in Georgia. (You can modify the state filter as per your data schema.)
+- The percentage of the population with associate, bachelors, and graduate or professional degree(s) or higher is computed using the sum of the relevant columns divided by the sum of the `population_25_years_and_over` column.
+- The average housing price is computed using the average of the `house_value_min` and `house_value_max` columns for each zipcode.
+- The result is grouped by the `zipcode` column and ordered by it.","SELECT 
+  h.id AS zip_code,
+  h.number_of_units AS average_housing_price,
+  (100 - SUM(CASE WHEN se.some_college_no_degree = ""1"" THEN se.population_25_years_and_over ELSE 0 END) - SUM(CASE WHEN se.less_than_9th_grade = ""1"" THEN se.population_25_years_and_over ELSE 0 END) - SUM(CASE WHEN se.bachelors_degree = ""0"" THEN se.population_25_years_and_over ELSE 0 END) - SUM(CASE WHEN se.graduate_or_professional_degree = ""0"" THEN se.population_25_years_and_over ELSE 0 END) + SUM(CASE WHEN se.high_school_graduate = ""1"" THEN se.population_25_years_and_over ELSE 0 END) + SUM(CASE WHEN se.high_school_graduate = ""0"" THEN se.population_25_years_and_over ELSE 0 END) + SUM(CASE WHEN se.bachelors_degree = ""1"" THEN se.population_25_years_and_over ELSE 0 END) + SUM(CASE WHEN se.graduate_or_professional_degree = ""1"" THEN se.population_25_years_and_over ELSE 0 END)) / COUNT(DISTINCT se.population_25_years_and_over) * 100 AS percentage_with_associate_or_bachelors_degree_or_higher 
+FROM 
+  housing_value h 
+  JOIN social_education_attainment se ON h.zipcode = se.zipcode 
+WHERE 
+  h.year = 2022 
+  AND se.state = ""Georgia"" 
+GROUP BY 
+  h.id"
+"For all years after 2016, for each zipcode get average housing  price and percentage of houses having broadband subscription.","select h.zipcode, sum(number_of_units*(house_value_min+house_value_max)/2)/sum(number_of_units), avg(with_a_computer)/avg(total_households), avg(with_broadband_internet_subscription)/avg(total_households)
+from housing_value as h join social_computer_internet_usage as s on h.zipcode=s.zipcode
+where h.year > 2016 and s.year > 2016
+group by h.zipcode;
+-- select * from social_computer_internet_usage where year>2016","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+social_computer_internet_usage (year, id, zipcode, total_households, with_a_computer, with_broadband_internet_subscription)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30005; ZCTA5 30005; (X); (X); (X)
+2015; 8600000US30008; ZCTA5 30008; (X); (X); (X)
+2015; 8600000US30009; ZCTA5 30009; (X); (X); (X)
+2015; 8600000US30011; ZCTA5 30011; (X); (X); (X)
+2015; 8600000US30012; ZCTA5 30012; (X); (X); (X)"," To fulfill the request, we can join the housing_value and social_computer_internet_usage tables on the year and zipcode columns. Then, we can filter the rows for years after 2016, group by the zipcode, and calculate the average housing price and the percentage of houses having broadband subscription for each group. The resulting SQL query is:
+
+```
+SELECT 
+  hv.zipcode,
+  AVG((hv.house_value_min + hv.house_value_max) / 2) AS average_house_price,
+  (SUM(sciu.with_broadband_internet_subscription) / SUM(sciu.total_households)) * 100 AS broadband_subscription_percentage
+FROM housing_value hv
+JOIN social_computer_internet_usage sciu ON hv.zipcode = sciu.zipcode AND hv.year = sciu.year
+WHERE hv.year > 2016
+GROUP BY hv.zipcode;
+```","SELECT 
+    Y.year, 
+    zipcode, 
+    AVG(HV.house_value_min) AS average_housing_price, 
+    (SUM(if(WITH_A_COMPUTER=""1"", 1, 0))/SUM(total_households)) * 100 AS broadband_percentage
+FROM
+    housing_value HV
+INNER JOIN
+    social_computer_internet_usage S 
+ON 
+    HV.year = S.year AND 
+    HV.zipcode = S.zipcode AND 
+    HV.year > 2016
+GROUP BY
+    Y.year, 
+    zipcode
+HAVING
+    YEAR > 2016"
+"For all years after 2016, for each zipcode get average housing  rent and percentage of houses having broadband subscription.","select h.zipcode, sum(number_of_units*(rent_value_min+rent_value_max)/2)/sum(number_of_units), avg(with_a_computer)/avg(total_households), avg(with_broadband_internet_subscription)/avg(total_households)
+from housing_rent as h join social_computer_internet_usage as s on h.zipcode=s.zipcode
+where h.year > 2016 and s.year > 2016
+group by h.zipcode;","housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)
+social_computer_internet_usage (year, id, zipcode, total_households, with_a_computer, with_broadband_internet_subscription)","2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999
+
+2015; 8600000US30005; ZCTA5 30005; (X); (X); (X)
+2015; 8600000US30008; ZCTA5 30008; (X); (X); (X)
+2015; 8600000US30009; ZCTA5 30009; (X); (X); (X)
+2015; 8600000US30011; ZCTA5 30011; (X); (X); (X)
+2015; 8600000US30012; ZCTA5 30012; (X); (X); (X)"," To fulfill the request, we can write an SQL query that joins the two tables on the year and zipcode columns, filters the data for years after 2016 and calculates the average housing rent and the percentage of houses having a broadband subscription for each zipcode.
+
+Here is the SQL query:
+
+```sql
+SELECT 
+    hr.zipcode, 
+    AVG(hr.rent_value_min + hr.rent_value_max) / 2 AS avg_housing_rent, 
+    100 * SUM(if(sciui.with_broadband_internet_subscription != 0, 1, 0)) / COUNT(*) AS percentage_broadband_subscription
+FROM 
+    housing_rent hr   
+JOIN 
+    social_computer_internet_usage sciui 
+ON hr.year = sciui.year AND hr.zipcode = sciui.zipcode
+WHERE 
+    hr.year > 2016
+GROUP BY 
+    hr.zipcode;
+```
+
+Explanation:
+
+1. The `FROM` clause joins the `housing_rent` table (`hr`) and the `social_computer_internet_usage` table (`sciui`) on the `year` and `zipcode` columns.
+2. The `WHERE` clause filters the data for years after 2016.
+3. The `SELECT` clause calculates the average housing rent per zipcode by adding the minimum and maximum rent values and dividing by 2. The `SUM` function in the `percentage_broadband_subscription` calculation counts the number of rows where there is a broadband subscription, and the `COUNT` function counts the total rows. Dividing the two numbers gives the percentage.
+4. The `GROUP BY` clause groups the results by `zipcode`.
+5. We use the `IF` function in the `SUM` to handle values where there is a broadband subscription by counting those rows as 1 and the others as 0.
+
+Note that this query assumes the `rent_value_min` and `rent_value_max` columns are denoting the minimum and maximum rental values per unit for each house, and not the total values for all houses with those values. If the `with_broadband_internet_subscription` values in the `social_computer_internet_usage` table are equal to the number of houses that have a subscription within the total households, the above formula will be applied. If the data does not work this way, the formula should be adjusted accordingly according to the actual data distribution.","Here is the SQL code:
+
+```sql
+SELECT 
+  h.year, 
+  h.zipcode, 
+  AVG(h.rent_value_max) AS avg_rent,
+  (SUM(CASE WHEN sciu.with_broadband_internet_subscription = 1 THEN 1 ELSE 0 END) * 100 / SUM(sciu.total_households)) AS broadband_percentage
+FROM 
+  housing_rent h
+JOIN 
+  social_computer_internet_usage sciu ON 
+    h.year > 2016 AND 
+    h.zipcode = sciu.zipcode 
+WHERE 
+  h.year >= 2016 AND 
+  sciu.year >= 2016 AND 
+  sciu.zipcode IS NOT NULL
+GROUP BY 
+  h.year, 
+  h.zipcode;
+```"

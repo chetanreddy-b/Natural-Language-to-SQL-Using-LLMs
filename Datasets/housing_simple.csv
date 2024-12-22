@@ -1,0 +1,310 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table
+"Get year-on-year change in GRAPI, where GRAPI is gross rent as percentage of household income.","select str_to_date(concat(year,'-01-01'),'%Y-%m-%d') as `Year`, sum(number_of_units*(income_percent_max+income_percent_min)/2)/sum(number_of_units) as `GRAPI`
+from housing_gross_rent_percent
+group by year;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"
+"Get year-on-year change in SMOCAPI, where SMOCAPI is selected monthly home-ownership costs as a percent of household income","select str_to_date(concat(year,'-01-01'),'%Y-%m-%d') as `Year`, sum(number_of_units*(income_percent_max+income_percent_min)/2)/sum(number_of_units) as `SMOCAPI`
+from household_income_percent_with_mortgage
+group by year;","household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"
+"For year 2017, get zipcodes in Georgia where SMOCAPI is greater than 28.","select substring(household_income_percent_with_mortgage.zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Change in monthly home-ownership costs as a percentage of household income` from household_income_percent_with_mortgage 
+where year=2017
+group by household_income_percent_with_mortgage.zipcode
+having `Change in monthly home-ownership costs as a percentage of household income` > 28;","household_income_percent_without_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,694; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 1,400; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 945; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 2,309; 35; 100
+2015; 8600000US30005; ZCTA5 30005; 3,788; 0; 20"
+"For year 2017, get zipcodes in Georgia where GRAPI is greater than or equal to 30.","select substring(housing_gross_rent_percent.zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Gross rent percent` 
+from housing_gross_rent_percent
+where year=2017
+group by zipcode
+having `Gross rent percent` >= 30;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"
+"For year 2022, get zipcodes in Georgia where GRAPI is greater than 30.","select substring(housing_gross_rent_percent.zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Gross rent percent` 
+from housing_gross_rent_percent
+where year=2022
+group by zipcode
+having `Gross rent percent` > 30;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"
+Select share of each fuel source for heating in year 2022.,"select year, (sum(utility_gas)/(sum(total_heating_units)))*100 as 'utility_gas', 
+(sum(bottled_tank_or_LP_gas)/(sum(total_heating_units)))*100 as 'bottled_tank_or_LP_gas', 
+(sum(electricity)/(sum(total_heating_units)))*100 as 'electricity', 
+(sum(fuel_oil_kerosene)/(sum(total_heating_units)))*100 as 'fuel_oil_kerosene', 
+(sum(coal_or_coke)/(sum(total_heating_units)))*100 as 'coal_or_coke',
+(sum(wood)/(sum(total_heating_units)))*100 as 'wood', 
+(sum(solar_energy)/(sum(total_heating_units)))*100 as 'solar_energy',
+(sum(utility_gas)/(sum(total_heating_units)))*100 as 'utility_gas', 
+(sum(no_fuel_used)/(sum(total_heating_units)))*100 as 'no_fuel_used'
+from housing_heating_fuel 
+where year=2022;","housing_heating_fuel (year, id, zipcode, total_heating_units, utility_gas, bottled_tank_or_LP_gas, electricity, fuel_oil_kerosene, coal_or_coke, wood, solar_energy, other_fuel, no_fuel_used)","2015; 8600000US30005; ZCTA5 30005; 12,284; 8,551; 138; 3,538; 0; 0; 0; 0; 0; 57
+2015; 8600000US30008; ZCTA5 30008; 10,372; 6,833; 26; 3,458; 0; 0; 12; 0; 0; 43
+2015; 8600000US30009; ZCTA5 30009; 6,129; 3,946; 86; 2,067; 0; 0; 0; 0; 13; 17
+2015; 8600000US30011; ZCTA5 30011; 4,752; 1,118; 122; 3,405; 20; 0; 23; 0; 0; 64
+2015; 8600000US30012; ZCTA5 30012; 8,816; 3,199; 312; 5,123; 58; 0; 95; 0; 9; 20"
+"For the year 2022, select zipcodes in Georgia where Home-ownership costs as a %age of household income is more than 28%","select substring(zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Monthly home-ownership costs as a percentage of household income` from household_income_percent_with_mortgage where year=2022 group by zipcode having `Monthly home-ownership costs as a percentage of household income` >= 30;","household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"
+"For each zipcode, get count of units with and without mortgage in year 2022.","select substring(zipcode, 7, 10) as zcta, units_with_mortgage, units_without_mortgage
+from housing_mortgage where year=2022","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"
+Get count of units with and without mortgage averaged over years.,"select year, avg(units_with_mortgage) as 'units_with_mortgage', avg(units_without_mortgage) as 'units_without_mortgage'
+from housing_mortgage
+group by year;","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"
+Get count of units with and without mortgage for year 2022.,"select substring(zipcode, 7, 10) as zcta, units_with_mortgage, units_without_mortgage
+from housing_mortgage where year=2022","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"
+Get average house price for each zip code in a given year.,"select substring(housing_value.zipcode, 7, 10) as zcta, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as housing_value_weighted_avg
+from housing_value where year={{year}} group by zipcode","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+Get median housing value by zipcode.,"WITH CumulativeUnits AS (
+    SELECT
+        zipcode,
+        house_value_min,
+        house_value_max,
+        number_of_units,
+        SUM(number_of_units) OVER (PARTITION BY zipcode ORDER BY house_value_max) AS cumulative_units
+    FROM
+        housing_value
+),
+TotalUnits AS (
+    SELECT
+        zipcode,
+        SUM(number_of_units) AS total_units
+    FROM
+        housing_value
+    GROUP BY
+        zipcode
+)
+SELECT
+    substring(t.zipcode, 7, 10) as zcta,
+    CASE
+        WHEN t.total_units % 2 = 1 THEN
+            (SELECT (h.house_value_max + h.house_value_min) / 2
+            FROM CumulativeUnits h
+            WHERE h.zipcode = t.zipcode AND h.cumulative_units >= t.total_units / 2
+            LIMIT 1)
+        ELSE
+            (SELECT (h.house_value_max + COALESCE((LAG(h.house_value_max) OVER (PARTITION BY h.zipcode ORDER BY h.house_value_max)), 0)) / 2.0
+            FROM CumulativeUnits h
+            WHERE h.zipcode = t.zipcode AND h.cumulative_units >= t.total_units / 2
+            LIMIT 1)
+    END AS median
+FROM
+    TotalUnits t;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+"For each zipcode, count houses built in or after 2020.","select substring(zipcode, 7, 10) as zcta, number_of_units from housing_year_built where year_built_min = 2020;","housing_year_built (year, id, zipcode, number_of_units, year_built_min, year_built_max)","2022; 860Z200US30004; ZCTA5 30004; 38; 1940; 1949
+2022; 860Z200US30004; ZCTA5 30004; 179; 1950; 1959
+2022; 860Z200US30004; ZCTA5 30004; 126; 1960; 1969
+2022; 860Z200US30004; ZCTA5 30004; 1,223; 1970; 1979
+2022; 860Z200US30004; ZCTA5 30004; 2,716; 1980; 1989"
+Get percentage of zipcodes having GRAPI greater than 28% in year 2022,"SELECT 100*grapi_zipcodes/total as `Zipcodes with GRAPI greater than 28%` FROM
+(SELECT 
+    COUNT(h.zipcode) as grapi_zipcodes
+FROM 
+    (SELECT DISTINCT zipcode, SUM(a.number_of_units*(a.income_percent_max+a.income_percent_min)/2)/SUM(a.number_of_units) AS smocapi 
+    FROM housing_gross_rent_percent AS a 
+    WHERE year = 2022 
+    GROUP BY zipcode 
+    HAVING smocapi >= 30) AS h) as t1,
+(SELECT COUNT(DISTINCT zipcode) as total
+    FROM housing_gross_rent_percent
+    WHERE year = 2022) as t2;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"
+Get percentage of zipcodes having SMOCAPI greater than 30% in year 2022.,"SELECT 100*smocapi_zipcodes/total as `Zipcodes with SMOCAPI greater than 28%` FROM
+(SELECT 
+    COUNT(h.zipcode) as smocapi_zipcodes
+FROM 
+    (SELECT DISTINCT zipcode, SUM(a.number_of_units*(a.income_percent_max+a.income_percent_min)/2)/SUM(a.number_of_units) AS smocapi 
+    FROM household_income_percent_with_mortgage AS a 
+    WHERE year = 2022 
+    GROUP BY zipcode 
+    HAVING smocapi >= 30) AS h) as t1,
+(SELECT COUNT(DISTINCT zipcode) as total
+    FROM household_income_percent_with_mortgage 
+    WHERE year = 2022) as t2;","household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"
+Get average population of males and females by year in Georgia,"select year, avg(total_population_male), avg(total_population_female) from demographic_basics group by year;","demographic_basics (year, id, zipcode, total_population, total_population_male, total_population_female, total_population_sex_ratio, total_population_median_age, total_housing_units, voting_age_population, voting_age_popul, voting_age_population_female)","2015; 8600000US30005; ZCTA5 30005; 19,730; 19,157; 12,910; 21,341; 10,817; 10,524
+2015; 8600000US30008; ZCTA5 30008; 16,893; 16,012; 11,594; 18,916; 9,498; 9,418
+2015; 8600000US30009; ZCTA5 30009; 7,190; 7,569; 6,327; 9,875; 4,539; 5,336
+2015; 8600000US30011; ZCTA5 30011; 7,459; 7,141; 5,203; 10,378; 5,266; 5,112
+2015; 8600000US30012; ZCTA5 30012; 13,506; 13,727; 10,324; 17,599; 8,397; 9,202"
+"For year 2022, get gender ratio between males and females for each zipcode in Georgia.","select substring(zipcode, 7, 10) as zcta, avg(total_population_male/total_population_female) from demographic_basics where year=2022 group by zipcode;","demographic_basics (year, id, zipcode, total_population, total_population_male, total_population_female, total_population_sex_ratio, total_population_median_age, total_housing_units, voting_age_population, voting_age_popul, voting_age_population_female)","2015; 8600000US30005; ZCTA5 30005; 19,730; 19,157; 12,910; 21,341; 10,817; 10,524
+2015; 8600000US30008; ZCTA5 30008; 16,893; 16,012; 11,594; 18,916; 9,498; 9,418
+2015; 8600000US30009; ZCTA5 30009; 7,190; 7,569; 6,327; 9,875; 4,539; 5,336
+2015; 8600000US30011; ZCTA5 30011; 7,459; 7,141; 5,203; 10,378; 5,266; 5,112
+2015; 8600000US30012; ZCTA5 30012; 13,506; 13,727; 10,324; 17,599; 8,397; 9,202"
+"For each year after 2016, get average count of each ethnicity in Georgia.","select year, avg(white) as 'white', avg(black) as 'black', avg(asian) as 'asian', avg(american_indian_and_alaska_native) as 'american_indian_and_alaska_native', 
+avg(native_hawaiian_and_other_pacific_islander) as 'native_hawaiian_and_other_pacific_islander', avg(hispanic_or_latino) as 'hispanic_or_latino' 
+from demographic_race where year > 2016 group by year;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get average count of each ethnicity grouped by zipcode.","select substring(zipcode, 7, 10) as zcta, avg(white), avg(black), avg(asian), avg(american_indian_and_alaska_native), avg(native_hawaiian_and_other_pacific_islander) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get percentage of American Indian and Alaskan Natives with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(american_indian_and_alaska_native)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get percentage of Asians with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(asian)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get percentage of Blacks with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(black)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get percentage of Hispanics/Latinos with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(hispanic_or_latino)/avg(hispanic_or_latino_total) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get percentage of Native Hawaiian and other Pacific Inlander with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(native_hawaiian_and_other_pacific_islander)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For year 2022, get percentage of Whites with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(white)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+"For each zipcode in Atlanta, get change in percentage of those travelling in car alone between year 2019 and 2022","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, ((car_alone/total_workers)*100 - commute_old.public_transport_percent) as commute_change
+FROM economic_commute_to_work 
+join (select zipcode, (car_alone/total_workers)*100 as public_transport_percent
+    from economic_commute_to_work where year=2019) as commute_old 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ; 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ; 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ; 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ; "
+"For each zipcode in Georgia, give the change in mean commute time between 2017 and 2022","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, mean_travel_time - commute_old.mean_time as commute_change
+FROM economic_commute_to_work 
+join (select zipcode, mean_travel_time as mean_time
+    from economic_commute_to_work where year=2017) as commute_old 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ; 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ; 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ; 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ; "
+"For each zipcode in Atlanta, get change in percentage of those working from home between year 2019 and 2022","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, ((work_from_home/total_workers)*100 - commute_old.public_transport_percent) as work_from_home_change
+FROM economic_commute_to_work 
+join (select zipcode, (work_from_home/total_workers)*100 as public_transport_percent
+    from economic_commute_to_work where year=2019) as commute_old 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ; 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ; 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ; 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ; "
+"For year 2022, get percentage of each commute type when commuting to work.","select year, (sum(car_alone)/sum(total_workers))*100 as 'car_alone', (sum(car_pool)/sum(total_workers))*100 as 'car_pool', (sum(public_transport)/sum(total_workers))*100 as 'public_transport', (sum(walk)/sum(total_workers))*100 as 'walk', (sum(work_from_home)/sum(total_workers))*100 as 'work_from_home' 
+from economic_commute_to_work
+where year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ; 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ; 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ; 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ; "
+Get median and mean household income for each year.,"SELECT year, avg(median_household_income) as `Median household income`, avg(mean_household_income) as `Mean household income` FROM economic_income_and_benefits group by year;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"
+Get percentage of households with and without mortgage for each year.,"select year, avg(units_with_mortgage) as `Units with mortgage`, avg(units_without_mortgage) as `Units without mortgage` from housing_mortgage group by year;","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"
+Get mean commute time by zipcode in the year 2022.,"select substring(zipcode, 7, 10) as zcta, avg(mean_travel_time) from economic_commute_to_work where year=2022 group by zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"
+"For each zipcode in year 2022, get median household income.","SELECT substring(zipcode, 7, 10) as zcta, avg(median_household_income), avg(mean_household_income) FROM economic_income_and_benefits WHERE year=2022 group by zcta;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"
+"For each zipcode, get change in averaged median household income from 2017 to 2022.","SELECT substring(economic_income_and_benefits.zipcode, 7, 10) as zcta, avg(median_household_income) - median_2017.median_income FROM economic_income_and_benefits join
+(SELECT zipcode, avg(median_household_income) as median_income FROM economic_income_and_benefits where year=2016 group by zipcode) median_2017
+on economic_income_and_benefits.zipcode=median_2017.zipcode
+WHERE year=2022 group by economic_income_and_benefits.zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"
+"For each zipcode of Georgia, get median and mean household income over all the years.","SELECT substring(zipcode, 7, 10) as zcta, avg(median_household_income), avg(mean_household_income) FROM economic_income_and_benefits group by zcta;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"
+"For each zipcode in Georgia, get the count of non-US citizens and foreign born population","select substring(zipcode,7,10) as zcta, foreign_born_population, not_a_us_citizen from social_citizenship_status where year=2022","social_citizenship_status (year, id, zipcode, foreign_born_population, naturalized_us_citizen, not_a_us_citizen)","2015; 8600000US30005; ZCTA5 30005; 10,920; 5,035; 5,885
+2015; 8600000US30008; ZCTA5 30008; 7,428; 1,757; 5,671
+2015; 8600000US30009; ZCTA5 30009; 2,376; 959; 1,417
+2015; 8600000US30011; ZCTA5 30011; 1,310; 725; 585
+2015; 8600000US30012; ZCTA5 30012; 3,658; 1,367; 2,291"
+"Get the average of each ethnic group (black, white, asian) by year.","SELECT year, avg(black), avg(white), avg(asian) FROM demographic_race group by year;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"
+Get the percentage of types of education attained by population aged 25 and above for each year.,"select year, (sum(less_than_9th_grade)/sum(population_25_years_and_over))*100 as 'less_than_9th_grade', (sum(9th_to_12th_grade_no_diploma)/sum(population_25_years_and_over))*100 as '9th_to_12th', (sum(high_school_graduate)/sum(population_25_years_and_over))*100 as 'high_school_graduate', (sum(some_college_no_degree)/sum(population_25_years_and_over))*100 as 'some_college_no_degree', (sum(associate_degree)/sum(population_25_years_and_over))*100 as 'associate_degree', (sum(bachelors_degree)/sum(population_25_years_and_over))*100 as 'bachelors_degree', (sum(graduate_or_professional_degree)/sum(population_25_years_and_over))*100 as 'graduate_or_professional_degree' 
+from social_education_attainment
+group by year;","social_education_attainment (year, id, zipcode, population_25_years_and_over, less_than_9th_grade, 9th_to_12th_grade_no_diploma, high_school_graduate, some_college_no_degree, associate_degree, bachelors_degree, graduate_or_professional_degree, high_school graduate_or_higher, bachelors_degree_or_higher)","2015; 8600000US30005; ZCTA5 30005; 23,756; 279; 467; 2,062; 3,507; 1,441; 9,764; 6,236; 0; 0
+2015; 8600000US30008; ZCTA5 30008; 20,488; 2,121; 2,366; 5,329; 4,558; 1,297; 3,440; 1,377; 0; 0
+2015; 8600000US30009; ZCTA5 30009; 10,293; 281; 253; 1,571; 2,008; 977; 3,459; 1,744; 0; 0
+2015; 8600000US30011; ZCTA5 30011; 9,390; 459; 786; 3,478; 2,012; 737; 1,288; 630; 0; 0
+2015; 8600000US30012; ZCTA5 30012; 17,005; 1,507; 2,105; 6,380; 3,608; 1,026; 1,610; 769; 0; 0"
+"For all years after 2016, for each zipcode, get percentage of households with a computer and percentage of housholds with broadband subscription.","select year, (sum(with_a_computer)/sum(total_households))*100 as 'with_computer', (sum(with_broadband_internet_subscription)/sum(total_households))*100 as 'broadband_connection' from social_computer_internet_usage where year>=2017 group by year;","social_computer_internet_usage (year, id, zipcode, total_households, with_a_computer, with_broadband_internet_subscription)","2015; 8600000US30005; ZCTA5 30005; (X); (X); (X)
+2015; 8600000US30008; ZCTA5 30008; (X); (X); (X)
+2015; 8600000US30009; ZCTA5 30009; (X); (X); (X)
+2015; 8600000US30011; ZCTA5 30011; (X); (X); (X)
+2015; 8600000US30012; ZCTA5 30012; (X); (X); (X)"

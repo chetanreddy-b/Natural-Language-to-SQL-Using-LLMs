@@ -1,0 +1,408 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table
+"For each area of Atlanta give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+    c.Area_Name,
+    c.Cumulative_Crime_Count,
+    c.Latest_Crime_Date,
+    c.Latest_Crime_Type,
+    IFNULL(mct.Most_Common_Crime_Type, 'Unknown') AS Most_Common_Crime_Type,
+    IFNULL((c.Crime_Change / c.Cumulative_Crime_Count) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+    SELECT
+        Area_Name,
+        COUNT(*) AS Cumulative_Crime_Count,
+        latest_date AS Latest_Crime_Date,
+       SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+        SUM(CASE WHEN Crime_Date >= latest_date - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+    FROM
+        atlanta_crime_data
+    CROSS JOIN (SELECT MAX(Crime_Date) AS latest_date FROM atlanta_crime_data) AS max_date
+    GROUP BY
+        Area_Name, latest_date
+) c
+LEFT JOIN (
+    SELECT
+        Area_Name,
+        Most_Common_Crime_Type
+    FROM (
+        SELECT
+            Area_Name,
+            Crime_Type AS Most_Common_Crime_Type,
+            ROW_NUMBER() OVER(PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            atlanta_crime_data
+        GROUP BY
+            Area_Name, Crime_Type
+    ) ranked_crimes
+    WHERE
+        crime_rank = 1
+) mct ON c.Area_Name = mct.Area_Name
+ORDER BY
+    c.Area_Name ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"
+"For each area of LA give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+    c.Area_Name,
+    c.Cumulative_Crime_Count,
+    c.Latest_Crime_Date,
+    c.Latest_Crime_Type,
+    mct.Most_Common_Crime_Type,
+    IFNULL((c.Crime_Change / c.Cumulative_Crime_Count) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+    SELECT
+        Area_Name,
+        COUNT(*) AS Cumulative_Crime_Count,
+        MAX(Crime_Date) AS Latest_Crime_Date,
+       SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+        SUM(CASE WHEN Crime_Date >= CURDATE() - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+    FROM
+        la_crime_data
+    GROUP BY
+        Area_Name
+) c
+LEFT JOIN (
+    SELECT
+        Area_Name,
+        Most_Common_Crime_Type
+    FROM (
+        SELECT
+            Area_Name,
+            Crime_Type AS Most_Common_Crime_Type,
+            ROW_NUMBER() OVER(PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            la_crime_data
+        GROUP BY
+            Area_Name, Crime_Type
+    ) ranked_crimes
+    WHERE
+        crime_rank = 1
+) mct ON c.Area_Name = mct.Area_Name
+ORDER BY
+    c.Area_Name ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+"For each area of New York give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+    c.Area_Name,
+    c.Cumulative_Crime_Count,
+    c.Latest_Crime_Date,
+    c.Latest_Crime_Type,
+    mct.Most_Common_Crime_Type,
+    IFNULL((c.Crime_Change / c.Cumulative_Crime_Count) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+    SELECT
+        Area_Name,
+        COUNT(*) AS Cumulative_Crime_Count,
+        MAX(Crime_Date) AS Latest_Crime_Date,
+       SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+        SUM(CASE WHEN Crime_Date >= (SELECT MAX(Crime_Date) FROM nyc_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+    FROM
+        nyc_crime_data
+    GROUP BY
+        Area_Name
+) c
+LEFT JOIN (
+    SELECT
+        Area_Name,
+        Most_Common_Crime_Type
+    FROM (
+        SELECT
+            Area_Name,
+            Crime_Type AS Most_Common_Crime_Type,
+            ROW_NUMBER() OVER(PARTITION BY Area_Name ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            nyc_crime_data
+        GROUP BY
+            Area_Name, Crime_Type
+    ) ranked_crimes
+    WHERE
+        crime_rank = 1
+) mct ON c.Area_Name = mct.Area_Name
+ORDER BY
+    c.Area_Name ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+"For each area of Philly give the total crime count, last reported date of any crime and the type of crime, most common crime type and weekly increase in crimes by percentage.","SELECT
+    CONCAT(FLOOR(c.`Area_#` / 10) * 10, ' - ', FLOOR(c.`Area_#` / 10) * 10 + 9) AS Area_Num_Range,
+    SUM(c.Cumulative_Crime_Count) AS Cumulative_Crime_Count,
+    MAX(c.Latest_Crime_Date) AS Latest_Crime_Date,
+    MAX(c.Latest_Crime_Type) AS Latest_Crime_Type,
+    MAX(mct.Most_Common_Crime_Type) AS Most_Common_Crime_Type,
+    IFNULL((SUM(c.Crime_Change) / SUM(c.Cumulative_Crime_Count)) * 100, 0) AS Crime_Change_Last_Week_Proportion
+FROM (
+    SELECT
+        `Area_#`,
+        COUNT(*) AS Cumulative_Crime_Count,
+        MAX(Crime_Date) AS Latest_Crime_Date,
+       SUBSTRING_INDEX(GROUP_CONCAT(Crime_Type ORDER BY Crime_Date DESC), ',', 1) AS Latest_Crime_Type,
+        SUM(CASE WHEN Crime_Date >= (SELECT MAX(Crime_Date) FROM philly_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) AS Crime_Change
+    FROM
+        philly_crime_data
+    GROUP BY
+        `Area_#`
+) c
+LEFT JOIN (
+    SELECT
+        `Area_#`,
+        Most_Common_Crime_Type
+    FROM (
+        SELECT
+            `Area_#`,
+            Crime_Type AS Most_Common_Crime_Type,
+            ROW_NUMBER() OVER(PARTITION BY `Area_#` ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            philly_crime_data
+        GROUP BY
+            `Area_#`, Crime_Type
+    ) ranked_crimes
+    WHERE
+        crime_rank = 1
+) mct ON c.`Area_#` = mct.`Area_#`
+GROUP BY
+    CONCAT(FLOOR(c.`Area_#` / 10) * 10, ' - ', FLOOR(c.`Area_#` / 10) * 10 + 9)
+ORDER BY
+    CONCAT(FLOOR(c.`Area_#` / 10) * 10, ' - ', FLOOR(c.`Area_#` / 10) * 10 + 9);","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+"For each crime type in LA, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+    a.Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(a.Crime_Date) AS Last_Date_Reported,
+    MAX(a.Area_Name) AS Last_Area_Reported,
+    ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+    IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM la_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+    la_crime_data a
+LEFT JOIN (
+    SELECT
+        Crime_Type,
+        Area_Name AS Most_Common_Area
+    FROM (
+        SELECT
+            Crime_Type,
+            Area_Name,
+            ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            la_crime_data
+        GROUP BY
+            Crime_Type, Area_Name
+    ) ranked_areas
+    WHERE
+        crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+    a.Crime_Type
+ORDER BY
+    a.Crime_Type ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+"For each crime type in New York, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+    a.Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(a.Crime_Date) AS Last_Date_Reported,
+    MAX(a.Area_Name) AS Last_Area_Reported,
+    ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+    IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM nyc_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+    nyc_crime_data a
+LEFT JOIN (
+    SELECT
+        Crime_Type,
+        Area_Name AS Most_Common_Area
+    FROM (
+        SELECT
+            Crime_Type,
+            Area_Name,
+            ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            nyc_crime_data
+        GROUP BY
+            Crime_Type, Area_Name
+    ) ranked_areas
+    WHERE
+        crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+    a.Crime_Type
+ORDER BY
+    a.Crime_Type ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "
+"For each crime type in Philly, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+    a.Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(a.Crime_Date) AS Last_Date_Reported,
+    MAX(a.`Area_#`) AS Last_Area_Reported,
+    ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+    IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM philly_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+    philly_crime_data a
+LEFT JOIN (
+    SELECT
+        Crime_Type,
+        `Area_#` AS Most_Common_Area
+    FROM (
+        SELECT
+            Crime_Type,
+            `Area_#`,
+            ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            philly_crime_data
+        GROUP BY
+            Crime_Type, `Area_#`
+    ) ranked_areas
+    WHERE
+        crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+    a.Crime_Type
+ORDER BY
+    a.Crime_Type ASC;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"
+Give count of each crime type for each month in LA.,"SELECT
+    MONTH(lcd.Crime_Date) AS Month,
+    CASE 
+        WHEN lcd.Crime_Type IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+        WHEN lcd.Crime_Type = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+        WHEN lcd.Crime_Type = 'BURGLARY' THEN 'BURGLARY'
+        WHEN lcd.Crime_Type = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+        WHEN lcd.Crime_Type = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+        WHEN lcd.Crime_Type = 'ROBBERY' THEN 'ROBBERY'
+        WHEN lcd.Crime_Type = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+        WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+        WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+        WHEN lcd.Crime_Type = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+        WHEN lcd.Crime_Type = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+        WHEN lcd.Crime_Type = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+        WHEN lcd.Crime_Type = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+        WHEN lcd.Crime_Type = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+        WHEN lcd.Crime_Type = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+        ELSE 'Other'
+    END AS Crime_Type_Grouped,
+    COUNT(*) AS Crime_Count
+FROM
+    la_crime_data lcd
+GROUP BY
+    Month,
+    Crime_Type_Grouped
+ORDER BY
+    Month,
+    Crime_Type_Grouped;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give count of each crime type for each hour of the day in LA.,"SELECT
+  FLOOR(lcd.Crime_Time / 100) + 1 AS Hour,
+  CASE 
+    WHEN lcd.Crime_Type IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+    WHEN lcd.Crime_Type = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+    WHEN lcd.Crime_Type = 'BURGLARY' THEN 'BURGLARY'
+    WHEN lcd.Crime_Type = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+    WHEN lcd.Crime_Type = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+    WHEN lcd.Crime_Type = 'ROBBERY' THEN 'ROBBERY'
+    WHEN lcd.Crime_Type = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+    WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+    WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+    WHEN lcd.Crime_Type = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+    WHEN lcd.Crime_Type = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+    WHEN lcd.Crime_Type = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+    WHEN lcd.Crime_Type = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+    WHEN lcd.Crime_Type = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+    WHEN lcd.Crime_Type = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+    ELSE 'Other'
+  END AS Crime_Type_Grouped,
+  COUNT(*) AS Count
+FROM
+  la_crime_data lcd
+GROUP BY
+  Hour,
+  Crime_Type_Grouped
+ORDER BY
+  Hour ASC,
+  Crime_Type_Grouped ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+Give count of each crime type for each day of the week in LA.,"SELECT
+  DAYOFWEEK(lcd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(lcd.Crime_Date) AS Crime_Day_Name,
+  CASE 
+    WHEN lcd.Crime_Type IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+    WHEN lcd.Crime_Type = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+    WHEN lcd.Crime_Type = 'BURGLARY' THEN 'BURGLARY'
+    WHEN lcd.Crime_Type = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+    WHEN lcd.Crime_Type = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+    WHEN lcd.Crime_Type = 'ROBBERY' THEN 'ROBBERY'
+    WHEN lcd.Crime_Type = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+    WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+    WHEN lcd.Crime_Type = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+    WHEN lcd.Crime_Type = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+    WHEN lcd.Crime_Type = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+    WHEN lcd.Crime_Type = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+    WHEN lcd.Crime_Type = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+    WHEN lcd.Crime_Type = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+    WHEN lcd.Crime_Type = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+    ELSE 'Other'
+  END AS Crime_Type_Grouped,
+  COUNT(*) AS Crime_Count
+FROM
+  la_crime_data lcd
+GROUP BY
+  Crime_Day_Number,
+  Crime_Day_Name,
+  Crime_Type_Grouped
+ORDER BY
+  Crime_Day_Number,
+  Crime_Type_Grouped;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"
+"For each area in LA, give count of each crime type.","SELECT
+  `la_crime_data`.`Area_Name` AS `Area_Name`,
+  CASE 
+    WHEN `la_crime_data`.`Crime_Type` IN ('ASSAULT WITH DEADLY WEAPON', 'AGGRAVATED ASSAULT') THEN 'ASSAULT WITH DEADLY WEAPON, AGGRAVATED ASSAULT'
+    WHEN `la_crime_data`.`Crime_Type` = 'BATTERY - SIMPLE ASSAULT' THEN 'BATTERY - SIMPLE ASSAULT'
+    WHEN `la_crime_data`.`Crime_Type` = 'BURGLARY' THEN 'BURGLARY'
+    WHEN `la_crime_data`.`Crime_Type` = 'BURGLARY FROM VEHICLE' THEN 'BURGLARY FROM VEHICLE'
+    WHEN `la_crime_data`.`Crime_Type` = 'INTIMATE PARTNER - SIMPLE ASSAULT' THEN 'INTIMATE PARTNER - SIMPLE ASSAULT'
+    WHEN `la_crime_data`.`Crime_Type` = 'ROBBERY' THEN 'ROBBERY'
+    WHEN `la_crime_data`.`Crime_Type` = 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)' THEN 'SHOPLIFTING - PETTY THEFT ($950 & UNDER)'
+    WHEN `la_crime_data`.`Crime_Type` = 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)' THEN 'THEFT FROM MOTOR VEHICLE - GRAND ($950.01 AND OVER)'
+    WHEN `la_crime_data`.`Crime_Type` = 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)' THEN 'THEFT FROM MOTOR VEHICLE - PETTY ($950 & UNDER)'
+    WHEN `la_crime_data`.`Crime_Type` = 'THEFT OF IDENTITY' THEN 'THEFT OF IDENTITY'
+    WHEN `la_crime_data`.`Crime_Type` = 'THEFT PLAIN - PETTY ($950 & UNDER)' THEN 'THEFT PLAIN - PETTY ($950 & UNDER)'
+    WHEN `la_crime_data`.`Crime_Type` = 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD' THEN 'THEFT-GRAND ($950.01 & OVER)EXCPT,GUNS,FOWL,LIVESTK,PROD'
+    WHEN `la_crime_data`.`Crime_Type` = 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)' THEN 'VANDALISM - FELONY ($400 & OVER, ALL CHURCH VANDALISMS)'
+    WHEN `la_crime_data`.`Crime_Type` = 'VANDALISM - MISDEMEANOR ($399 OR UNDER)' THEN 'VANDALISM - MISDEMEANOR ($399 OR UNDER)'
+    WHEN `la_crime_data`.`Crime_Type` = 'VEHICLE - STOLEN' THEN 'VEHICLE - STOLEN'
+    ELSE 'Other'
+  END AS `Crime_Type_Grouped`,
+  COUNT(*) AS `Count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `Area_Name`,
+  `Crime_Type_Grouped`
+ORDER BY
+  `Area_Name` ASC,
+  `Crime_Type_Grouped` ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"

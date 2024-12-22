@@ -1,0 +1,338 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table
+"For each zipcode in Atlanta, give the change in average house rent from 2019 to 2022, i.e., from pre-COVID to post-COVID period.","select substring(housing_rent.zipcode, 7, 10) as zcta, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) - h.rent_weighted_avg as decimal(8,2)) as rent_change
+from housing_rent join 
+(select zipcode, (sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as rent_weighted_avg
+from housing_rent where year=2019 group by zipcode) as h on h.zipcode=housing_rent.zipcode
+where year=2022 
+group by housing_rent.zipcode","housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For each zipcode in Georgia, give the change in average house rent from 2017 to 2022.","select substring(housing_value.zipcode, 7, 10) as zcta, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) - h.housing_value_weighted_avg as decimal(8,2)) as change_in_housing_value
+from housing_value join 
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg
+from housing_value where year=2017 group by zipcode) as h on h.zipcode=housing_value.zipcode
+where year=2022 
+group by housing_value.zipcode","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+"For each year, get rent and value of house averaged over all zip codes.","select STR_TO_DATE(CONCAT(house_rent_value.year, '-01-01'), '%Y-%m-%d') AS year_date, avg(rent_weighted_average) as rent, avg(house_value_weighted_average) as house_value 
+from
+(select rent_avg.*, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode) as house_rent_value 
+group by year;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For each zip code, get rent and value of house averaged over all years.","select substring(zipcode, 7, 10) as zip, avg(rent_weighted_average) as rent, avg(house_value_weighted_average) as house_value 
+from
+(select rent_avg.*, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode) as house_rent_value 
+group by zip;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For each zip code, get the average rent and maintenance cost for households without mortgage.","select substring(rent_affordability.zipcode, 7, 10) as zcta, rent_affordability.rent_weighted_avg, maintenance_costs.maintenance_weighted_avg_without_mortgage
+from 
+(select zipcode, (sum(number_of_units*((income_percent_min+income_percent_max)/2))/sum(number_of_units)) as maintenance_weighted_avg_without_mortgage from household_income_percent_without_mortgage where year=2022 group by zipcode) as maintenance_costs,
+(select zipcode, (sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as rent_weighted_avg from housing_rent where year=2022 group by zipcode) as rent_affordability
+where maintenance_costs.zipcode = rent_affordability.zipcode;","household_income_percent_without_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 1,694; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 1,400; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 945; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 2,309; 35; 100
+2015; 8600000US30005; ZCTA5 30005; 3,788; 0; 20
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For year 2022 and for each zipcode, get average rent value and house price.","select rent_avg.year, rent_avg.zipcode, rent_avg.rent_weighted_average, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode and rent_avg.year=2022;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For each zipcode, get average rent value and house price.","select substring(zipcode, 7, 10) as zip, avg(rent_weighted_average) as rent, avg(house_value_weighted_average) as house_value 
+from
+(select rent_avg.*, house_value_avg.house_value_weighted_average
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, 
+(select year, zipcode, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as house_value_weighted_average
+from housing_value
+group by year, zipcode) as house_value_avg
+where rent_avg.year = house_value_avg.year and rent_avg.zipcode = house_value_avg.zipcode) as house_rent_value 
+group by zip;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+Get total housing units in 2022 grouped by zipcode.,"select substring(zipcode, 7, 10) as zcta, sum(total_units) as total_units from
+(select zipcode, sum(number_of_units) as total_units from housing_value where year=2022 group by zipcode union all select zipcode, sum(number_of_units) as total_units from housing_rent where year=2022 group by zipcode) h group by zipcode;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For all years after 2016, for each zipcode get percentage of marginalized communities (black, asian, american indian & alaskan native, native hawaiian & pacific inlander) and average SMOCAPI.","select substring(demographic_race.zipcode,7,10) as zcta, 100*(avg(black) + avg(asian) + avg(american_indian_and_alaska_native) + avg(native_hawaiian_and_other_pacific_islander))/avg(race_total_population) as 'Percent Marginalized Communities', sum(number_of_units*(income_percent_max+income_percent_min)/2)/sum(number_of_units) as smocapi
+from demographic_race join household_income_percent_with_mortgage on demographic_race.zipcode=household_income_percent_with_mortgage.zipcode where demographic_race.year>2016 and household_income_percent_with_mortgage.year>2016
+group by demographic_race.zipcode","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)
+household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161
+
+2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"
+"For each zipcode, get mean commute time and average housing value.","select substring(housing_affordability.zipcode, 7, 10) as zcta, housing_affordability.housing_value_weighted_avg, mean_commute.mean_time
+from 
+(select zipcode, avg(mean_travel_time) as mean_time from economic_commute_to_work where year=2022 group by zipcode) as mean_commute,
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg from housing_value where year=2022 group by zipcode) as housing_affordability
+where mean_commute.zipcode = housing_affordability.zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+Get average housing rent and mean household income across all zipcodes for the year 2022.,"select rent_avg.*, economic_income_and_benefits.mean_household_income
+from (select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent
+group by year, zipcode) as rent_avg, economic_income_and_benefits
+where rent_avg.year = economic_income_and_benefits.year and rent_avg.zipcode = economic_income_and_benefits.zipcode and rent_avg.year=2022;","housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)
+economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999
+
+2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"
+"For each zipcode, get percentage of units with mortgage and median household income.","select m.zipcode, avg(units_with_mortgage)/avg(units_with_mortgage+units_without_mortgage), avg(median_household_income)
+from housing_mortgage as m join economic_income_and_benefits as e on m.zipcode=e.zipcode
+group by m.zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)
+housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00
+
+2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"
+"For each zipcode in the year 2022, get average housing value and median household income.","SELECT
+  `source`.`zipcode` AS `zipcode`,
+  `source`.`house_value_weighted_average` AS `house_value_weighted_average`,
+  `Economic Income And Benefits`.`median_household_income` AS `Economic Income And Benefits__median_household_income`
+FROM
+  (
+    select
+      zipcode,
+      cast(
+        (
+          sum(
+            number_of_units * ((house_value_min + house_value_max) / 2)
+          ) / sum(number_of_units)
+        ) as decimal(8, 2)
+      ) as house_value_weighted_average
+    from
+      housing_value
+    where
+      year = 2022
+    group by
+      zipcode
+  ) AS `source`
+ 
+LEFT JOIN `economic_income_and_benefits` AS `Economic Income And Benefits` ON `source`.`zipcode` = `Economic Income And Benefits`.`zipcode`
+WHERE
+  `Economic Income And Benefits`.`year` = 2022
+LIMIT
+  1048575","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+"For each zipcode of Georgia, find the change in percentage of population with no health insurance from year 2017 to 2022.","SELECT substring(economic_health_insurance.zipcode, 7, 10) as zip, 100*no_health_insurance/total_population - avg_no_health_insurance.a as change_from_average
+FROM economic_health_insurance 
+join (select zipcode, avg(100*no_health_insurance/total_population) as a
+    from economic_health_insurance where year=2017 group by zipcode) as avg_no_health_insurance 
+on avg_no_health_insurance.zipcode=economic_health_insurance.zipcode
+where economic_health_insurance.year=2022;","economic_health_insurance (year, id, zipcode, total_population, with_health_insurance, no_health_insurance)","2015; 8600000US30005; ZCTA5 30005; 38,887; 35,420; 3,467
+2015; 8600000US30008; ZCTA5 30008; 30,186; 20,842; 9,344
+2015; 8600000US30009; ZCTA5 30009; 14,703; 13,475; 1,228
+2015; 8600000US30011; ZCTA5 30011; 14,600; 11,707; 2,893
+2015; 8600000US30012; ZCTA5 30012; 26,548; 19,800; 6,748"
+"For each zipcode in year 2022, get percentage of population with no health insurance and average house rent.","select health_ins.*, rent_avg.rent_weighted_average from 
+(SELECT year, zipcode, 100*(no_health_insurance/total_population) as no_health_insurance
+FROM economic_health_insurance 
+where economic_health_insurance.year=2022) as health_ins,
+(select year, zipcode, cast((sum(number_of_units*((rent_value_min+rent_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as rent_weighted_average
+from housing_rent group by year, zipcode) as rent_avg
+where rent_avg.zipcode = health_ins.zipcode;","economic_health_insurance (year, id, zipcode, total_population, with_health_insurance, no_health_insurance)
+housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)","2015; 8600000US30005; ZCTA5 30005; 38,887; 35,420; 3,467
+2015; 8600000US30008; ZCTA5 30008; 30,186; 20,842; 9,344
+2015; 8600000US30009; ZCTA5 30009; 14,703; 13,475; 1,228
+2015; 8600000US30011; ZCTA5 30011; 14,600; 11,707; 2,893
+2015; 8600000US30012; ZCTA5 30012; 26,548; 19,800; 6,748
+
+2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999"
+"For each zipcode in year 2022, get percentage of population with no health insurance and average housing price.","select health_ins.*, housing_val.housing_value_weighted_avg from 
+(SELECT year, zipcode, 100*(no_health_insurance/total_population) as no_health_insurance
+FROM economic_health_insurance 
+where economic_health_insurance.year=2022) as health_ins,
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg
+from housing_value where year=2022 group by zipcode) as housing_val
+where housing_val.zipcode = health_ins.zipcode;","economic_health_insurance (year, id, zipcode, total_population, with_health_insurance, no_health_insurance)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 38,887; 35,420; 3,467
+2015; 8600000US30008; ZCTA5 30008; 30,186; 20,842; 9,344
+2015; 8600000US30009; ZCTA5 30009; 14,703; 13,475; 1,228
+2015; 8600000US30011; ZCTA5 30011; 14,600; 11,707; 2,893
+2015; 8600000US30012; ZCTA5 30012; 26,548; 19,800; 6,748
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+"For each zipcode in Georgia, get the change in percentage of population commuting via public transport from year 2017 to 2022.","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, ((public_transport/total_workers)*100 - commute_old.public_transport_percent) as commute_change
+FROM economic_commute_to_work 
+join (select zipcode, (public_transport/total_workers)*100 as public_transport_percent
+    from economic_commute_to_work where year=2017) as commute_old 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ; 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ; 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ; 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ; "
+"In year 2022, for each zipcode in Georgia, get the percentage of population with associate and bachelors degree or higher and average housing price.","select substring(h.zipcode, 7, 10) as zcta, ((associate_degree+bachelors_degree_or_higher)/population_25_years_and_over)*100 as education_attaimnemt_percent, h.housing_value_weighted_avg
+from social_education_attainment join 
+(select zipcode, (sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as housing_value_weighted_avg
+from housing_value where year=2022 group by zipcode) as h on h.zipcode=social_education_attainment.zipcode
+where year=2022;","social_education_attainment (year, id, zipcode, population_25_years_and_over, less_than_9th_grade, 9th_to_12th_grade_no_diploma, high_school_graduate, some_college_no_degree, associate_degree, bachelors_degree, graduate_or_professional_degree, high_school graduate_or_higher, bachelors_degree_or_higher)
+housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30005; ZCTA5 30005; 23,756; 279; 467; 2,062; 3,507; 1,441; 9,764; 6,236; 0; 0
+2015; 8600000US30008; ZCTA5 30008; 20,488; 2,121; 2,366; 5,329; 4,558; 1,297; 3,440; 1,377; 0; 0
+2015; 8600000US30009; ZCTA5 30009; 10,293; 281; 253; 1,571; 2,008; 977; 3,459; 1,744; 0; 0
+2015; 8600000US30011; ZCTA5 30011; 9,390; 459; 786; 3,478; 2,012; 737; 1,288; 630; 0; 0
+2015; 8600000US30012; ZCTA5 30012; 17,005; 1,507; 2,105; 6,380; 3,608; 1,026; 1,610; 769; 0; 0
+
+2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"
+"For all years after 2016, for each zipcode get average housing  price and percentage of houses having broadband subscription.","select h.zipcode, sum(number_of_units*(house_value_min+house_value_max)/2)/sum(number_of_units), avg(with_a_computer)/avg(total_households), avg(with_broadband_internet_subscription)/avg(total_households)
+from housing_value as h join social_computer_internet_usage as s on h.zipcode=s.zipcode
+where h.year > 2016 and s.year > 2016
+group by h.zipcode;
+-- select * from social_computer_internet_usage where year>2016","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)
+social_computer_internet_usage (year, id, zipcode, total_households, with_a_computer, with_broadband_internet_subscription)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999
+
+2015; 8600000US30005; ZCTA5 30005; (X); (X); (X)
+2015; 8600000US30008; ZCTA5 30008; (X); (X); (X)
+2015; 8600000US30009; ZCTA5 30009; (X); (X); (X)
+2015; 8600000US30011; ZCTA5 30011; (X); (X); (X)
+2015; 8600000US30012; ZCTA5 30012; (X); (X); (X)"
+"For all years after 2016, for each zipcode get average housing  rent and percentage of houses having broadband subscription.","select h.zipcode, sum(number_of_units*(rent_value_min+rent_value_max)/2)/sum(number_of_units), avg(with_a_computer)/avg(total_households), avg(with_broadband_internet_subscription)/avg(total_households)
+from housing_rent as h join social_computer_internet_usage as s on h.zipcode=s.zipcode
+where h.year > 2016 and s.year > 2016
+group by h.zipcode;","housing_rent (year, id, zipcode, number_of_units, rent_value_min, rent_value_max)
+social_computer_internet_usage (year, id, zipcode, total_households, with_a_computer, with_broadband_internet_subscription)","2015; 8600000US30004; ZCTA5 30004; 1,263; 500; 999
+2015; 8600000US30004; ZCTA5 30004; 2,873; 1000; 1499
+2015; 8600000US30004; ZCTA5 30004; 1,041; 1500; 1999
+2015; 8600000US30004; ZCTA5 30004; 188; 2000; 2499
+2015; 8600000US30004; ZCTA5 30004; 42; 2500; 2999
+
+2015; 8600000US30005; ZCTA5 30005; (X); (X); (X)
+2015; 8600000US30008; ZCTA5 30008; (X); (X); (X)
+2015; 8600000US30009; ZCTA5 30009; (X); (X); (X)
+2015; 8600000US30011; ZCTA5 30011; (X); (X); (X)
+2015; 8600000US30012; ZCTA5 30012; (X); (X); (X)"

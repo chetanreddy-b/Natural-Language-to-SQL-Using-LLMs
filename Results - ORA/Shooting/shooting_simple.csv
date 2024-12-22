@@ -1,0 +1,195 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table,phi,lfm
+Get count of mass shootings for each month in USA.,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  ) AS `IncidentDate`,
+  COUNT(*) AS `count`
+FROM
+  `us_shootings`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  ) ASC","us_shootings (IncidentID, Address, IncidentDate, State, CityOrCountry, VictimsKilled, VictimsInjured, SuspectsInjured, SuspectsKilled, SuspectsArrested)","92194; Rockingham Street and Berkley Avenue Extended; January 1, 2014; virginia; Norfolk; 2; 2; 0; 0; 0
+92704; Farmers Boulevard and 133rd Avenue; January 3, 2014; new york; Queens; 1; 3; 0; 0; 0
+94514; 829 Parade St; January 5, 2014; pennsylvania; Erie; 1; 3; 0; 0; 0
+95146; 3430 W. Capitol Street; January 11, 2014; mississippi; Jackson; 0; 4; 0; 0; 0
+95500; 3600 block of Highway 80 W; January 12, 2014; louisiana; Tallulah; 0; 6; 0; 0; 8"," Here's an SQL query to get the count of mass shootings by month in the USA based on the provided schema:
+
+```sql
+SELECT
+  YEAR(IncidentDate) AS Year,
+  MONTH(IncidentDate) AS Month,
+  COUNT(IncidentID) AS MassShootingsCount
+FROM
+  us_shootings
+GROUP BY
+  YEAR(IncidentDate),
+  MONTH(IncidentDate)
+ORDER BY
+  Year, Month;
+```
+
+This SQL query extracts the year and month from the IncidentDate column, counts the number of IncidentID (representing mass shooting incidents) for each year and month, and groups the results by year and month. The final result is ordered by Year and Month in ascending order.","SELECT 
+    DATE_FORMAT(IncidentDate, '%Y-%M') AS Month, 
+    COUNT(*) AS NumberOfMassShootings
+FROM
+    us_shootings
+WHERE
+    State = 'usa'
+GROUP BY 
+    MONTH(IncidentDate)"
+Get count of suspects arrested each month over the years.,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  ) AS `IncidentDate`,
+  SUM(`us_shootings`.`SuspectsArrested`) AS `sum`,
+  AVG(`us_shootings`.`SuspectsArrested`) AS `avg`
+FROM
+  `us_shootings`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  ) ASC","us_shootings (IncidentID, Address, IncidentDate, State, CityOrCountry, VictimsKilled, VictimsInjured, SuspectsInjured, SuspectsKilled, SuspectsArrested)","92194; Rockingham Street and Berkley Avenue Extended; January 1, 2014; virginia; Norfolk; 2; 2; 0; 0; 0
+92704; Farmers Boulevard and 133rd Avenue; January 3, 2014; new york; Queens; 1; 3; 0; 0; 0
+94514; 829 Parade St; January 5, 2014; pennsylvania; Erie; 1; 3; 0; 0; 0
+95146; 3430 W. Capitol Street; January 11, 2014; mississippi; Jackson; 0; 4; 0; 0; 0
+95500; 3600 block of Highway 80 W; January 12, 2014; louisiana; Tallulah; 0; 6; 0; 0; 8"," To fulfill the request, you can create an SQL query that selects the month and year from the IncidentDate column, groups the results by these two values, and counts the number of suspects arrested for each group. Since the schema indicates that there's a historically consistent format for dates (YYYY-MM-DD), you can use SQL's date functions to extract the month and year. Here's a sample query that you can use:
+
+```sql
+SELECT
+    EXTRACT(YEAR FROM IncidentDate) AS Year,
+    EXTRACT(MONTH FROM IncidentDate) AS Month,
+    COUNT(SuspectsArrested) AS ArrestedSuspectsCount
+FROM us_shootings
+WHERE SuspectsArrested > 0
+GROUP BY Year, Month
+ORDER BY Year, Month;
+```
+
+This query does the following:
+1. It selects the year and month from the IncidentDate.
+2. It counts the number of times `SuspectsArrested` appears greater than 0 for each month and year.
+3. It groups the results by year and month.
+4. It orders the results by year and month in ascending order.
+
+Note: The `EXTRACT` function is used here to fetch the year and month components from the date. However, depending on the SQL dialect you're using (MySQL, PostgreSQL, SQL Server, etc.), the date extraction functions may differ. For example, in SQL Server, you would use `DATEPART(YEAR, IncidentDate)` and `DATEPART(MONTH, IncidentDate)`. Make sure to use the correct function based on the SQL dialect you're working with.","SELECT 
+  DATE_FORMAT(IncidentDate, '%Y-%m') AS MonthYear,
+  COUNT(*) AS SuspectsArrestedCount
+FROM 
+  us_shootings
+WHERE
+  SuspectsArrested > 0
+GROUP BY 
+  MonthYear
+ORDER BY 
+  MonthYear ASC;"
+"Get count of victims injured, suspects arrested and suspects killed for each incident.","SELECT SUM(VictimsInjured) AS VictimsInjured, Sum(SuspectsArrested) AS SuspectsArrested, SUM(SuspectsKilled) AS SuspectsKilled, IncidentDate FROM us_shootings WHERE IncidentDate != '20171001' GROUP BY IncidentDate","us_shootings (IncidentID, Address, IncidentDate, State, CityOrCountry, VictimsKilled, VictimsInjured, SuspectsInjured, SuspectsKilled, SuspectsArrested)","92194; Rockingham Street and Berkley Avenue Extended; January 1, 2014; virginia; Norfolk; 2; 2; 0; 0; 0
+92704; Farmers Boulevard and 133rd Avenue; January 3, 2014; new york; Queens; 1; 3; 0; 0; 0
+94514; 829 Parade St; January 5, 2014; pennsylvania; Erie; 1; 3; 0; 0; 0
+95146; 3430 W. Capitol Street; January 11, 2014; mississippi; Jackson; 0; 4; 0; 0; 0
+95500; 3600 block of Highway 80 W; January 12, 2014; louisiana; Tallulah; 0; 6; 0; 0; 8"," To get count of victims injured, suspects arrested, and suspects killed for each incident, you can use the following SQL query:
+
+```sql
+SELECT 
+  IncidentID, 
+  VictimsInjured, 
+  SuspectsArrested, 
+  SuspectsKilled
+FROM 
+  us_shootings;
+```
+
+This query will return the results you are looking for, with each row representing a different incident and columns for the number of victims injured, the number of suspects arrested, and the number of suspects killed.","SELECT
+    IncidentID,
+    SUM(VictimsKilled) AS Victims_Killed,
+    SUM(VictimsInjured) AS Victims_Injured,
+    SUM(SuspectsInjured) AS Suspects_Injured,
+    SUM(SuspectsKilled) AS Suspects_Killed,
+    SUM(SuspectsArrested) AS Suspects_Arrested
+FROM us_shootings
+GROUP BY IncidentID;"
+"For each month, get count of victims killed and average of victims killed in each shooting incident.","SELECT
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  ) AS `IncidentDate`,
+  SUM(`us_shootings`.`VictimsKilled`) AS `sum`,
+  AVG(`us_shootings`.`VictimsKilled`) AS `avg`
+FROM
+  `us_shootings`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      DATE_FORMAT(`us_shootings`.`IncidentDate`, '%Y-%m'),
+      '-01'
+    ),
+    '%Y-%m-%d'
+  ) ASC","us_shootings (IncidentID, Address, IncidentDate, State, CityOrCountry, VictimsKilled, VictimsInjured, SuspectsInjured, SuspectsKilled, SuspectsArrested)","92194; Rockingham Street and Berkley Avenue Extended; January 1, 2014; virginia; Norfolk; 2; 2; 0; 0; 0
+92704; Farmers Boulevard and 133rd Avenue; January 3, 2014; new york; Queens; 1; 3; 0; 0; 0
+94514; 829 Parade St; January 5, 2014; pennsylvania; Erie; 1; 3; 0; 0; 0
+95146; 3430 W. Capitol Street; January 11, 2014; mississippi; Jackson; 0; 4; 0; 0; 0
+95500; 3600 block of Highway 80 W; January 12, 2014; louisiana; Tallulah; 0; 6; 0; 0; 8"," ```sql
+SELECT
+    MONTH(IncidentDate) AS Month,
+    COUNT(*) AS TotalShootings,
+    SUM(VictimsKilled) AS TotalVictimsKilled,
+    AVG(VictimsKilled) AS AverageVictimDeaths
+FROM
+    us_shootings
+GROUP BY
+    MONTH(IncidentDate);
+```
+
+This SQL query will group shootings by their month, count the total number of shootings on a monthly basis, sum up the total number of victims killed across all shootings within that month, and calculate the average number of victims killed per shooting incident. The results will be ordered by month. 
+
+Note that the output will include 1 digit for each month (e.g., January will be 1, February will be 2, and so on), to align with the natural language request. If the actual application requires full month names or MM-DD-YYYY formatted dates in the output, the query can be adjusted accordingly. If the dataset stretches across multiple years, you can also group by YEAR(IncidentDate) along with MONTH(IncidentDate) to differentiate the counts by month per year.","SELECT 
+  EXTRACT(MONTH FROM IncidentDate) AS month,
+  COUNT(VictimsKilled) AS total_victims_killed,
+  AVG(VictimsKilled) AS average_victims_killed
+FROM
+  us_shootings
+GROUP BY 
+  EXTRACT(MONTH FROM IncidentDate)"

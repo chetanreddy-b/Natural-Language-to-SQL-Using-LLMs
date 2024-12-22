@@ -1,0 +1,3249 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table,phi,lfm,gemma_1,gemma_2,llama,mistral
+"Get year-on-year change in GRAPI, where GRAPI is gross rent as percentage of household income.","select str_to_date(concat(year,'-01-01'),'%Y-%m-%d') as `Year`, sum(number_of_units*(income_percent_max+income_percent_min)/2)/sum(number_of_units) as `GRAPI`
+from housing_gross_rent_percent
+group by year;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"," To fulfill the request for the year-on-year change in GRAPI, we first need to calculate the average GRAPI for each year. Then, we can compare the average GRAPI values between each consecutive year to find the year-on-year change.
+
+Here's an SQL query that can be used to accomplish this:
+
+```sql
+WITH yearly_average_GRAPI AS (
+    SELECT
+        year,
+        AVG((income_percent_min + income_percent_max) / 2) AS average_GRAPI
+    FROM
+        housing_gross_rent_percent
+    GROUP BY
+        year
+), yearly_change_in_GRAPI AS (
+    SELECT
+        curr.year,
+        (curr.average_GRAPI - prev.average_GRAPI) AS change_in_GRAPI
+    FROM
+        yearly_average_GRAPI curr
+    LEFT JOIN
+        yearly_average_GRAPI prev ON curr.year = prev.year + 1
+)
+SELECT
+    *
+FROM
+    yearly_change_in_GRAPI
+ORDER BY
+    year ASC;
+```
+
+This query does the following:
+
+1. The `yearly_average_GRAPI` CTE (Common Table Expression) calculates the average GRAPI (Gross Rent as Percent of Household Income) for each year using the min and max values for that year (given as `income_percent_min` and `income_percent_max`, respectively) in our `housing_gross_rent_percent` table.
+
+2. The `yearly_change_in_GRAPI` CTE calculates the year-on-year change in GRAPI by subtracting the `prev.average_GRAPI` from the `curr.average_GRAPI` for each year.
+
+3. The final `SELECT` statement retrieves all entries from the `yearly_change_in_GRAPI` CTE, ordered by year in ascending order.
+
+Note: The query uses a LEFT JOIN because there might be years in the `housing_gross_rent_percent` table without a previous year to compare. The LEFT JOIN will ensure that all years are included in the output, with a NULL `change_in_GRAPI` value for the first year(s) appearing in the table.","SELECT 
+    (YEAR(housing_gross_rent_percent.year) - LAG(YEAR(housing_gross_rent_percent.year), 1) OVER (ORDER BY housing_gross_rent_percent.year)) AS year_on_year_change,
+    housing_gross_rent_percent.zipcode,
+    housing_gross_rent_percent.number_of_units,
+    housing_gross_rent_percent.income_percent_min,
+    housing_gross_rent_percent.income_percent_max
+FROM
+    housing_gross_rent_percent
+ORDER BY 
+    housing_gross_rent_percent.year DESC","```sql
+SELECT h1.year, (h1.income_percent_max - h2.income_percent_max) / h2.income_percent_max * 100 AS yoy_change_grapi
+FROM housing_gross_rent_percent h1
+JOIN housing_gross_rent_percent h2 ON h1.year = h2.year + 1
+AND h1.zipcode = h2.zipcode
+AND h1.id = h2.id;
+```","```sql
+WITH YearlyGRAPI AS (
+    SELECT 
+        year, 
+        AVG(income_percent_max) as average_grapi
+    FROM 
+        housing_gross_rent_percent
+    GROUP BY 
+        year
+)
+SELECT 
+    y1.year, 
+    y1.average_grapi, 
+    y2.average_grapi,
+    (y2.average_grapi - y1.average_grapi) / y1.average_grapi * 100 as year_on_year_change
+FROM 
+    YearlyGRAPI y1
+JOIN 
+    YearlyGRAPI y2 ON y1.year + 1 = y2.year
+ORDER BY 
+    y1.year;
+
+```
+
+**Explanation:**
+
+1. **YearlyGRAPI CTE:** This Common Table Expression (CTE) calculates the average `income_percent_max` (representing GRAPI) for each year.
+2. **Main Query:**
+   - It joins the `YearlyGRAPI` CTE with itself (aliased as `y1` and `y2`) to compare consecutive years.
+   - It selects the year, the average GRAPI for both years, and calculates the year-on-year percentage change using the formula: `((y2.average_grapi - y1.average_grapi) / y1.average_grapi) * 100`.
+   - It orders the results by year.
+
+**Notes:**
+
+- This query assumes you want to calculate the change year-on-year (e.g., 2015 to 2016, 2016 to 2017, etc.).
+- The `AVG(income_percent_max)` calculation provides a representative GRAPI value for each year.","To get the year-on-year change in GRAPI, we need to calculate the difference in GRAPI values between two consecutive years. Could you specify the years you're interested in for this comparison?","To calculate the year-on-year change in GRAPI, we need data for two consecutive years. Based on the given schema, the table only contains data for the year 2015. In order to provide a concrete SQL query, I'll assume that we have the same table with data for the year 2014 as well.
+
+housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)
+
+Top entries of the table for 2014:
+2014; 8600000US300"
+"Get year-on-year change in SMOCAPI, where SMOCAPI is selected monthly home-ownership costs as a percent of household income","select str_to_date(concat(year,'-01-01'),'%Y-%m-%d') as `Year`, sum(number_of_units*(income_percent_max+income_percent_min)/2)/sum(number_of_units) as `SMOCAPI`
+from household_income_percent_with_mortgage
+group by year;","household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"," To derive the year-on-year change in SMOCAPI, we first need to calculate the mean of the SMOCAPI values for each year, and then compare the mean of each year with the mean of the previous year to find the change.
+
+However, since there is only one year in the provided table (2015), we cannot compute the year-on-year change as there's no previous year data. But assuming that we have the same table for multiple years (e.g., 2014, 2015, 2016), here is an SQL query that calculates the year-on-year change of SMOCAPI:
+
+```sql
+WITH Average_SMOCAPI AS (
+  SELECT
+    year,
+    AVG((income_percent_max + income_percent_min) / 2) as avg_SMOCAPI
+  FROM
+    household_income_percent_with_mortgage
+  GROUP BY
+    year
+)
+
+SELECT
+  a.year,
+  a.avg_SMOCAPI,
+  (a.avg_SMOCAPI - b.avg_SMOCAPI) as year_on_year_change
+FROM
+  Average_SMOCAPI a
+LEFT JOIN
+  Average_SMOCAPI b
+ON
+  a.year > b.year
+ORDER BY
+  a.year;
+```
+
+This query calculates the average SMOCAPI for each year in the Average_SMOCAPI CTE (Common Table Expression). Then, it performs a self-join on the CTE to compare the values from different years. The year-on-year change is calculated as the difference between the current year's average SMOCAPI and the previous year's average SMOCAPI. 
+
+Please note that this query calculates the year-on-year change between all possible pairs of years, and the result might contain duplicate rows if the data includes multiple observations from the same year. If you need the year-on-year change only between consecutive years (e.g., 2015 -> 2016, but not 2015 -> 2014), you may need to adjust the JOIN condition to make sure the years are consecutive, like:
+
+```sql
+SELECT
+  a.year,
+  a.avg_SMOCAPI,
+  (a.avg_SMOCAPI - LAG(a.avg_SMOCAPI) OVER (ORDER BY a.year)) as year_on_year_change
+FROM
+  Average_SMOCAPI a
+ORDER BY
+  a.year;
+```
+
+This approach uses window function LAG to calculate the change compared to the previous year.","You can use the following SQL query to get year-on-year change in SMOCAPI:
+
+```sql
+SELECT
+    S1.year AS year_1,
+    S1.income_percent_avg AS SMOCAPI_1,
+    S2.year AS year_2,
+    S2.income_percent_avg AS SMOCAPI_2,
+    (S2.income_percent_avg - S1.income_percent_avg) AS year_on_year_change
+FROM (
+    SELECT
+        year,
+        AVG(income_percent_max) AS income_percent_avg
+    FROM
+        household_income_percent_with_mortgage
+    WHERE
+        income_percent_min = 0 AND income_percent_max = 100
+    GROUP BY
+        year
+) S1
+JOIN (
+    SELECT
+        year,
+        AVG(income_percent_max) AS income_percent_avg
+    FROM
+        household_income_percent_with_mortgage
+    WHERE
+        income_percent_min = 0 AND income_percent_max = 100
+    GROUP BY
+        year
+) S2 ON S1.year = S2.year - 1
+ORDER BY
+    year_1;
+```
+
+This query calculates SMOCAPI and its year-on-year change. It first finds the average income_percent_max for a given year where income_percent_min is 0 and income_percent_max is 100 (SMOCAPI) for each year using subqueries S1 and S2. Then, it joins the results of both subqueries on year. Finally, it calculates the year-on-year change in SMOCAPI for each year using the income_percent_avg values from S1 and S2.","```sql
+SELECT h1.year, (h1.income_percent_max - h2.income_percent_max) / h2.income_percent_max * 100 AS yoy_change
+FROM household_income_percent_with_mortgage h1
+JOIN household_income_percent_with_mortgage h2 ON h1.year = h2.year + 1
+WHERE h1.zipcode = h2.zipcode AND h1.id = h2.id;
+```","```sql
+WITH MonthlySMOCAPI AS (
+    SELECT 
+        year,
+        AVG(income_percent_max) AS monthly_smocapi
+    FROM household_income_percent_with_mortgage
+    GROUP BY year
+)
+SELECT 
+    m1.year,
+    m1.monthly_smocapi,
+    m2.monthly_smocapi AS previous_year_smocapi,
+    (m1.monthly_smocapi - m2.monthly_smocapi) * 100 / m2.monthly_smocapi AS year_on_year_change
+FROM MonthlySMOCAPI m1
+JOIN MonthlySMOCAPI m2 ON m1.year = m2.year + 1;
+```
+
+**Explanation:**
+
+1. **CTE (Common Table Expression):**
+   - We create a CTE called `MonthlySMOCAPI` to calculate the average `income_percent_max` (representing SMOCAPI) for each year.
+
+2. **Main Query:**
+   - We use two instances of the `MonthlySMOCAPI` CTE: `m1` and `m2`. 
+   - `m1` represents the current year's data.
+   - `m2` represents the previous year's data. We join them on `year` using a condition `m1.year = m2.year + 1`.
+   - We select the current year, the SMOCAPI for the current year, the SMOCAPI for the previous year, and the year-on-year change calculated as: `((current_year_smocapi - previous_year_smocapi) / previous_year_smocapi) * 100`.
+
+
+**Note:** 
+- Replace `year` and `income_percent_max` with your actual column names if they differ.
+- This query assumes you want to calculate the year-on-year change for each year, starting from the second year in your data.","To get the year-on-year change in SMOCAPI, we need to first calculate the SMOCAPI for each year and then find the difference. Could you specify the years you are interested in?","To get the year-on-year change in SMOCAPI, we need to calculate the SMOCAPI for each year and then find the difference between the current year and the previous year. However, the given table only contains data for the year 2015. Therefore, I will assume that we have another table, `homeownership_costs`, with the following schema and data:
+
+homeownership\_costs:
+(year, zipcode, number\_of\_units, monthly\_cost)
+
+2014; ZCTA5 30004; 539; 1200
+2014; ZCTA5 300"
+"For year 2017, get zipcodes in Georgia where SMOCAPI is greater than 28.","select substring(household_income_percent_with_mortgage.zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Change in monthly home-ownership costs as a percentage of household income` from household_income_percent_with_mortgageÃƒâ€šÃ‚Â 
+where year=2017
+group by household_income_percent_with_mortgage.zipcode
+having `Change in monthly home-ownership costs as a percentage of household income` > 28;","household_income_percent_without_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,694; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 1,400; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 945; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 2,309; 35; 100
+2015; 8600000US30005; ZCTA5 30005; 3,788; 0; 20"," Here's the SQL query that fulfills your request:
+
+```sql
+SELECT DISTINCT zipcode 
+FROM household_income_percent_without_mortgage
+WHERE year = 2017
+      AND income_percent_min > 28;
+```
+
+This query retrieves the zipcodes from Georgia (the database doesn't provide a field to filter by state, but I'm assuming you're filtering by Georgia manually or through a join with another table) where the income_percent_min is greater than 28 for the year 2017.
+
+Please note that we don't have a SMOCAPI column mentioned in the schema you provided, so it is not included in the query. If SMOCAPI refers to a specific column, please provide its schema or specify the correct column name.","SELECT zipcode FROM household_income_percent_without_mortgage WHERE year='2017' AND SMOCAPI > 28
+AND zipcode IN 
+(SELECT zipcode FROM household_income_percent_without_mortgage WHERE year='2017');","```sql
+SELECT zipcode
+FROM household_income_percent_without_mortgage
+WHERE year = 2017
+AND state = 'Georgia'
+AND SMOCAPI > 28;
+```","```sql
+SELECT zipcode 
+FROM household_income_percent_without_mortgage
+WHERE year = 2017
+  AND zipcode LIKE 'GA%' -- Assuming Georgia zip codes start with 'GA'
+  AND income_percent_max > 28;
+```
+
+**Explanation:**
+
+* **SELECT zipcode:** This selects the `zipcode` column from the table.
+* **FROM household_income_percent_without_mortgage:** This specifies the table to query.
+* **WHERE year = 2017:** This filters the data to only include entries for the year 2017.
+* **AND zipcode LIKE 'GA%':** This filters for zip codes that start with 'GA', assuming this is a convention for Georgia zip codes.  You might need to adjust this based on your specific data.
+* **AND income_percent_max > 28:** This filters for entries where the `income_percent_max` value is greater than 28.
+
+**Note:**
+
+* The `LIKE 'GA%'` filter assumes a standard pattern for Georgia zip codes. You may need to modify it if your data uses a different format. 
+
+
+Let me know if you have any other requests or need help with more complex queries!","To clarify, you're looking for zipcodes in Georgia for the year 2017 where the SMOCAPI is greater than 28, correct?","Here is a SQL query to fulfill your request:
+```
+SELECT zipcode
+FROM household_income_percent_without_mortgage
+WHERE year = 2017 AND id LIKE '8600000US%' AND state = 'GA' AND income_percent_max > 28;
+```
+Note: I am assuming that the `id` column follows a consistent format where the state code for Georgia ('GA') can be found in the 9th and 10th characters of the `id` string, and that the `state` column is not present in the table. If this is not the case, please provide the appropriate schema for the table and I can adjust the query accordingly.
+
+Explanation:
+
+* The `WHERE` clause filters the results to only include records from the year 2017.
+* The `LIKE` operator is used to filter the `id` column to only include values that start with '8600000US' and are followed by the state code for Georgia ('GA').
+* The `state` column is assumed to not be present in the table, and therefore the `id` column is used to determine the state for each record.
+* The `income_percent_max` column is filtered to only include values greater than 28.
+* Finally, the `zipcode` column is selected to be returned in the results.
+
+I hope this helps! Let me know if you have any questions or need further clarification."
+"For year 2017, get zipcodes in Georgia where GRAPI is greater than or equal to 30.","select substring(housing_gross_rent_percent.zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Gross rent percent`Ãƒâ€šÃ‚Â 
+from housing_gross_rent_percent
+where year=2017
+group by zipcode
+having `Gross rent percent` >= 30;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"," To fulfill the request, you can write the following SQL query:
+
+```sql
+SELECT DISTINCT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2017 AND id LIKE '8600000US%' AND income_percent_max >= 30
+  AND state = 'GA';
+```
+
+Note that I added the clause `id LIKE '8600000US%'` assuming that the IDs use prefix '8600000US' and I've specified 'GA' as the abbreviation of the state Georgia. 
+
+If the table schema lacks a 'state' column or uses a different state code, make sure to adjust the condition accordingly, e.g. `zipcode LIKE '%geo%'`. 
+
+In case the table doesn't store coordinates, make sure your application takes care of filtering zipcodes that are not in the state of Georgia.","SELECT housing_gross_rent_percent.zipcode, housing_gross_rent_percent.GRAPI 
+FROM housing_gross_rent_percent 
+WHERE housing_gross_rent_percent.year = 2017 
+AND housing_gross_rent_percent.GRAPI >= 30 
+AND housing_gross_rent_percent.state = 'GA';","```sql
+SELECT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2017
+AND state = 'Georgia'
+AND GRAPI >= 30;
+```","```sql
+SELECT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2017
+  AND zipcode LIKE '30%' -- Assuming Georgia zipcodes start with ""30""
+  AND GRAPI >= 30; 
+```
+
+**Explanation:**
+
+* **SELECT zipcode:** This specifies that we want to retrieve the `zipcode` column from the table.
+* **FROM housing_gross_rent_percent:**  This indicates the table we are querying.
+* **WHERE year = 2017:** Filters the results to only include data from the year 2017. 
+* **AND zipcode LIKE '30%':**  Filters for zipcodes that start with ""30"", a common pattern for Georgia zipcodes.
+* **AND GRAPI >= 30:**  Filters for zipcodes where the ""GRAPI"" (Gross Rent as Percentage of Income) value is 30 or greater.
+
+
+Let me know if you have any other requests!","To clarify, you want to find zipcodes in Georgia for the year 2017 where the Gross Rent to Income Percentage (GRAPI) is 30 or higher, correct?","Sure, based on the information provided, here is the SQL query to get the desired result:
+```sql
+SELECT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2017 AND state = 'Georgia' AND GRAPI >= 30;
+```
+However, I noticed that the table schema doesn't include a column for the state. If the state information is stored in a separate table, you would need to join the two tables using a common column (such as the zipcode) to get the desired result.
+
+Assuming there is a separate table called `zipcodes` with columns `zipcode` and `state`, here is the modified SQL query:
+```vbnet
+SELECT hgrp.zipcode
+FROM housing_gross_rent_percent AS hgrp
+JOIN zipcodes AS z ON hgrp.zipcode = z.zipcode
+WHERE hgrp.year = 2017 AND z.state = 'Georgia' AND hgrp.income_percent_max >= 30;
+```
+Note that I am using the table alias `hgrp` for `housing_gross_rent_percent` and `z` for `zipcodes` to make the query more readable. Also, since the `GRAPI` column is not explicitly mentioned in the table schema, I am assuming it's the same as the `income_percent_max` column. If this assumption is incorrect, please let me know and I can modify the query accordingly."
+"For year 2022, get zipcodes in Georgia where GRAPI is greater than 30.","select substring(housing_gross_rent_percent.zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Gross rent percent`Ãƒâ€šÃ‚Â 
+from housing_gross_rent_percent
+where year=2022
+group by zipcode
+having `Gross rent percent` > 30;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"," To fulfill the request, here's the SQL query you can use:
+
+```sql
+SELECT DISTINCT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2022
+AND zipcode IN (
+  SELECT zipcode
+  FROM housing_gross_rent_percent
+  WHERE state = 'GA'
+  GROUP BY zipcode
+  HAVING AVG(income_percent_max - income_percent_min) > 30
+);
+```
+
+Please make sure that the 'state' column exists in your table as mentioned in the query. If necessary, change 'state' to the actual column name that represents the state in the table. In the query above, the inner subquery selects the zipcodes in Georgia, and the outer query further filters that list based on the average gross rent percentage for the year 2022.","SELECT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2022
+AND id IN (SELECT id
+           FROM housing_gross_rent_percent
+           WHERE year = 2015
+           AND num_of_GrAPI > 30
+           AND zipcode = 'ZCTA5 30004');","```sql
+SELECT h.zipcode
+FROM housing_gross_rent_percent h
+WHERE h.year = 2022
+AND h.state = 'Georgia'
+AND h.grapi > 30;
+```","```sql
+SELECT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2022
+  AND zipcode LIKE '30%' -- Assuming Georgia zipcodes start with '30'
+  AND income_percent_max > 30;
+```
+
+**Explanation:**
+
+* **SELECT zipcode:** This specifies that we want to retrieve the `zipcode` column from the table.
+* **FROM housing_gross_rent_percent:** This indicates the table we are querying.
+* **WHERE year = 2022:** This filters the results to include only records from the year 2022.
+* **AND zipcode LIKE '30%':**  This filters for zipcodes starting with ""30"", which is a common prefix for Georgia zip codes. 
+* **AND income_percent_max > 30:** This ensures that we only select zipcodes where the maximum income percentage (`income_percent_max`) is greater than 30.
+
+
+
+Let me know if you have any other SQL queries you'd like help with!","To clarify, you want to find zipcodes in Georgia for the year 2022 where the Gross Rent-to-Income Percentage (GRAPI) is greater than 30, correct?","Here is the SQL query to fulfill your request:
+```
+SELECT zipcode
+FROM housing_gross_rent_percent
+WHERE year = 2022 AND id = 'GA' AND income_percent_max > 30;
+```
+Note: I made the assumption that the `id` field in the `housing_gross_rent_percent` table represents the state abbreviation, so I filtered on `id = 'GA'` to get the zipcodes in Georgia. If the `id` field does not represent the state abbreviation, you will need to adjust the query accordingly.
+
+Additionally, I assumed that the `income_percent_max` field represents the GRAPI (Gross Rent as a Percentage of Income) for the zipcode. If this is not the case, you will need to adjust the query accordingly."
+Select share of each fuel source for heating in year 2022.,"select year, (sum(utility_gas)/(sum(total_heating_units)))*100 as 'utility_gas',Ãƒâ€šÃ‚Â 
+(sum(bottled_tank_or_LP_gas)/(sum(total_heating_units)))*100 as 'bottled_tank_or_LP_gas',Ãƒâ€šÃ‚Â 
+(sum(electricity)/(sum(total_heating_units)))*100 as 'electricity',Ãƒâ€šÃ‚Â 
+(sum(fuel_oil_kerosene)/(sum(total_heating_units)))*100 as 'fuel_oil_kerosene',Ãƒâ€šÃ‚Â 
+(sum(coal_or_coke)/(sum(total_heating_units)))*100 as 'coal_or_coke',
+(sum(wood)/(sum(total_heating_units)))*100 as 'wood',Ãƒâ€šÃ‚Â 
+(sum(solar_energy)/(sum(total_heating_units)))*100 as 'solar_energy',
+(sum(utility_gas)/(sum(total_heating_units)))*100 as 'utility_gas',Ãƒâ€šÃ‚Â 
+(sum(no_fuel_used)/(sum(total_heating_units)))*100 as 'no_fuel_used'
+from housing_heating_fuelÃƒâ€šÃ‚Â 
+where year=2022;","housing_heating_fuel (year, id, zipcode, total_heating_units, utility_gas, bottled_tank_or_LP_gas, electricity, fuel_oil_kerosene, coal_or_coke, wood, solar_energy, other_fuel, no_fuel_used)","2015; 8600000US30005; ZCTA5 30005; 12,284; 8,551; 138; 3,538; 0; 0; 0; 0; 0; 57
+2015; 8600000US30008; ZCTA5 30008; 10,372; 6,833; 26; 3,458; 0; 0; 12; 0; 0; 43
+2015; 8600000US30009; ZCTA5 30009; 6,129; 3,946; 86; 2,067; 0; 0; 0; 0; 13; 17
+2015; 8600000US30011; ZCTA5 30011; 4,752; 1,118; 122; 3,405; 20; 0; 23; 0; 0; 64
+2015; 8600000US30012; ZCTA5 30012; 8,816; 3,199; 312; 5,123; 58; 0; 95; 0; 9; 20"," To fulfill the request and select the share of each fuel source for heating in the year 2022, you can use the following SQL query:
+
+```sql
+SELECT 
+  year, 
+  id, 
+  zipcode,
+  total_heating_units,
+  ((utility_gas / total_heating_units) * 100) AS utility_gas_percentage,
+  ((bottled_tank_or_LP_gas / total_heating_units) * 100) AS bottled_tank_or_LP_gas_percentage,
+  ((electricity / total_heating_units) * 100) AS electricity_percentage,
+  ((fuel_oil_kerosene / total_heating_units) * 100) AS fuel_oil_kerosene_percentage,
+  ((coal_or_coke / total_heating_units) * 100) AS coal_or_coke_percentage,
+  ((wood / total_heating_units) * 100) AS wood_percentage,
+  ((solar_energy / total_heating_units) * 100) AS solar_energy_percentage,
+  ((other_fuel / total_heating_units) * 100) AS other_fuel_percentage,
+  ((no_fuel_used / total_heating_units) * 100) AS no_fuel_used_percentage
+FROM housing_heating_fuel
+WHERE year = 2022;
+```
+
+This query will return the percentage share of each fuel source for heating in the years where data is available. The percentage is calculated as `((fuel_type / total_heating_units) * 100)` for each fuel type column in the database. The output will include `year`, `id`, `zipcode`, `total_heating_units`, and these calculated percentage columns for fuel types.","SELECT 
+  EXTRACT(YEAR FROM year) as review_year, 
+  SUM(CASE WHEN utility_gas IS NOT NULL THEN total_heating_units ELSE 0 END) AS utility_gas_heating_units,
+  SUM(CASE WHEN bottled_tank_or_LP_gas IS NOT NULL THEN total_heating_units ELSE 0 END) AS bottled_tank_or_LP_gas_heating_units,
+  SUM(CASE WHEN electricity IS NOT NULL THEN total_heating_units ELSE 0 END) AS electricity_heating_units,
+  SUM(CASE WHEN fuel_oil_kerosene IS NOT NULL THEN total_heating_units ELSE 0 END) AS fuel_oil_kerosene_heating_units,
+  SUM(CASE WHEN coal_or_coke IS NOT NULL THEN total_heating_units ELSE 0 END) AS coal_or_coke_heating_units,
+  SUM(CASE WHEN wood IS NOT NULL THEN total_heating_units ELSE 0 END) AS wood_heating_units,
+  SUM(CASE WHEN solar_energy IS NOT NULL THEN total_heating_units ELSE 0 END) AS solar_energy_heating_units,
+  SUM(CASE WHEN other_fuel IS NOT NULL THEN total_heating_units ELSE 0 END) AS other_fuel_heating_units,
+  SUM(CASE WHEN no_fuel_used IS NOT NULL THEN total_heating_units ELSE 0 END) AS no_fuel_used_heating_units
+FROM housing_heating_fuel
+WHERE review_year = 2022
+GROUP BY review_year
+ORDER BY review_year;","```sql
+SELECT fuel_source, SUM(total_heating_units) / SUM(total_heating_units) * 100
+FROM housing_heating_fuel
+WHERE year = 2022
+GROUP BY fuel_source
+ORDER BY fuel_source;
+```","```sql
+SELECT 
+    fuel_source,
+    SUM(CASE WHEN fuel_source = 'utility_gas' THEN total_heating_units END) AS utility_gas_total,
+    SUM(CASE WHEN fuel_source = 'bottled_tank_or_LP_gas' THEN total_heating_units END) AS bottled_tank_or_LP_gas_total,
+    SUM(CASE WHEN fuel_source = 'electricity' THEN total_heating_units END) AS electricity_total,
+    SUM(CASE WHEN fuel_source = 'fuel_oil_kerosene' THEN total_heating_units END) AS fuel_oil_kerosene_total,
+    SUM(CASE WHEN fuel_source = 'coal_or_coke' THEN total_heating_units END) AS coal_or_coke_total,
+    SUM(CASE WHEN fuel_source = 'wood' THEN total_heating_units END) AS wood_total,
+    SUM(CASE WHEN fuel_source = 'solar_energy' THEN total_heating_units END) AS solar_energy_total,
+    SUM(CASE WHEN fuel_source = 'other_fuel' THEN total_heating_units END) AS other_fuel_total,
+    SUM(CASE WHEN fuel_source = 'no_fuel_used' THEN total_heating_units END) AS no_fuel_used_total
+FROM 
+    housing_heating_fuel
+WHERE 
+    year = 2022
+GROUP BY 
+    fuel_source
+ORDER BY 
+    fuel_source;
+
+```
+
+**Explanation:**
+
+1. **SELECT Clause:**
+   - Selects the `fuel_source` column and calculates the sum of `total_heating_units` for each fuel type using `CASE` statements.
+
+2. **FROM Clause:**
+   - Specifies the table `housing_heating_fuel`.
+
+3. **WHERE Clause:**
+   - Filters the data to include only records from the year 2022.
+
+4. **GROUP BY Clause:**
+   - Groups the results by `fuel_source`, allowing the aggregate functions to calculate totals for each fuel type.
+
+5. **ORDER BY Clause:**
+   - Sorts the results alphabetically by `fuel_source`.
+
+
+
+This query will provide you with a breakdown of the total number of heating units using each fuel source in 2022.","To select the share of each fuel source for heating in year 2022, we need to filter the data for the specific year. However, based on the provided table schema and data, it seems like the year 2022 data is not available. The data provided only includes years up to 2015. 
+
+If you have the data for 2022, I can help you craft the SQL query to extract the share of each fuel source. Alternatively, if you need any other information or analysis from the available data, feel free to ask!","Here is the SQL query to fulfill your request:
+```
+SELECT 
+    utility_gas/total_heating_units AS 'Utility Gas Share',
+    bottled_tank_or_LP_gas/total_heating_units AS 'Bottled/Tank LP Gas Share',
+    electricity/total_heating_units AS 'Electricity Share',
+    fuel_oil_kerosene/total_heating_units AS 'Fuel Oil/Kerosene Share',
+    coal_or_coke/total_heating_units AS 'Coal/Coke Share',
+    wood/total_heating_units AS 'Wood Share',
+    solar_energy/total_heating_units AS 'Solar Energy Share',
+    other_fuel/total_heating_units AS 'Other Fuel Share',
+    no_fuel_used/total_heating_units AS 'No Fuel Used Share'
+FROM 
+    housing_heating_fuel
+WHERE 
+    year = 2022;
+```
+This query will return the share of each fuel source for heating in the year 2022. It calculates the share of each fuel source by dividing the number of heating units for each fuel source by the total number of heating units.
+
+Note: The query assumes that the `total_heating_units` field represents the total number of heating units for a given record. If this is not the case, you will need to modify the query accordingly."
+"For the year 2022, select zipcodes in Georgia where Home-ownership costs as a %age of household income is more than 28%","select substring(zipcode, 7, 10) as zcta, sum(number_of_units*(income_percent_min+income_percent_max)/2)/sum(number_of_units) as `Monthly home-ownership costs as a percentage of household income` from household_income_percent_with_mortgage where year=2022 group by zipcode having `Monthly home-ownership costs as a percentage of household income` >= 30;","household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"," To fulfill the natural language request, we can use the following SQL query:
+
+```sql
+SELECT zipcode
+FROM household_income_percent_with_mortgage
+WHERE year = 2022
+AND income_percent_min > 28
+AND income_percent_max > 28
+AND state = 'GA'
+GROUP BY zipcode
+HAVING COUNT(*) > 0;
+```
+
+This query selects the `zipcode` for all records in the `household_income_percent_with_mortgage` table where the `year` is 2022, the `income_percent_min` and `income_percent_max` are both greater than 28%, and the state is 'GA' (for Georgia). The `GROUP BY` clause ensures that only unique zipcodes are included in the result, and the `HAVING COUNT(*) > 0` condition filters out any zipcodes that don't have any data related to the request.","SELECT zipcode
+FROM household_income_percent_with_mortgage 
+WHERE year = 2022 AND 
+      income_percent_max / income_percent_min > 0.28;","```sql
+SELECT zipcode
+FROM household_income_percent_with_mortgage
+WHERE year = 2022
+AND state = 'Georgia'
+AND income_percent_max > 28;
+```","```sql
+SELECT zipcode
+FROM household_income_percent_with_mortgage
+WHERE year = 2022
+  AND zipcode LIKE '%GA%'
+  AND income_percent_max > 28
+ORDER BY zipcode;
+``` 
+
+**Explanation:**
+
+* **SELECT zipcode:** This specifies that we want to retrieve the `zipcode` column from the table.
+* **FROM household_income_percent_with_mortgage:**  This indicates the table we are querying.
+* **WHERE year = 2022:** Filters the results to only include data for the year 2022.
+* **AND zipcode LIKE '%GA%':** Filters the results to only include zip codes within Georgia (assuming 'GA' is the abbreviation for Georgia).
+* **AND income_percent_max > 28:**  Selects zip codes where the maximum percentage of household income spent on homeownership is greater than 28%.
+* **ORDER BY zipcode:**  Sorts the results alphabetically by zip code for easy reading.
+
+
+Let me know if you have any more SQL query requests!","To fulfill the request, I need to clarify the table name where the data is stored. Based on the schema you provided, it seems like the table name is ""household_income_percent_with_mortgage"". Is that correct?","Here is an SQL query that should fulfill the request:
+```
+SELECT zipcode
+FROM household_income_percent_with_mortgage
+WHERE year = 2022 AND income_percent_max > 28
+AND zipcode belongs to Georgia;
+```
+Note: I am not able to determine the exact SQL query to use to filter the `zipcode` values that belong to Georgia, as I do not have information about the structure or content of any other tables or columns in your database that relate to geographical information. You may need to consult your database's documentation or seek additional assistance in order to determine the correct method for filtering the `zipcode` values in this way.
+
+Additionally, I made the assumption that the `income_percent_max` column represents the upper bound of the home-ownership costs as a percentage of household income for each row. If this interpretation is incorrect, you may need to adjust the query accordingly.
+
+Here is an example of how you could filter the `zipcode` values using a `JOIN` clause with a table that contains geographical information, if one is available:
+```
+SELECT h.zipcode
+FROM household_income_percent_with_mortgage h
+JOIN geographical_information g ON h.zipcode = g.zipcode
+WHERE h.year = 2022 AND h.income_percent_max > 28
+AND g.state = 'Georgia';
+```
+Again, this is just an example and may not work in your specific database. You will need to consult your database's documentation or seek additional assistance if you need help adapting this example to your specific needs."
+"For each zipcode, get count of units with and without mortgage in year 2022.","select substring(zipcode, 7, 10) as zcta, units_with_mortgage, units_without_mortgage
+from housing_mortgage where year=2022","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"," To fulfill the request using SQL, you can write a query like this:
+
+```sql
+SELECT
+  zipcode,
+  SUM(units_with_mortgage) AS total_units_with_mortgage,
+  SUM(units_without_mortgage) AS total_units_without_mortgage
+FROM
+  housing_mortgage
+WHERE
+  year = '2022'
+GROUP BY
+  zipcode
+```
+
+This query will select the zipcode column, and the total number of units with and without mortgage, then grouping the data by zipcode only for records from the year 2022. The `SUM()` function is used to calculate the total number of units with and without mortgage in each zipcode.","SELECT `zipcode`,
+       SUM(`units_with_mortgage`) AS `total_units_with_mortgage`,
+       SUM(`units_without_mortgage`) AS `total_units_without_mortgage`
+FROM housing_mortgage
+WHERE `year` = 2022
+GROUP BY `zipcode`","```sql
+SELECT h.zipcode,
+    SUM(h.units_with_mortgage) AS units_with_mortgage,
+    SUM(h.units_without_mortgage) AS units_without_mortgage
+FROM housing_mortgage h
+WHERE h.year = 2022
+GROUP BY h.zipcode
+ORDER BY h.zipcode;
+```","```sql
+SELECT 
+  zipcode,
+  SUM(units_with_mortgage) AS units_with_mortgage,
+  SUM(units_without_mortgage) AS units_without_mortgage
+FROM 
+  housing_mortgage
+WHERE 
+  year = 2022
+GROUP BY 
+  zipcode;
+```
+
+**Explanation:**
+
+1. **SELECT zipcode, SUM(units_with_mortgage) AS units_with_mortgage, SUM(units_without_mortgage) AS units_without_mortgage**: This selects the `zipcode` column and calculates the sum of `units_with_mortgage` and `units_without_mortgage` for each zip code. The results are aliased as `units_with_mortgage` and `units_without_mortgage` respectively.
+
+2. **FROM housing_mortgage**: This specifies the table to retrieve data from.
+
+3. **WHERE year = 2022**: This filters the data to only include records from the year 2022.
+
+4. **GROUP BY zipcode**: This groups the results by `zipcode`, allowing the `SUM()` function to calculate the total units with and without mortgage for each zip code.
+
+
+
+Let me know if you have any other SQL query requests!","To fulfill the request, I'll need to know the specific year you're interested in. You mentioned 2022, but the table you provided only has data from 2015. Do you have data for 2022, or should I proceed with generating a query based on the available data?","Here is the SQL query to fulfill the request:
+```
+SELECT zipcode,
+       SUM(CASE WHEN year = 2022 THEN units_with_mortgage ELSE 0 END) AS units_with_mortgage_in_2022,
+       SUM(CASE WHEN year = 2022 THEN units_without_mortgage ELSE 0 END) AS units_without_mortgage_in_2022
+FROM housing_mortgage
+WHERE year = 2022
+GROUP BY zipcode;
+```
+This query will return the count of units with and without mortgage for each zipcode in the year 2022. It uses the `SUM` function with a `CASE` statement to count the number of units with and without mortgage. The `WHERE` clause is used to filter the results to only include data from the year 2022, and the `GROUP BY` clause is used to group the results by zipcode."
+Get count of units with and without mortgage averaged over years.,"select year, avg(units_with_mortgage) as 'units_with_mortgage', avg(units_without_mortgage) as 'units_without_mortgage'
+from housing_mortgage
+group by year;","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"," To fulfill the request, you can use the following SQL query:
+
+```sql
+SELECT 
+  year, 
+  AVG(units_with_mortgage) AS avg_units_with_mortgage, 
+  AVG(units_without_mortgage) AS avg_units_without_mortgage
+FROM 
+  housing_mortgage
+GROUP BY 
+  year;
+```
+
+This SQL query calculates the average units with and without mortgage for each year by using the AVG aggregate function. The result will display the year and the average number of units with and without mortgage as separate columns.","You can solve this by first calculating the average units per year using the window function in SQL. This will partition and order our data by the year and then apply the avg function to find the average units per year. 
+
+Here is how to do it:
+
+```sql
+SELECT year, 
+       AVG(units_with_mortgage) AS Avg_units_with_mortgage,
+       AVG(units_without_mortgage) AS Avg_units_without_mortgage
+FROM housing_mortgage
+GROUP BY year;
+```
+This query first groups by the year to perform calculations per year. Then, for each year, it calculates the average units for those with mortgage and those without mortgage as separate columns.
+
+Please replace the table and column names if they differ from your database schema.","```sql
+SELECT AVG(units_with_mortgage) AS avg_units_with_mortgage,
+       AVG(units_without_mortgage) AS avg_units_without_mortgage
+FROM housing_mortgage
+GROUP BY YEAR;
+```","```sql
+SELECT 
+    year, 
+    AVG(units_with_mortgage) AS average_units_with_mortgage, 
+    AVG(units_without_mortgage) AS average_units_without_mortgage
+FROM 
+    housing_mortgage
+GROUP BY 
+    year;
+``` 
+
+This query does the following:
+
+1. **SELECT year**:  Selects the year column to display it in the results.
+2. **AVG(units_with_mortgage) AS average_units_with_mortgage**: Calculates the average value of `units_with_mortgage` for each year and names the result column `average_units_with_mortgage`.
+3. **AVG(units_without_mortgage) AS average_units_without_mortgage**:  Does the same for `units_without_mortgage`, naming the result column `average_units_without_mortgage`.
+4. **FROM housing_mortgage**: Specifies the table to retrieve data from.
+5. **GROUP BY year**: Groups the results by the `year` column, so the average calculations are performed separately for each year. 
+
+
+Let me know if you need any further modifications to this query!","To fulfill the request, I'll need to understand the specific years you're interested in. Could you provide those years?","To fulfill the request of getting the count of units with and without mortgage averaged over years, you can use the following SQL query:
+```
+SELECT 
+    year,
+    AVG(units_with_mortgage) AS avg_units_with_mortgage,
+    AVG(units_without_mortgage) AS avg_units_without_mortgage
+FROM 
+    housing_mortgage
+GROUP BY 
+    year;
+```
+This query will group the data by the `year` column and calculate the average value of the `units_with_mortgage` and `units_without_mortgage` columns for each year. The result will be the average number of units with mortgage and the average number of units without mortgage for each year."
+Get count of units with and without mortgage for year 2022.,"select substring(zipcode, 7, 10) as zcta, units_with_mortgage, units_without_mortgage
+from housing_mortgage where year=2022","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"," To get the count of units with and without a mortgage for the year 2022 from the `housing_mortgage` table, you can use the following SQL query:
+
+```sql
+SELECT 
+    SUM(units_with_mortgage) AS total_units_with_mortgage,
+    SUM(units_without_mortgage) AS total_units_without_mortgage
+FROM 
+    housing_mortgage
+WHERE 
+    year = 2022;
+```
+
+This query will sum up all the `units_with_mortgage` and `units_without_mortgage` for the year 2022 and return their respective counts.","SELECT 
+    COUNT(CASE WHEN units_with_mortgage > 0 THEN 1 END) AS units_with_mortgage_count,
+    COUNT(CASE WHEN units_with_mortgage = 0 THEN 1 END) AS units_without_mortgage_count
+FROM 
+    housing_mortgage
+WHERE 
+    year = 2022","```sql
+SELECT
+    SUM(units_with_mortgage) AS units_with_mortgage,
+    SUM(units_without_mortgage) AS units_without_mortgage
+FROM housing_mortgage
+WHERE year = 2022;
+```","```sql
+SELECT 
+    SUM(units_with_mortgage) AS units_with_mortgage,
+    SUM(units_without_mortgage) AS units_without_mortgage
+FROM housing_mortgage
+WHERE year = 2022;
+``` 
+
+
+**Explanation:**
+
+* **`SELECT SUM(units_with_mortgage) AS units_with_mortgage, SUM(units_without_mortgage) AS units_without_mortgage`**: This part selects the sum of `units_with_mortgage` and `units_without_mortgage` columns and names the resulting columns as `units_with_mortgage` and `units_without_mortgage` respectively.
+* **`FROM housing_mortgage`**: This specifies the table from which the data will be retrieved.
+* **`WHERE year = 2022`**: This filters the data to only include records for the year 2022.
+
+This query will return a single row with two columns: `units_with_mortgage` and `units_without_mortgage`, representing the total count of units with and without mortgages for the year 2022.","To get the count of units with and without mortgage for the year 2022, we need to filter the data for the specific year. However, based on the provided schema and data, it seems like there's no data for the year 2022. The data only goes up to 2015. Could you provide more data or clarify the request?","Here is the SQL query to get the count of units with and without mortgage for the year 2022:
+```
+SELECT 
+    SUM(units_with_mortgage) AS units_with_mortgage,
+    SUM(units_without_mortgage) AS units_without_mortgage
+FROM 
+    housing_mortgage
+WHERE 
+    year = 2022;
+```
+This query will return the total number of units with mortgage and the total number of units without mortgage for the year 2022. It first filters the records for the year 2022 using the `WHERE` clause and then calculates the sum of the `units_with_mortgage` and `units_without_mortgage` columns using the `SUM` aggregate function. The results are then labeled using the `AS` keyword."
+Get average house price for each zip code in a given year.,"select substring(housing_value.zipcode, 7, 10) as zcta, cast((sum(number_of_units*((house_value_min+house_value_max)/2))/sum(number_of_units)) as decimal(8,2)) as housing_value_weighted_avg
+from housing_value where year={{year}} group by zipcode","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," Here's an SQL query that would achieve the mentioned request:
+
+```sql
+SELECT
+  zipcode,
+  AVG(house_value_min + house_value_max)/2 AS avg_house_price
+FROM
+  housing_value
+WHERE
+  year = YOUR_SPECIFIED_YEAR
+GROUP BY
+  zipcode;
+```
+
+In this query, replace `YOUR_SPECIFIED_YEAR` with the year you want to query for, e.g. `WHERE year = 2015`. The query calculates the average house price by taking the mid-value between the minimum and maximum house price (house_value_min and house_value_max) for each zip code in the specified year. The result will have the zipcode and the average house price per zipcode.","SELECT zipcode, AVG(house_value_avg)
+FROM (
+    SELECT zipcode, (house_value_min + house_value_max) / 2 AS house_value_avg
+    FROM housing_value
+    WHERE year = '2015'
+) AS house_value_avg
+GROUP BY zipcode;","```sql
+SELECT h.zipcode, h.year, AVG(h.house_value_max) AS avg_house_price
+FROM housing_value h
+WHERE h.year = '2015'  -- Change the year as needed
+GROUP BY h.zipcode, h.year
+ORDER BY h.zipcode, h.year;
+```","```sql
+SELECT zipcode, AVG(house_value_max) AS average_house_price
+FROM housing_value
+WHERE year =  '2015'  -- Replace '2015' with your desired year
+GROUP BY zipcode;
+```
+
+**Explanation:**
+
+1. **`SELECT zipcode, AVG(house_value_max) AS average_house_price`**: This selects the `zipcode` and calculates the average of `house_value_max` for each zip code. The average value is aliased as `average_house_price`.
+2. **`FROM housing_value`**: Specifies the table to retrieve data from.
+3. **`WHERE year = '2015'`**: Filters the data to include only records from the specified year. Replace `2015` with the actual year you want.
+4. **`GROUP BY zipcode`**: Groups the results by `zipcode`, allowing the average price to be calculated for each unique zip code. 
+
+
+This query will return a table with two columns: `zipcode` and `average_house_price`, showing the average maximum house value for each zip code in the selected year.","To get the average house price for each zip code in a given year, we can use the following SQL query:
+
+```sql
+SELECT zipcode, AVG(house_value_min) AS average_house_price
+FROM housing_value
+WHERE year = 2015
+GROUP BY zipcode;
+```
+
+This query will give us the average house price for each zip code in the year 2015.","Here is the SQL query to get the average house price for each zip code in a given year:
+
+```sql
+SELECT zipcode, AVG(house_value_max) AS average_house_price
+FROM housing_value
+WHERE year = YOUR_GIVEN_YEAR
+GROUP BY zipcode;
+```
+Replace `YOUR_GIVEN_YEAR` with the year you want to get the average house price for. This query calculates the average house price for each zip code by finding the average of the `house_value_max` column, which represents the maximum value of a house in a given record. The `GROUP BY` clause groups the results by zip code, so you get a separate average for each zip code."
+Get median housing value by zipcode.,"WITH CumulativeUnits AS (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â zipcode,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â house_value_min,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â house_value_max,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â number_of_units,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(number_of_units) OVER (PARTITION BY zipcode ORDER BY house_value_max) AS cumulative_units
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â housing_value
+),
+TotalUnits AS (
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â zipcode,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â SUM(number_of_units) AS total_units
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â housing_value
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â zipcode
+)
+SELECT
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â substring(t.zipcode, 7, 10) as zcta,
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â CASE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHEN t.total_units % 2 = 1 THEN
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â (SELECT (h.house_value_max + h.house_value_min) / 2
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM CumulativeUnits h
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE h.zipcode = t.zipcode AND h.cumulative_units >= t.total_units / 2
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â LIMIT 1)
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â ELSE
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â (SELECT (h.house_value_max + COALESCE((LAG(h.house_value_max) OVER (PARTITION BY h.zipcode ORDER BY h.house_value_max)), 0)) / 2.0
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM CumulativeUnits h
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE h.zipcode = t.zipcode AND h.cumulative_units >= t.total_units / 2
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â LIMIT 1)
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â END AS median
+FROM
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â TotalUnits t;","housing_value (year, id, zipcode, number_of_units, house_value_min, house_value_max)","2015; 8600000US30004; ZCTA5 30004; 500; 50000; 99999
+2015; 8600000US30004; ZCTA5 30004; 837; 100000; 149999
+2015; 8600000US30004; ZCTA5 30004; 1,498; 150000; 199999
+2015; 8600000US30004; ZCTA5 30004; 3,003; 200000; 299999
+2015; 8600000US30004; ZCTA5 30004; 4,605; 300000; 499999"," To fulfill the request ""Get median housing value by zipcode"" using the provided schema of the housing_value table, we can first identify the median house_value_min for each zipcode and then use it as a proxy for the median house value. Please note that the SQL query might slightly differ based on the SQL dialect you are using (MySQL, PostgreSQL, SQL Server, etc.), and SQL Server does not have a built-in median function. However, we can use PERCENTILE_CONT in SQL Server (or the equivalent in other SQL dialects) to calculate the median.
+
+Here's an example query using SQL Server syntax:
+
+```sql
+WITH ZipcodeHousingValue AS (
+  SELECT
+    zipcode,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY house_value_min) OVER (PARTITION BY zipcode) AS MedianMinPrice
+  FROM housing_value
+)
+
+SELECT DISTINCT
+  zipcode,
+  MedianMinPrice
+FROM ZipcodeHousingValue;
+```
+
+In the example query above, we're using a common table expression (CTE) called ZipcodeHousingValue to calculate the median house_value_min for each zipcode using the PERCENTILE_CONT function in a window-based approach. We're partitioning the data by zipcode and ordering the house_value_min values within each group to calculate the median.
+
+The outer SELECT statement consists of the distinct zipcodes and their respective MedianMinPrice, which can be considered an estimate of the median housing value by zipcode.
+
+Remember that SQL dialects may vary, so please adapt the query to fit your environment. For example, in PostgreSQL, you can use the following query:
+
+```sql
+WITH ZipcodeHousingValue AS (
+  SELECT
+    zipcode,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY house_value_min) AS MedianMinPrice
+  FROM housing_value
+  GROUP BY zipcode
+)
+
+SELECT
+  zipcode,
+  MedianMinPrice
+FROM ZipcodeHousingValue;
+```
+
+This query calculates the median housing value directly per the SQL dialect and the available functions. However, the concept of estimation remains the same.","SELECT h.zipcode, AVG((h.house_value_min + h.house_value_max)/2) as median_house_value
+FROM housing_value h
+GROUP BY h.zipcode","```sql
+SELECT h.zipcode, ROUND(AVG(h.house_value_min)) AS median_house_value
+FROM housing_value h
+GROUP BY h.zipcode
+ORDER BY h.zipcode;
+```","```sql
+SELECT
+    zipcode,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY house_value_min) AS median_house_value
+FROM
+    housing_value
+GROUP BY
+    zipcode;
+``` 
+
+**Explanation:**
+
+* **SELECT zipcode, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY house_value_min) AS median_house_value:** This selects the `zipcode` and calculates the median `house_value_min` for each zipcode. The `PERCENTILE_CONT(0.5)` function returns the 50th percentile, which is the median.
+* **FROM housing_value:** This specifies the table to retrieve data from.
+* **GROUP BY zipcode:** This groups the rows by `zipcode`, allowing the median calculation to be performed for each unique zipcode.
+
+
+This query will give you the median housing value for each distinct zipcode in the `housing_value` table.","To get the median housing value by zipcode, we need to first aggregate the house values by zipcode and then find the median. Here's the SQL query for that:
+
+```sql
+SELECT zipcode, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY house_value_min) AS median_house_value
+FROM housing_value
+GROUP BY zipcode;
+```
+
+This query groups the data by zipcode and uses the `PERCENTILE_CONT` function to calculate the median house value.","To find the median housing value by zipcode, we first need to write a subquery to get the median house value for each zipcode. We can use the `PERCENTILE_CONT` function to calculate the median. Then, we can use this subquery to join back to the original housing\_value table to get the zipcode. Here's the SQL query:
+
+```sql
+WITH median_house_value AS (
+  SELECT zipcode, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY house_value_max) AS median_house_value
+  FROM housing_value
+  GROUP BY zipcode
+)
+SELECT m.zipcode, hv.house_value_max AS median_housing_value
+FROM median_house_value m
+JOIN housing_value hv ON m.zipcode = hv.zipcode
+WHERE hv.house_value_max = m.median_house_value;
+```
+
+This query calculates the median of the `house_value_max` column for each zipcode, and then returns the zipcode and the median housing value. Note that we use `house_value_max` instead of `house_value_min` because the median is calculated based on the sorted values, and the provided data has a range for the housing value. Therefore, we assume that `house_value_max` will give us the actual median housing value. If you want the median of the `house_value_min` or the average of the range, you may need to adjust the query accordingly."
+"For each zipcode, count houses built in or after 2020.","select substring(zipcode, 7, 10) as zcta, number_of_units from housing_year_built where year_built_min = 2020;","housing_year_built (year, id, zipcode, number_of_units, year_built_min, year_built_max)","2022; 860Z200US30004; ZCTA5 30004; 38; 1940; 1949
+2022; 860Z200US30004; ZCTA5 30004; 179; 1950; 1959
+2022; 860Z200US30004; ZCTA5 30004; 126; 1960; 1969
+2022; 860Z200US30004; ZCTA5 30004; 1,223; 1970; 1979
+2022; 860Z200US30004; ZCTA5 30004; 2,716; 1980; 1989"," Here is an SQL query that fulfills the request:
+
+```
+SELECT zipcode, COUNT(*) AS houses_built_in_or_after_2020
+FROM housing_year_built
+WHERE year_built_min >= 2020
+GROUP BY zipcode
+ORDER BY houses_built_in_or_after_2020 DESC;
+```
+
+Explanation:
+
+- The `SELECT` statement chooses the columns to be displayed. In this case, we want to display the `zipcode` and the count of houses built in or after 2020, which we'll alias as `houses_built_in_or_after_2020`.
+- The `FROM` clause specifies the table that we want to query, which is `housing_year_built`.
+- The `WHERE` clause specifies a condition to filter the rows. In this case, we only want the rows where `year_built_min` is greater than or equal to 2020.
+- The `GROUP BY` clause groups the rows by `zipcode`, so we can calculate the count of houses for each zipcode.
+- The `COUNT(*)` function counts the number of rows in each group, effectively giving us the count of houses for each zipcode.
+- The `ORDER BY` clause sorts the result by the count of houses in a descending order, so the top entries (zipcodes with the most houses) will be at the top.
+
+Note: This query assumes that `year_built_min` refers to the range of years when the house was built (i.e., the house was built in `year_built_min`'s year). If `year_built_min` refers to the earliest year in the date range instead, replace `year_built_min` with `year_built_max` in the `WHERE` clause and the query will work as expected.","SELECT zipcode, COUNT(id) 
+FROM housing_year_built 
+WHERE year_built >= 2020 
+GROUP BY zipcode;","```sql
+SELECT h.zipcode, COUNT(*)
+FROM housing_year_built h
+WHERE h.year_built_min >= 2020
+GROUP BY h.zipcode
+```","```sql
+SELECT zipcode, 
+       COUNT(*) AS houses_built_after_2020
+FROM housing_year_built
+WHERE year_built_min >= 2020
+GROUP BY zipcode;
+``` 
+
+**Explanation:**
+
+1. **SELECT zipcode, COUNT(*) AS houses_built_after_2020**: This selects the ""zipcode"" column and counts the number of rows for each zipcode, aliasing the count as ""houses_built_after_2020"".
+2. **FROM housing_year_built**: This specifies the table to retrieve data from.
+3. **WHERE year_built_min >= 2020**: This filters the data to include only houses built in or after 2020. We use `year_built_min` because it represents the earliest year a house was built within that data entry.
+4. **GROUP BY zipcode**: This groups the results by zipcode, allowing us to count houses built after 2020 for each unique zipcode. 
+
+
+
+Let me know if you have any other SQL queries you need help with!","To fulfill the request, I'll need to know the specific zipcode you're interested in. Could you provide that?","Here is the SQL query to fulfill your request:
+```
+SELECT zipcode, COUNT(id) AS number_of_houses
+FROM housing_year_built
+WHERE year_built_min >= 2020 OR year_built_max >= 2020
+GROUP BY zipcode;
+```
+This query will return the number of houses (based on the number of unique `id` values) that were built in or after the year 2020, grouped by zipcode. The `year_built_min` and `year_built_max` columns are used to determine whether a house was built in or after 2020. If either of these values is greater than or equal to 2020, the house is counted."
+Get percentage of zipcodes having GRAPI greater than 28% in year 2022,"SELECT 100*grapi_zipcodes/total as `Zipcodes with GRAPI greater than 28%` FROM
+(SELECTÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(h.zipcode) as grapi_zipcodes
+FROMÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â (SELECT DISTINCT zipcode, SUM(a.number_of_units*(a.income_percent_max+a.income_percent_min)/2)/SUM(a.number_of_units) AS smocapiÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM housing_gross_rent_percent AS aÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE year = 2022Ãƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY zipcodeÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â HAVING smocapi >= 30) AS h) as t1,
+(SELECT COUNT(DISTINCT zipcode) as total
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM housing_gross_rent_percent
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE year = 2022) as t2;","housing_gross_rent_percent (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 1,330; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 767; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 806; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 455; 30; 35
+2015; 8600000US30004; ZCTA5 30004; 1,014; 35; 100"," To fulfill this request, you can use the following SQL query:
+
+```
+SELECT
+    (COUNT(DISTINCT zipcode) 
+    / (SELECT COUNT(DISTINCT zipcode) FROM housing_gross_rent_percent WHERE year = 2022) * 100)
+    AS percentage_of_zipcodes_with_GRAPI_greater_than_28
+FROM
+    housing_gross_rent_percent
+WHERE
+    year = 2022
+    AND income_percent_max > 28
+```
+
+This query calculates the percentage of distinct zipcodes having GRAPI greater than 28% in the year 2022. It uses the `COUNT(DISTINCT zipcode)` aggregation function to count unique zipcodes that met the criteria, and divides this count by the total number of distinct zipcodes in 2022, then multiplies it by 100 to get the percentage. Note that this query assumes that zipcodes with GRAPI 28% or lower should not be included in the calculation, as specified in the request. If GRAPI exactly 28% should also be included, you can adjust the `WHERE` clause by changing the condition from `> 28` to `>= 28`.","SELECT 
+    COUNT(*) * 100.0 / (SELECT COUNT(*) FROM housing_gross_rent_percent WHERE Extract(YEAR from id) = 2022) as percentage,
+    zipcode
+FROM 
+    housing_gross_rent_percent 
+WHERE 
+    Extract(YEAR from id) = 2022
+    AND income_percent_max > 28
+GROUP BY 
+    zipcode;","```sql
+SELECT COUNT(DISTINCT h.zipcode) * 100.0 / COUNT(DISTINCT h.zipcode)
+FROM housing_gross_rent_percent h
+WHERE h.year = 2022 AND h.income_percent_max > 28;
+```","```sql
+SELECT
+  CAST(COUNT(DISTINCT zipcode) AS REAL) * 100 / COUNT(DISTINCT zipcode) AS percentage
+FROM housing_gross_rent_percent
+WHERE year = 2022 AND GRAPI > 28;
+```
+
+**Explanation:**
+
+1. **`SELECT CAST(COUNT(DISTINCT zipcode) AS REAL) * 100 / COUNT(DISTINCT zipcode) AS percentage`**:
+   -  This selects the calculated percentage and names it `percentage`.
+   -  `COUNT(DISTINCT zipcode)` counts the number of unique zipcodes.
+   -  `CAST(... AS REAL)` converts the count to a real number for accurate percentage calculation.
+   -  Multiplying by 100 gives the percentage. 
+
+2. **`FROM housing_gross_rent_percent`**:
+   -  Specifies the table from which to retrieve data.
+
+3. **`WHERE year = 2022 AND GRAPI > 28`**:
+   -  Filters the data to include only records from the year 2022 and where the `GRAPI` (gross rent as a percentage of income) is greater than 28%. 
+
+
+Let me know if you have any other SQL queries you need help with!","To generate the SQL query, I need to understand the table structure and the specific data you're looking for. Could you confirm if the table name is 'housing_gross_rent_percent' and specify the columns you're interested in?","To find the percentage of zipcodes having GRAPI (gross rent as a percentage of income) greater than 28% in the year 2022, we first need to calculate the number of zipcodes that meet this criteria and then divide it by the total number of zipcodes.
+
+However, I noticed that the table housing_gross_rent_percent does not have the GRAPI value explicitly stored. Instead, it has income_percent_min and income_percent_max. We can assume that the GRAPI for a zipcode is the average of income_percent_min and income_percent_max. So, we will first calculate the GRAPI for each zipcode and then proceed to fulfill the request.
+
+Here's the SQL query:
+
+```sql
+WITH zipcode_grapi AS (
+  SELECT
+    zipcode,
+    (income_percent_min + income_percent_max) / 2 AS grapi
+  FROM
+    housing_gross_rent_percent
+  WHERE
+    year = 2022
+)
+SELECT
+  100.0 * COUNT(zipcode) FILTER (WHERE grapi > 28.0) / COUNT(DISTINCT zipcode)
+FROM
+  zipcode_grapi;
+```
+
+This query first calculates the GRAPI for each zipcode in the year 2022 using a Common Table Expression (CTE). Then, it finds the percentage of zipcodes having GRAPI greater than 28%."
+Get percentage of zipcodes having SMOCAPI greater than 30% in year 2022.,"SELECT 100*smocapi_zipcodes/total as `Zipcodes with SMOCAPI greater than 28%` FROM
+(SELECTÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â COUNT(h.zipcode) as smocapi_zipcodes
+FROMÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â (SELECT DISTINCT zipcode, SUM(a.number_of_units*(a.income_percent_max+a.income_percent_min)/2)/SUM(a.number_of_units) AS smocapiÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM household_income_percent_with_mortgage AS aÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE year = 2022Ãƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â GROUP BY zipcodeÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â HAVING smocapi >= 30) AS h) as t1,
+(SELECT COUNT(DISTINCT zipcode) as total
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â FROM household_income_percent_with_mortgageÃƒâ€šÃ‚Â 
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â WHERE year = 2022) as t2;","household_income_percent_with_mortgage (year, id, zipcode, number_of_units, income_percent_min, income_percent_max)","2015; 8600000US30004; ZCTA5 30004; 539; 10; 15
+2015; 8600000US30004; ZCTA5 30004; 254; 15; 20
+2015; 8600000US30004; ZCTA5 30004; 162; 20; 25
+2015; 8600000US30004; ZCTA5 30004; 66; 25; 30
+2015; 8600000US30004; ZCTA5 30004; 16; 30; 35"," To get the percentage of zipcodes having `SMOCAPI` greater than 30% in year 2022, you can use the following SQL query.
+
+````sql
+SELECT 
+    (COUNT(*) * 100.0) / (SELECT COUNT(*) FROM household_income_percent_with_mortgage WHERE year = 2022) AS percentage_of_zipcodes_with_SMOCAPI_greater_than_30
+FROM 
+    household_income_percent_with_mortgage 
+WHERE 
+    year = 2022 AND 
+    income_percent_min > 30 
+GROUP BY 
+    zipcode;
+````
+
+This query works by:
+
+1. Selecting the count of unique zipcodes including their households having `SMOCAPI` greater than 30% (income_percent_min > 30) in the year 2022.
+2. Calculating the percentage by dividing the count in step 1 by the total number of records in the year 2022 (subquery in the SELECT clause), and multiplying it by 100.0 to get the result in percentage.
+3. Grouping the results by `zipcode` to ensure that we consider each unique zipcode once.","SELECT 
+    COUNT(*) AS total_zipcodes,
+    COUNT(CASE WHEN income_percent_max > (income_percent_min * 0.3) THEN 1 END) AS smocapi_greater_30 
+FROM 
+    household_income_percent_with_mortgage 
+WHERE 
+    year = 2022 
+AND 
+    income_percent_max > (income_percent_min * 0.3) 
+;","```sql
+SELECT COUNT(DISTINCT h.zipcode) * 100.0 / COUNT(DISTINCT h.zipcode)
+FROM household_income_percent_with_mortgage h
+WHERE h.year = 2022
+AND h.income_percent_max > 30;
+```","```sql
+SELECT CAST(COUNT(DISTINCT zipcode) AS REAL) * 100 / COUNT(DISTINCT zipcode_id) 
+FROM household_income_percent_with_mortgage
+WHERE year = 2022 AND income_percent_max > 30;
+```
+
+**Explanation:**
+
+1. **`SELECT CAST(COUNT(DISTINCT zipcode) AS REAL) * 100 / COUNT(DISTINCT zipcode_id)`**: This calculates the percentage.
+   - `COUNT(DISTINCT zipcode)` counts the number of unique zipcodes that meet the criteria.
+   -  `COUNT(DISTINCT zipcode_id)` counts the total number of unique zipcodes in the table for the year 2022.
+   - `CAST(... AS REAL)` converts the count to a real number for accurate percentage calculation.
+   - Multiplication by 100 converts the result to a percentage.
+
+2. **`FROM household_income_percent_with_mortgage`**: Specifies the table to query.
+
+3. **`WHERE year = 2022 AND income_percent_max > 30`**: Filters the data to include only records from 2022 where the maximum income percentage (`income_percent_max`) is greater than 30%.
+
+
+
+Let me know if you have any other SQL queries you need help with!","To generate the SQL query, I need to clarify a few points. Are we looking at the data for a specific zipcode or all zipcodes? And do we have a specific table name for the household income data?","To fulfill the request, we need to count the number of zipcodes having SMOCAPI (income\_percent\_max) greater than 30% in the year 2022, and the total number of zipcodes in the dataset. Then, we can calculate the percentage. However, based on the provided schema, there is no unique identifier for a zipcode, so we will assume that the combination of 'id' and 'zipcode' forms a unique identifier for a zipcode. Here's the SQL query to get the percentage:
+
+```sql
+WITH total_zipcodes AS (
+  SELECT COUNT(DISTINCT CONCAT(id, zipcode)) AS total_count
+  FROM household_income_percent_with_mortgage
+),
+qualified_zipcodes AS (
+  SELECT COUNT(DISTINCT CONCAT(id, zipcode)) AS qualified_count
+  FROM household_income_percent_with_mortgage
+  WHERE year = 2022 AND income_percent_max > 30
+)
+SELECT qualified_count * 100.0 / total_count AS percentage
+FROM total_zipcodes, qualified_zipcodes;
+```
+
+This query first calculates the total count of unique zipcodes and the count of qualified zipcodes (those having SMOCAPI > 30% in the year 2022) separately. Then, it calculates the percentage by dividing the count of qualified zipcodes by the total count. Note, the result is multiplied by 100.0 to get the percentage as a decimal number."
+Get average population of males and females by year in Georgia,"select year, avg(total_population_male), avg(total_population_female) from demographic_basics group by year;","demographic_basics (year, id, zipcode, total_population, total_population_male, total_population_female, total_population_sex_ratio, total_population_median_age, total_housing_units, voting_age_population, voting_age_popul, voting_age_population_female)","2015; 8600000US30005; ZCTA5 30005; 19,730; 19,157; 12,910; 21,341; 10,817; 10,524
+2015; 8600000US30008; ZCTA5 30008; 16,893; 16,012; 11,594; 18,916; 9,498; 9,418
+2015; 8600000US30009; ZCTA5 30009; 7,190; 7,569; 6,327; 9,875; 4,539; 5,336
+2015; 8600000US30011; ZCTA5 30011; 7,459; 7,141; 5,203; 10,378; 5,266; 5,112
+2015; 8600000US30012; ZCTA5 30012; 13,506; 13,727; 10,324; 17,599; 8,397; 9,202"," To fulfill the request to get the average population of males and females by year in Georgia, you can use the following SQL query:
+
+```sql
+SELECT 
+    year,
+    AVG(total_population_male) AS avg_population_male,
+    AVG(total_population_female) AS avg_population_female
+FROM 
+    demographic_basics
+WHERE 
+    id LIKE '8600000US%'
+GROUP BY 
+    year
+ORDER BY 
+    year;
+```
+
+This SQL query does the following:
+
+1. Selects the year, average population of males, and average population of females from the `demographic_basics` table.
+2. Filters the data to include only entries in Georgia by using the `WHERE` clause with the `LIKE` operator to match the `id` column starting with `'8600000US%'`.
+3. Groups the data by year.
+4. Calculates the average population of males and females for each year using the `AVG` aggregate function.
+5. Orders the results by year using the `ORDER BY` clause to help interpret the results more easily.
+
+The output will be a table that contains the year, average population of males, and average population of females for each year, fulfilling the natural language request.","SELECT 
+  year,
+  ROUND(AVG(total_population_male), 0) AS average_male_population, 
+  ROUND(AVG(total_population_female), 0) AS average_female_population
+FROM 
+  demographic_basics
+WHERE 
+  id = '8600000US'
+GROUP BY 
+  year;","```sql
+SELECT year,
+       (total_population_male + total_population_female) / 2 AS avg_population
+FROM demographic_basics
+WHERE state = 'Georgia'
+GROUP BY year, total_population_male, total_population_female
+ORDER BY year;
+```","```sql
+SELECT
+    year,
+    AVG(total_population_male) AS average_male_population,
+    AVG(total_population_female) AS average_female_population
+FROM demographic_basics
+WHERE state = 'Georgia'  -- Assuming state is stored in the table
+GROUP BY year;
+```
+
+**Explanation:**
+
+1. **SELECT year, AVG(total_population_male) AS average_male_population, AVG(total_population_female) AS average_female_population:** This selects the year and calculates the average male and female populations.
+2. **FROM demographic_basics:**  Specifies the table to query.
+3. **WHERE state = 'Georgia':**  Filters the data to include only rows where the state is 'Georgia'. 
+4. **GROUP BY year:**  Groups the results by year so we get the average population for each year.
+
+
+
+Let me know if you have any other SQL requests!","To get the average population of males and females by year in Georgia, we need to aggregate the data by year and then calculate the average for males and females. Here's the SQL query for that:
+
+```sql
+SELECT 
+    year,
+    AVG(total_population_male) AS avg_male_population,
+    AVG(total_population_female) AS avg_female_population
+FROM 
+    demographic_basics
+WHERE 
+    state = 'Georgia'
+GROUP BY 
+    year;
+```
+
+This query will give us the average population of males and females by year in Georgia.","Here is a possible SQL query to fulfill the request:
+```
+SELECT 
+    year,
+    AVG(total_population_male) AS average_population_male,
+    AVG(total_population_female) AS average_population_female
+FROM 
+    demographic_basics
+WHERE 
+    id LIKE '8600000US30%'  -- filter for Georgia zip codes
+GROUP BY 
+    year;
+```
+This query will return the average population of males and females for each year in the table, filtered to only include zip codes in the state of Georgia.
+
+To filter for only the years 2015 and onwards, you can add the following condition to the WHERE clause:
+```
+WHERE 
+    id LIKE '8600000US30%' AND 
+    year >= 2015;
+```
+This will ensure that only the rows with a year value of 2015 or later are included in the result set."
+"For year 2022, get gender ratio between males and females for each zipcode in Georgia.","select substring(zipcode, 7, 10) as zcta, avg(total_population_male/total_population_female) from demographic_basics where year=2022 group by zipcode;","demographic_basics (year, id, zipcode, total_population, total_population_male, total_population_female, total_population_sex_ratio, total_population_median_age, total_housing_units, voting_age_population, voting_age_popul, voting_age_population_female)","2015; 8600000US30005; ZCTA5 30005; 19,730; 19,157; 12,910; 21,341; 10,817; 10,524
+2015; 8600000US30008; ZCTA5 30008; 16,893; 16,012; 11,594; 18,916; 9,498; 9,418
+2015; 8600000US30009; ZCTA5 30009; 7,190; 7,569; 6,327; 9,875; 4,539; 5,336
+2015; 8600000US30011; ZCTA5 30011; 7,459; 7,141; 5,203; 10,378; 5,266; 5,112
+2015; 8600000US30012; ZCTA5 30012; 13,506; 13,727; 10,324; 17,599; 8,397; 9,202"," To fulfill the natural language request, you can write the following SQL query:
+
+```sql
+SELECT
+  year,
+  zipcode,
+  total_population_male,
+  total_population_female,
+  (total_population_male::FLOAT / total_population_female) AS male_female_ratio
+FROM
+  demographic_basics
+WHERE
+  year = 2022
+  AND zipcode BETWEEN '30005' AND '30015'
+ORDER BY male_female_ratio DESC;
+```
+
+This query selects the year, zipcode, total male population, total female population, and the male to female ratio (obtained by dividing male population by female population) from the `demographic_basics` table, where the year is 2022 and the zipcode starts with 30005 and ends with 30015. The results are then ordered in descending order of the male to female ratio, so you'll see the zipcodes with the highest gender imbalance first.
+
+Note: The range condition on zipcode might be too broad for your specific needs. In this example, it is selected to include all possible Georgia zipcodes starting with '300'. You might want to adjust the condition based on the actual zipcode range in Georgia or look up geographic limits for Georgia zipcodes to ensure you're only querying records within Georgia state.
+
+For more accuracy, if your database supports regular expressions or common table expressions (CTEs), you can refine the query further by writing a CTE that only includes zipcodes for Georgia and then joining that with your query.","SELECT 
+    zipcode,
+    COUNT(DISTINCT CASE WHEN total_population_male > 0 THEN id ELSE NULL END) AS male_population,
+    COUNT(DISTINCT CASE WHEN total_population_female > 0 THEN id ELSE NULL END) AS female_population,
+    COUNT(DISTINCT CASE WHEN total_population_male > 0 THEN id ELSE NULL END) / COUNT(DISTINCT CASE WHEN total_population_female > 0 THEN id ELSE NULL END) AS gender_ratio
+FROM 
+    demographic_basics
+WHERE 
+    year = 2022 AND state = 'Georgia'
+GROUP BY 
+    zipcode;","```sql
+SELECT d.zipcode,
+       (d.total_population_male / d.total_population_female) * 100 AS gender_ratio
+FROM demographic_basics d
+WHERE d.year = 2022
+AND d.state = 'GA'
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT 
+    zipcode,
+    (total_population_male / total_population) * 100 AS male_ratio,
+    (total_population_female / total_population) * 100 AS female_ratio
+FROM 
+    demographic_basics
+WHERE 
+    year = 2022
+    AND zipcode LIKE '30%'; -- Assuming zip codes in Georgia start with '30'
+```
+
+**Explanation:**
+
+1. **SELECT**: This clause specifies the columns to be retrieved:
+    - `zipcode`: The zip code for each area.
+    - `male_ratio`:  Calculates the percentage of males within each zip code.
+    - `female_ratio`: Calculates the percentage of females within each zip code.
+
+2. **FROM**: This clause indicates the table from which the data is fetched: `demographic_basics`.
+
+3. **WHERE**: This clause filters the results based on the specified conditions:
+    - `year = 2022`: Retrieves data for the year 2022.
+    - `zipcode LIKE '30%'`: Filters for zip codes in Georgia, assuming they start with '30'.
+
+4. **Calculations**:
+    - The expressions `(total_population_male / total_population) * 100` and `(total_population_female / total_population) * 100` calculate the male and female ratios as percentages.
+
+
+Remember to modify the `zipcode LIKE '30%'` part if the zip code format in Georgia is different.","To generate the SQL query for this request, I'll need to know the specific year you're interested in. You mentioned 2022, correct?","Here is a SQL query to fulfill your request:
+```
+SELECT zipcode, 
+       total_population_male / total_population_female AS gender_ratio
+FROM demographic_basics
+WHERE year = 2022 AND state = 'GA'
+GROUP BY zipcode;
+```
+This query will return the zipcode and the gender ratio (calculated as the number of males divided by the number of females) for each zipcode in the state of Georgia for the year 2022. Note that I am assuming that the table has a column called `state` that stores the state abbreviation for each entry. If this is not the case, you will need to modify the query accordingly.
+
+I hope this helps! Let me know if you have any questions or need further clarification."
+"For each year after 2016, get average count of each ethnicity in Georgia.","select year, avg(white) as 'white', avg(black) as 'black', avg(asian) as 'asian', avg(american_indian_and_alaska_native) as 'american_indian_and_alaska_native',Ãƒâ€šÃ‚Â 
+avg(native_hawaiian_and_other_pacific_islander) as 'native_hawaiian_and_other_pacific_islander', avg(hispanic_or_latino) as 'hispanic_or_latino'Ãƒâ€šÃ‚Â 
+from demographic_race where year > 2016 group by year;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," SELECT year,
+       race_total_populatio,
+       AVG(white) AS avg_white,
+       AVG(black) AS avg_black,
+       AVG(american_indian_and_alaska_native) AS avg_american_indian_and_alaska_native,
+       AVG(asian) AS avg_asian,
+       AVG(native_hawaiian_and_other_pacific_islander) AS avg_native_hawaiian_and_other_pacific_islander,
+       AVG(some_other_race) AS avg_some_other_race,
+       AVG(hispanic_or_latino_total) AS avg_hispanic_or_latino_total,
+       AVG(hispanic_or_latino) AS avg_hispanic_or_latino,
+       AVG(not_hispanic_or_latino) AS avg_not_hispanic_or_latino
+FROM demographic_race
+WHERE year > 2016
+GROUP BY year, race_total_populatio;","SELECT 
+    year,
+    AVG(one_race) AS avg_one_race,
+    AVG(two_or_more_races) AS avg_two_or_more_races,
+    AVG(white) AS avg_white,
+    AVG(black) AS avg_black,
+    AVG(american_indian_and_alaska_native) AS avg_american_indian_and_alaska_native,
+    AVG(asian) AS avg_asian,
+    AVG(native_hawaiian_and_other_pacific_islander) AS avg_native_hawaiian_and_other_pacific_islander,
+    AVG(some_other_race) AS avg_some_other_race,
+    SUM(hispanic_or_latino) / COUNT(*) AS avg_hispanic_or_latino
+FROM demographic_race
+WHERE year > 2016 AND race_total_populatio IS NOT NULL
+GROUP BY year","```sql
+SELECT d.year, 
+       AVG(CASE WHEN d.race_total_populatio IS NOT NULL THEN d.race_total_populatio END) 
+FROM demographic_race d
+WHERE d.year > 2016
+AND d.zipcode LIKE '%GA%'
+GROUP BY d.year;
+```","```sql
+SELECT 
+  year,
+  race_name,
+  AVG(race_total_populatio) AS average_count 
+FROM 
+  (
+    SELECT 
+      year,
+      CASE 
+        WHEN race_name = 'white' THEN 'White'
+        WHEN race_name = 'black' THEN 'Black'
+        WHEN race_name = 'american_indian_and_alaska_native' THEN 'American Indian and Alaska Native'
+        WHEN race_name = 'asian' THEN 'Asian'
+        WHEN race_name = 'native_hawaiian_and_other_pacific_islander' THEN 'Native Hawaiian and Other Pacific Islander'
+        WHEN race_name = 'some_other_race' THEN 'Some Other Race'
+        WHEN race_name = 'hispanic_or_latino_total' THEN 'Hispanic or Latino'
+        WHEN race_name = 'not_hispanic_or_latino' THEN 'Not Hispanic or Latino'
+        ELSE 'Two or More Races' 
+      END AS race_name,  
+      race_total_populatio
+    FROM demographic_race
+    WHERE year > 2016
+  ) AS race_data
+GROUP BY 
+  year, race_name
+ORDER BY 
+  year, race_name;
+```
+
+**Explanation:**
+
+1.  **Subquery:**
+    *   Selects distinct race categories and assigns them meaningful names.
+    *   Filters data for years after 2016.
+2.  **Outer Query:**
+    *   Groups the data by `year` and `race_name`.
+    *   Calculates the average `race_total_populatio` for each combination.
+    *   Orders the results by `year` and `race_name`.
+
+**Key points:**
+
+*   **CASE Statement:** Used to map numeric race IDs to more readable names.
+*   **Aggregate Function:** `AVG()` calculates the average count for each race.
+*   **GROUP BY:** Organizes the data for averaging.
+*   **Filtering:** Ensures only years after 2016 are included.
+
+
+
+This query provides a summary of the average population count for each ethnicity in Georgia for each year after 2016.
+
+
+Let me know if you need any further modifications or have other queries!","To generate the SQL query, I need to understand the specific columns you're interested in. Could you specify which ethnicity columns you want to include in the average count?","Here is the SQL query to fulfill your request:
+```
+SELECT 
+    year, 
+    AVG(white) AS average_white_population,
+    AVG(black) AS average_black_population,
+    AVG(american_indian_and_alaska_native) AS average_american_indian_population,
+    AVG(asian) AS average_asian_population,
+    AVG(native_hawaiian_and_other_pacific_islander) AS average_pacific_islander_population,
+    AVG(some_other_race) AS average_other_race_population,
+    AVG(hispanic_or_latino_total) AS average_hispanic_population
+FROM 
+    demographic_race
+WHERE 
+    year > 2016 AND
+    id LIKE '8600000US30%'
+GROUP BY 
+    year;
+```
+This query will return the average count of each ethnicity (white, black, American Indian and Alaska Native, Asian, Native Hawaiian and Other Pacific Islander, some other race, and Hispanic or Latino) for each year after 2016, for the state of Georgia (based on the `id` values starting with '8600000US30').
+
+Note: I am assuming that the `race_total_populatio`, `one_race`, and `two_or_more_races` columns are not needed for this query. If you need to include those values in the average, please let me know."
+"For year 2022, get average count of each ethnicity grouped by zipcode.","select substring(zipcode, 7, 10) as zcta, avg(white), avg(black), avg(asian), avg(american_indian_and_alaska_native), avg(native_hawaiian_and_other_pacific_islander) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here is the SQL query that fulfills the request:
+
+```sql
+SELECT 
+    zipcode, 
+    AVG(race_total_populatio) AS avg_race_total_populatio, 
+    AVG(one_race) AS avg_one_race, 
+    AVG(two_or_more_races) AS avg_two_or_more_races, 
+    AVG(white) AS avg_white, 
+    AVG(black) AS avg_black, 
+    AVG(american_indian_and_alaska_native) AS avg_american_indian_and_alaska_native, 
+    AVG(asian) AS avg_asian, 
+    AVG(native_hawaiian_and_other_pacific_islander) AS avg_native_hawaiian_and_other_pacific_islander, 
+    AVG(some_other_race) AS avg_some_other_race, 
+    AVG(hispanic_or_latino_total) AS avg_hispanic_or_latino_total, 
+    AVG(hispanic_or_latino) AS avg_hispanic_or_latino,
+    AVG(not_hispanic_or_latino) AS avg_not_hispanic_or_latino
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+```
+
+This query retrieves the year 2022 from the demographic_race table, groups the data by zipcode, and calculates the average values for each ethnicity.","SELECT
+  YEAR,
+  ZIPCODE,
+  AVG(ONE_RACE + TWO_OR_MORE_RACES) as AVERAGE_COUNT_OF_BLACK,
+  AVG(WHITE) as AVERAGE_COUNT_OF_WHITE,
+  AVG(AMERICAN_INDIAN_AND_ALASKA_NATIVE) as AVERAGE_COUNT_OF_AMERICAN_INDIAN,
+  AVG(ASIAN) as AVERAGE_COUNT_OF_ASIAN,
+  AVG(NATIVE_HAWAIIAN_AND_OTHER_PACIFIC_ISLANDERS) as AVERAGE_COUNT_OF_NATIVE_HAWAIIAN,
+  AVG(SOME_OTHER_RACE) as AVERAGE_COUNT_OF_OTHER_RACE,
+  (AVG(HISPANIC_OR_LATINO_TOTAL) / AVG(HISPANIC_OR_LATINO)) as AVERAGE_HISPANIC_RATIO
+FROM
+  demographic_race
+WHERE
+  YEAR = 2022 AND
+  TOTAL_POPULATION > 10000
+GROUP BY
+  ZIPCODE
+ORDER BY
+  ZIPCODE;","```sql
+SELECT d.zipcode, AVG(d.race_total_populatio)
+FROM demographic_race d
+WHERE d.year = 2022
+GROUP BY d.zipcode
+```","```sql
+SELECT zipcode, AVG(race_total_populatio) AS average_race_count
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+```
+
+**Explanation:**
+
+* **SELECT zipcode, AVG(race_total_populatio) AS average_race_count**: This selects the `zipcode` and calculates the average of `race_total_population` for each zipcode. The average is aliased as `average_race_count`.
+* **FROM demographic_race**: This specifies the table from which to retrieve the data.
+* **WHERE year = 2022**: This filters the data to include only records for the year 2022.
+* **GROUP BY zipcode**: This groups the results by `zipcode`, allowing the average to be calculated for each unique zipcode.
+
+
+Let me know if you have any other queries!","To generate the SQL query, I need to know the specific columns you're interested in. Could you specify which ethnicity groups you want to include in the average count?","Here is a SQL query to fulfill your request:
+```
+SELECT zipcode, AVG(one_race + two_or_more_races) as avg_ethnicity_count
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+```
+This query will select the `zipcode` column and the average of the sum of the `one_race` and `two_or_more_races` columns, grouped by `zipcode`. The `WHERE` clause filters the results to only include rows from the year 2022.
+
+Note: It appears that the example data you provided is from the year 2015. In order to get results for the year 2022, you will need to have data from that year in the `demographic_race` table.
+
+Additionally, the `race_total_populatio` column seems to contain the total population for each zipcode. However, it is not clear how this value is calculated, as it does not appear to be equal to the sum of the `one_race` and `two_or_more_races` columns. If you would like to use this column in the calculation of the average ethnicity count, please provide more information about how it is calculated."
+"For year 2022, get percentage of American Indian and Alaskan Natives with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(american_indian_and_alaska_native)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here is the SQL query that would fulfill the request:
+
+```sql
+SELECT 
+    zipcode,
+    round(((american_indian_and_alaska_native * 100.0) / (race_total_population)), 2) AS percentage_of_american_indian_and_alaska_native
+FROM
+    demographic_race
+WHERE
+    year = 2022;
+```
+
+This query selects the zipcode and calculates the percentage of Americans of American Indian and Alaskan Native race, with respect to the total population in each zipcode. The calculation is done by dividing american_indian_and_alaska_native by race_total_population and multiplying the result by 100 to get the percentage. The result is rounded up to 2 decimal places. The WHERE clause makes sure only the data for year 2022 is returned.","SELECT zipcode,
+       (SUM(american_indian_and_alaska_native) / SUM(race_total_populatio)) * 100 as percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;","```sql
+SELECT d.zipcode,
+       (SUM(CASE WHEN d.race = 'american_indian_and_alaska_native' THEN d.one_race END) / SUM(d.total_population)) * 100 AS ""Percentage of American Indian and Alaskan Natives""
+FROM demographic_race d
+WHERE d.year = 2022
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT 
+    zipcode,
+    (american_indian_and_alaska_native::decimal) * 100 / race_total_populatio AS american_indian_alaska_native_percentage
+FROM demographic_race
+WHERE year = 2022
+```
+
+
+
+**Explanation:**
+
+
+* **`SELECT zipcode, (american_indian_and_alaska_native::decimal) * 100 / race_total_populatio AS american_indian_alaska_native_percentage`**: This selects the `zipcode` and calculates the percentage of American Indian and Alaskan Natives for each zipcode. The calculation is done by dividing the number of American Indian and Alaskan Natives (`american_indian_and_alaska_native`) by the total population (`race_total_populatio`) and multiplying by 100. The resulting percentage is aliased as `american_indian_alaska_native_percentage`. 
+* **`FROM demographic_race`**:  Specifies the table from which to retrieve the data.
+* **`WHERE year = 2022`**: Filters the data to include only records for the year 2022.
+
+
+
+This query will give you the desired percentage breakdown for each zipcode in 2022.","To generate the SQL query, I need to know the specific year you're interested in. You mentioned 2022, correct?","Here is the SQL query to fulfill your request:
+```sql
+SELECT zipcode, 
+       (american_indian_and_alaska_native * 100.0 / race_total_population) as percent_american_indian_and_alaska_native
+FROM demographic_race
+WHERE year = 2022 AND race_total_population > 0
+ORDER BY zipcode;
+```
+This query will return the zipcode and the percentage of American Indian and Alaskan Natives with respect to the total population for the year 2022. It only considers the records where the total population is greater than 0. The result will be ordered by zipcode."
+"For year 2022, get percentage of Asians with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(asian)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here's an SQL query that calculates the percentage of Asians with respect to the total population in each zipcode for the year 2022:
+
+```sql
+SELECT
+  zipcode,
+  (asian / race_total_populatio) * 100 AS asian_percentage
+FROM
+  demographic_race
+WHERE
+  year = 2022
+ORDER BY
+  (asian / race_total_populatio) DESC;
+```
+
+This query selects the `zipcode` and calculates the percentage of Asians as the ratio of the `asian` column to the `race_total_populatio` column, then multiplies it by 100. It filters the results by the year 2022 and sorts them in descending order based on the Asian population percentage.","SELECT zipcode, 
+       (SUM(CASE WHEN race = 'Asian' THEN race_total_populatio ELSE 0 END) / total_population) * 100.0 AS asian_percentage 
+FROM demographic_race 
+WHERE year = 2022 AND one_race = 'Asian' AND two_or_more_races <> 'Asian' 
+GROUP BY zipcode;","```sql
+SELECT d.zipcode,
+       ROUND(SUM(CASE WHEN r.race = 'Asian' THEN d.race_total_population END) / SUM(d.race_total_population) * 100, 2) AS 'Asian Percentage'
+FROM demographic_race d
+WHERE d.year = 2022
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT 
+    zipcode,
+    (asian / race_total_populatio) * 100 AS asian_percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+``` 
+
+**Explanation:**
+
+* **SELECT zipcode, (asian / race_total_populatio) * 100 AS asian_percentage:** This selects the `zipcode` and calculates the percentage of Asians.
+* **FROM demographic_race:** Specifies the table to query.
+* **WHERE year = 2022:** Filters the data to only include records from the year 2022.
+* **GROUP BY zipcode:** Groups the results by zipcode so we get a percentage for each zipcode.
+
+
+This query will output the zipcode and the percentage of Asians in that zipcode for the year 2022.","To generate the SQL query, I need to know the specific columns you want to include in the result. Could you specify which columns you are interested in?","Here is a SQL query to fulfill your request:
+
+```
+SELECT zipcode, 
+       (SUM(CASE WHEN race = 'asian' THEN race_total_population ELSE 0 END) / 
+        SUM(race_total_population)) * 100 
+        AS percentage_of_asians
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+```
+
+This query calculates the percentage of Asians in each zipcode by dividing the total population of Asians by the total population of the zipcode and multiplying by 100. The year filter is applied using the `WHERE` clause.
+
+Note: I assume that the `race` column is a string type column that contains the race name 'asian'. If the column name is different, please replace it with the correct one.
+
+Additionally, please note that the `demographic_race` table only has data for the year 2015 in the provided example, so you won't get any results for the year 2022. Make sure to populate the table with the correct data."
+"For year 2022, get percentage of Blacks with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(black)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here's an SQL query that fulfills the request:
+
+```sql
+SELECT
+    zipcode,
+    round((CAST(black AS FLOAT) / CAST(race_total_populatio AS FLOAT)) * 100, 2) AS black_percentage
+FROM
+    demographic_race
+WHERE
+    year = 2022
+GROUP BY
+    zipcode, race_total_populatio, black;
+```
+
+This SQL query performs the following operations:
+
+1. Filters the data for the year 2022 using the `WHERE` clause.
+2. Computes the percentage of Black population for each zipcode using the formula `(number of Black people / total population) * 100`. This is done for each row in the table by using columns `black` and `race_total_populatio`. The `ROUND` function rounds the result to two decimal places.
+3. Groups the results by `zipcode`, `race_total_populatio`, and `black` to avoid any duplication in the data.
+
+The output will be a table with columns `zipcode` and `black_percentage`, showing the percentage of Black population compared to the total population for each zipcode in the year 2022.","SELECT zipcode, 
+       (black / COALESCE((white + black + american_indian_and_alaska_native + asian + native_hawaiian_and_other_pacific_islander + some_other_race), 1) * 100) AS percentage_blacks
+FROM demographic_race
+WHERE year = 2022 AND race_total_populatio = white + black + american_indian_and_alaska_native + asian + native_hawaiian_and_other_pacific_islander + some_other_race AND (atherine, hispanic_or_latino_total = hispanic_or_latino)
+ORDER BY zipcode;","```sql
+SELECT d.zipcode,
+       (SUM(CASE WHEN r.race = 'Black' THEN 1 ELSE 0 END) / SUM(r.race_total_population)) * 100 AS black_percentage
+FROM demographic_race r
+JOIN zipcodes z ON r.zipcode = z.zipcode
+WHERE r.year = 2022
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT 
+    zipcode,
+    (black * 100.0 / race_total_populatio) AS black_percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+``` 
+
+**Explanation:**
+
+* **SELECT zipcode, (black * 100.0 / race_total_populatio) AS black_percentage**: This selects the zipcode and calculates the percentage of Black individuals within each zipcode.
+* **FROM demographic_race**: This specifies the table containing the demographic data.
+* **WHERE year = 2022**: This filters the data to include only records for the year 2022.
+* **GROUP BY zipcode**: This groups the results by zipcode, allowing the percentage calculation to be performed for each distinct zipcode.  
+
+
+
+Let me know if you have any other requests!","To generate the SQL query, I'll need to know the specific columns you're interested in. Could you specify which columns you want to include in the result?","Here is a SQL query to fulfill your request:
+```
+SELECT zipcode, (SUM(black) / NULLIF(race_total_population, 0)) * 100 AS black_percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode
+ORDER BY black_percentage DESC;
+```
+This query will return the percentage of Blacks with respect to the total population for each zipcode in the year 2022. It does this by summing up the number of Blacks in each zipcode and dividing it by the total population of that zipcode. The result is then multiplied by 100 to get the percentage.
+
+Note: I assumed that the column names ""year"", ""id"", ""zipcode"", ""race\_total\_population"", ""one\_race"", ""two\_or\_more\_races"", ""white"", ""black"", ""american\_indian\_and\_alaska\_native"", ""asian"", ""native\_hawaiian\_and\_other\_pacific\_islander"", ""some\_other\_race"", ""hispanic\_or\_latino\_total"", ""hispanic\_or\_latino"", ""not\_hispanic\_or\_latino"" are correct and present in the table. If not, please replace them with the correct column names.
+
+Additionally, I've used NULLIF function to avoid any division by zero error. In case if any zipcode does not have any total population it will return NULL for that zipcode.
+
+Also, I have ordered the result by black\_percentage in descending order, you can change it to ascending order if you want to see the results in ascending order."
+"For year 2022, get percentage of Hispanics/Latinos with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(hispanic_or_latino)/avg(hispanic_or_latino_total) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here's an SQL query to retrieve the percentage of Hispanics/Latinos with respect to the total population in each zipcode for year 2022 using the given schema:
+
+```sql
+SELECT 
+    zipcode,
+    (CAST(hispanic_or_latino_total AS FLOAT) / CAST(race_total_population AS FLOAT)) * 100 AS hispanic_latino_percentage
+FROM 
+    demographic_race
+WHERE 
+    year = 2022
+ORDER BY 
+    hispanic_latino_percentage DESC
+```
+
+This query calculates the percentage of Hispanics/Latinos in each zipcode for the year 2022 by dividing the Hispanic/Latino total population (hispanic_or_latino_total) by the race total population (race_total_population) and then multiplying the result by 100. The results are ordered in descending order based on the calculated Hispanic/Latino percentage.","SELECT zipcode, (SUM(CASE WHEN one_race = 'Hispanic' THEN race_total_population ELSE 0 END) * 100.00 / SUM(race_total_population)) as hispanic_percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;","```sql
+SELECT d.zipcode,
+       (COUNT(CASE WHEN d.hispanic_or_latino = 'Yes' THEN 1 END) / COUNT(*) * 100) AS percentage
+FROM demographic_race d
+WHERE d.year = 2022
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT
+  zipcode,
+  (hispanic_or_latino_total * 100.0 / race_total_populatio) AS hispanic_percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+``` 
+
+
+**Explanation:**
+
+* **SELECT zipcode, (hispanic_or_latino_total * 100.0 / race_total_populatio) AS hispanic_percentage**: This selects two columns:
+    * `zipcode`:  The zip code for each record.
+    * `hispanic_percentage`:  This calculated column represents the percentage of Hispanics/Latinos in each zip code. It's calculated by dividing the `hispanic_or_latino_total` by the `race_total_populatio` and multiplying by 100.
+* **FROM demographic_race**: Specifies the table to retrieve data from.
+* **WHERE year = 2022**: Filters the results to include only data for the year 2022.
+* **GROUP BY zipcode**: Groups the results by zip code, allowing us to calculate the percentage for each zip code separately. 
+
+
+
+Let me know if you have any other SQL query requests!","To generate the SQL query, I need to know the specific columns you want to include in the result. Could you specify which columns you're interested in?","Here is the SQL query to get the percentage of Hispanics/Latinos with respect to the total population in each zipcode for the year 2022:
+
+```
+SELECT 
+    zipcode,
+    (SUM(hispanic_or_latino_total) / SUM(race_total_population)) * 100 AS percentage
+FROM 
+    demographic_race
+WHERE 
+    year = 2022 AND 
+    id IS NOT NULL
+GROUP BY 
+    zipcode;
+```
+
+Note: I assumed that the `id` column is not null for valid records. Also, the table in your schema does not contain a `race_total_population` column, so I assumed that it should be `race_total_populatio`. Please replace it with the correct column name if it's different."
+"For year 2022, get percentage of Native Hawaiian and other Pacific Inlander with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(native_hawaiian_and_other_pacific_islander)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here's an SQL query that will give you the percentage of Native Hawaiians and other Pacific Islanders out of the total population for each zipcode in the year 2022:
+
+```sql
+SELECT 
+    zipcode,
+    (
+        (native_hawaiian_and_other_pacific_islander * 100) / race_total_population
+    ) as percentage_native_hawaiian
+FROM
+    demographic_race
+WHERE
+    year = 2022
+```
+
+This query calculates the percentage of Native Hawaiians and other Pacific Islanders (`native_hawaiian_and_other_pacific_islander`) by dividing it by the total population (`race_total_population`) for each zipcode in the year 2022. The result is multiplied by 100 to convert it into a percentage.","SELECT zipcode, (native_hawaiian_and_other_pacific_islander / (race_total_populatio - one_race - two_or_more_races) * 100) as percentage_nhapi 
+FROM demographic_race 
+WHERE year = 2022;","```sql
+SELECT d.zipcode,
+       (SUM(CASE WHEN d.race_total_population > 0 AND d.native_hawaiian_and_other_pacific_islander > 0 THEN d.native_hawaiian_and_other_pacific_islander END) / SUM(d.race_total_population)) * 100) AS ""Percentage of Native Hawaiian and other Pacific Islander""
+FROM demographic_race d
+WHERE d.year = 2022
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT 
+    zipcode,
+    (native_hawaiian_and_other_pacific_islander_total / race_total_population) * 100 AS percentage 
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+```
+
+
+**Explanation:**
+
+1. **`SELECT zipcode, (native_hawaiian_and_other_pacific_islander_total / race_total_population) * 100 AS percentage`**: This selects the `zipcode` and calculates the percentage.
+
+   -  `native_hawaiian_and_other_pacific_islander_total`: This column stores the total population of Native Hawaiian and Other Pacific Islander in a zip code.
+   - `race_total_population`: This column stores the total population for which race information is available in a zip code.
+   - The calculation divides the Native Hawaiian and Other Pacific Islander population by the total race population and multiplies by 100 to get the percentage.
+   - `AS percentage`: This names the calculated percentage column as `percentage`.
+
+2. **`FROM demographic_race`**: This specifies the table to retrieve data from.
+
+3. **`WHERE year = 2022`**: This filters the data to include only records for the year 2022.
+
+4. **`GROUP BY zipcode`**: This groups the results by `zipcode`, allowing you to calculate the percentage for each zip code separately.
+
+
+
+This query will give you a result set with two columns: `zipcode` and `percentage`, showing the percentage of Native Hawaiian and Other Pacific Islander people in each zip code for the year 2022.","To generate the SQL query, I need to know the specific year you're interested in. You mentioned 2022, correct?","Here is the SQL query to fulfill your request:
+```vbnet
+SELECT zipcode,
+       (SUM(CASE WHEN race_total_population IS NOT NULL AND native_hawaiian_and_other_pacific_islander IS NOT NULL THEN native_hawaiian_and_other_pacific_islander ELSE 0 END) * 100.0 / NULLIF(SUM(race_total_population), 0)) AS percentage
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode
+ORDER BY percentage DESC;
+```
+Explanation:
+
+* The query selects the `zipcode` column and calculates the percentage of `native_hawaiian_and_other_pacific_islander` with respect to the `race_total_population` for each `zipcode`.
+* The `WHERE` clause filters the data for the year 2022.
+* The `GROUP BY` clause groups the data by `zipcode`.
+* The `ORDER BY` clause sorts the data in descending order by percentage.
+* The `NULLIF` function is used to avoid division by zero error."
+"For year 2022, get percentage of Whites with respect to the total population in each zipcode.","select substring(zipcode, 7, 10) as zcta, 100*avg(white)/avg(race_total_population) from demographic_race where year = 2022 group by zipcode;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here is the SQL query to fulfill the request:
+
+```sql
+SELECT 
+    d.zipcode,
+    ROUND((white / SUM(race_total_populatio)*100), 2) AS percentage_whites
+FROM 
+    demographic_race d
+WHERE 
+    d.year = 2022
+GROUP BY 
+    d.zipcode;
+```
+
+This query selects the zipcode and calculates the percentage of Whites in each zipcode for the year 2022. The percentage is rounded to 2 decimal places for better presentation. The `SUM(race_total_populatio)` function calculates the total population for each group of zipcodes. The `WHERE` clause filters the data for the year 2022 only. Finally, the `GROUP BY` clause groups the data by zipcode to calculate the percentage of Whites separately for each zipcode.","SELECT 
+    zipcode, 
+    (white / race_total_populatio * 100) AS percent_white
+FROM 
+    demographic_race
+WHERE 
+    year = 2022;","```sql
+SELECT d.zipcode,
+       (SUM(CASE WHEN r.race = 'White' THEN 1 ELSE 0 END) / SUM(r.race_total_population)) * 100 AS white_percentage
+FROM demographic_race d
+JOIN population p ON d.zipcode = p.zipcode AND d.year = 2022
+WHERE d.year = 2022
+GROUP BY d.zipcode
+ORDER BY d.zipcode;
+```","```sql
+SELECT
+    zipcode,
+    (white / race_total_population) * 100 AS percentage_white
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode
+ORDER BY zipcode;
+```
+
+**Explanation:**
+
+* **SELECT zipcode, (white / race_total_population) * 100 AS percentage_white**: This selects the zipcode and calculates the percentage of Whites for each zipcode.
+    * `(white / race_total_population) * 100` calculates the percentage by dividing the 'white' population by the total population for each zipcode and multiplying by 100.
+* **FROM demographic_race**: Specifies the table to retrieve data from.
+* **WHERE year = 2022**: Filters the data to only include records from the year 2022.
+* **GROUP BY zipcode**: Groups the results by zipcode so that the percentage calculation is performed for each unique zipcode.
+* **ORDER BY zipcode**: Orders the results alphabetically by zipcode for better readability.
+
+This query will give you the percentage of Whites in each zipcode for the year 2022.","To generate the SQL query, I need to know the specific columns you want to include in the result. Do you want the zipcode, percentage of Whites, and the total population for each zipcode in 2022?","Here is a SQL query that should fulfill your request:
+```
+SELECT zipcode, (white / race_total_population) * 100 AS percentage_white
+FROM demographic_race
+WHERE year = 2022
+GROUP BY zipcode;
+```
+This query will select the `zipcode` and the percentage of `white` population with respect to the `race_total_population` for the year 2022. It will group the results by `zipcode` so that you will get the percentage of Whites with respect to the total population for each zipcode.
+
+Note: The query assumes that the columns `white` and `race_total_population` contain numeric data.
+
+Also, it is important to note that the data provided in the question, it only shows data for year 2015, it doesn't show any data for 2022. So, you might not get any results or it might be possible that you don't have any data for 2022."
+"For each zipcode in Atlanta, get change in percentage of those travelling in car alone between year 2019 and 2022","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, ((car_alone/total_workers)*100 - commute_old.public_transport_percent) as commute_change
+FROM economic_commute_to_workÃƒâ€šÃ‚Â 
+join (select zipcode, (car_alone/total_workers)*100 as public_transport_percent
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â from economic_commute_to_work where year=2019) as commute_oldÃƒâ€šÃ‚Â 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ;Ãƒâ€šÃ‚Â "," To get the change in the percentage of those travelling in car alone between year 2019 and 2022 for each zipcode in Atlanta, you can use the following SQL query:
+
+```sql
+WITH car_alone_2019 AS (
+  SELECT zipcode, SUM(car_alone) AS total_car_alone_2019
+  FROM economic_commute_to_work
+  WHERE year = 2019 AND zipcode LIKE '%30614' OR zipcode LIKE '%30634' OR zipcode LIKE '%30618'
+  GROUP BY zipcode
+),
+car_alone_2022 AS (
+  SELECT zipcode, SUM(car_alone) AS total_car_alone_2022
+  FROM economic_commute_to_work
+  WHERE year = 2022 AND zipcode LIKE '%30614' OR zipcode LIKE '%30634' OR zipcode LIKE '%30618'
+  GROUP BY zipcode
+)
+SELECT a.zipcode,
+  ((b.total_car_alone_2022 - a.total_car_alone_2019) / a.total_car_alone_2019) * 100 AS change_in_percentage
+FROM car_alone_2019 a
+JOIN car_alone_2022 b
+ON a.zipcode = b.zipcode
+```
+
+This query creates two Common Table Expressions (CTEs) to retrieve the total number of workers traveling in car alone for each zipcode in Atlanta in 2019 and 2022, respectively. The zipcodes are specifically filtered to only include those belonging to Atlanta. The final SELECT statement joins the two CTEs on the zipcode and calculates the percentage change in the number of people traveling in car alone between the two years.
+
+Note that you may need to adjust the zipcode filter condition according to the specific zipcodes covered by Atlanta. The example provided here includes only three zipcodes ('30614', '30634', and '30618').","SELECT 
+    zipcode, 
+    ((SUM(car_alone) OVER (PARTITION BY zipcode ORDER BY year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) - SUM(car_alone)) / (SUM(car_alone) OVER (PARTITION BY zipcode ORDER BY year ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) + SUM(car_alone))) * 100 AS percentage_change
+FROM 
+    economic_commute_to_work
+WHERE 
+    city = 'Atlanta'
+    AND year IN (2019, 2022)
+GROUP BY 
+    zipcode, year
+ORDER BY 
+    zipcode, year;","```sql
+SELECT c.zipcode,
+       (c.car_alone_2022 - c.car_alone_2019) / c.car_alone_2019 * 100 AS change_in_percentage
+FROM economic_commute_to_work AS c
+WHERE c.zipcode IN (
+    SELECT zipcode
+    FROM economic_commute_to_work
+    WHERE city = 'Atlanta'
+)
+AND c.year IN (2019, 2022);
+```","```sql
+SELECT 
+    zipcode,
+    ((SUM(CASE WHEN year = 2022 THEN car_alone ELSE 0 END) / SUM(total_workers) * 100) - 
+      (SUM(CASE WHEN year = 2019 THEN car_alone ELSE 0 END) / SUM(total_workers) * 100)) AS percent_change
+FROM 
+    economic_commute_to_work
+WHERE 
+    year IN (2019, 2022)
+    AND zipcode LIKE '30%'  -- Assuming ""Atlanta"" zipcodes start with '30'
+GROUP BY 
+    zipcode;
+```
+
+**Explanation:**
+
+1. **SELECT:**
+   - `zipcode`: Selects the unique zipcode.
+   - `percent_change`: Calculates the percentage difference in car-alone commuters between 2019 and 2022.
+2. **((SUM(CASE WHEN year = 2022 THEN car_alone ELSE 0 END) / SUM(total_workers) * 100) - ... ):**  
+   - This part calculates the percentage of car-alone commuters for each year:
+     - `CASE WHEN year = 2022 THEN car_alone ELSE 0 END`: If the year is 2022, take the `car_alone` value, otherwise, take 0.
+     - `SUM(...)`: Sums up the `car_alone` values for each year.
+     - `SUM(total_workers)`: Gets the total number of workers in each zipcode.
+     - `/`: Divides the summed `car_alone` by the total workers to get the percentage.
+     - `* 100`: Multiplies by 100 to convert the percentage to a whole number.
+   - The final calculation subtracts the percentage from 2019 from the percentage in 2022 to get the percentage change.
+3. **FROM economic_commute_to_work:** Specifies the table to query.
+4. **WHERE year IN (2019, 2022) AND zipcode LIKE '30%':**  
+   - Filters the data to include only years 2019 and 2022.
+   - Filters for zipcodes that start with '30' assuming these are Atlanta zipcodes.
+5. **GROUP BY zipcode:** Groups the results by each unique zipcode to calculate the percentage change for each zipcode.
+
+
+
+Let me know if you have any other requests.","To generate the SQL query, I'll need to know the specific zipcodes in Atlanta you're interested in. Could you provide those?","Here is a possible SQL query to fulfill your request:
+```
+SELECT zipcode,
+       ( (car_alone_2022 - car_alone_2019) * 100.0 / car_alone_2019) AS change_percentage
+FROM (
+  SELECT zipcode,
+         car_alone AS car_alone_2019,
+         (SELECT car_alone FROM economic_commute_to_work ec2 WHERE ec2.zipcode = ec.zipcode AND ec2.year = 2022) AS car_alone_2022
+  FROM economic_commute_to_work ec
+  WHERE city = 'Atlanta' AND year = 2019
+) subquery
+WHERE car_alone_2022 IS NOT NULL;
+```
+This query calculates the change in percentage of those traveling in car alone between the years 2019 and 2022 for each zipcode in Atlanta. It first selects the `zipcode`, `car_alone` column for the year 2019, and a subquery is used to get the `car_alone` column for the year 2022. Then it calculates the change in percentage by subtracting the `car_alone` of 2019 from the `car_alone` of 2022, and dividing the result by `car_alone` of 2019.
+
+Note that I am assuming the table `economic_commute_to_work` contains a column with the name ""city"" to filter the data for the city Atlanta, if not, you would need to adjust the query accordingly.
+
+Also, Note that this query assumes that the car\_alone column will have a value for each zipcode at both 2019 and 2022 if not this query will return NULL values, you can adjust the where clause accordingly."
+"For each zipcode in Georgia, give the change in mean commute time between 2017 and 2022","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, mean_travel_time - commute_old.mean_time as commute_change
+FROM economic_commute_to_workÃƒâ€šÃ‚Â 
+join (select zipcode, mean_travel_time as mean_time
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â from economic_commute_to_work where year=2017) as commute_oldÃƒâ€šÃ‚Â 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ;Ãƒâ€šÃ‚Â "," Here is an SQL query to fulfill your request:
+
+```sql
+SELECT 
+    e1.zipcode,
+    (e2.mean_travel_time - e1.mean_travel_time) AS change_in_mean_travel_time
+FROM
+    economic_commute_to_work e1
+JOIN
+    economic_commute_to_work e2 ON e1.zipcode = e2.zipcode
+WHERE 
+    e1.year = 2017 AND 
+    e2.year = 2022 AND
+    e1.zipcode IN (
+        SELECT 
+            zipcode
+        FROM 
+            economic_commute_to_work
+    )
+    AND e1.state = 'GA' AND
+    e2.state = 'GA'
+ORDER BY 
+    change_in_mean_travel_time DESC;
+```
+This query joins the `economic_commute_to_work` table to itself on the `zipcode` and `state = 'GA'` column, comparing the mean travel time for each zipcode in Georgia between 2017 and 2022, and calculates the change. The results are ordered in descending order by the change in mean travel time.","SELECT 
+      zcta5, 
+      (
+        SELECT 
+          SUM(mean_travel_time) 
+        FROM 
+          economic_commute_to_work 
+        WHERE 
+          year = '2022' 
+          AND zcta5 = unique_zcta5 
+      ) 
+    - 
+    (
+      SELECT 
+        SUM(mean_travel_time) 
+      FROM 
+        economic_commute_to_work 
+      WHERE 
+        year = '2017' 
+        AND zcta5 = unique_zcta5 
+    ) 
+  FROM 
+    (SELECT 
+      DISTINCT
+      CAST(SUBSTRING(CAST(zcta5  as VARCHAR), 8, 6) as INT) AS unique_zcta5, 
+      SUBSTRING(CAST(zcta5  as VARCHAR), 8, 6) AS zcta5 
+    FROM 
+      economic_commute_to_work 
+    WHERE 
+      state = 'Georgia') t;","```sql
+SELECT e1.zipcode, (e2.mean_travel_time - e1.mean_travel_time) AS ""Change in Mean Commute Time""
+FROM economic_commute_to_work e1
+JOIN economic_commute_to_work e2 ON e1.zipcode = e2.zipcode
+AND e1.year = 2017 AND e2.year = 2022
+WHERE e1.state = 'GA'
+GROUP BY e1.zipcode;
+```","```sql
+SELECT 
+    zipcode,
+    AVG(mean_travel_time) AS mean_commute_time_2017,
+    (AVG(mean_travel_time) OVER (PARTITION BY zipcode ORDER BY year ASC)) AS running_mean_commute_time
+FROM economic_commute_to_work
+WHERE year IN (2017, 2022)
+GROUP BY 
+    zipcode
+ORDER BY zipcode;
+```
+
+**Explanation:**
+
+1. **SELECT clause:** 
+   - `zipcode`: Selects the zip code for each row.
+   - `AVG(mean_travel_time) AS mean_commute_time_2017`: Calculates the average commute time for the year 2017 and aliases it as ""mean_commute_time_2017"".
+   - `(AVG(mean_travel_time) OVER (PARTITION BY zipcode ORDER BY year ASC)) AS running_mean_commute_time`: Calculates the cumulative average commute time for each zip code, ordered by year, using the `AVG` function with a `OVER` clause. This will give us the average commute time up to each year.
+2. **FROM clause:**
+   - Specifies the table `economic_commute_to_work` from where to retrieve the data.
+3. **WHERE clause:**
+   - Filters the data to include only rows where the `year` is either 2017 or 2022.
+4. **GROUP BY clause:**
+   - Groups the results by `zipcode` so we get aggregate statistics (average commute time) for each zip code.
+5. **ORDER BY clause:**
+   - Sorts the results by `zipcode` for easier readability.
+
+
+This query will provide you with the mean commute time for each zip code in Georgia for both 2017 and 2022.  You can then calculate the difference between these two values to find the change in mean commute time.","To generate the SQL query, I'll need to know the specific columns you're interested in for the change in mean commute time. Could you specify which columns you want to include?","Here is a possible SQL query that would give the change in mean commute time between 2017 and 2022 for each zipcode in Georgia:
+```
+SELECT zipcode, 
+       AVG(mean_travel_time) FILTER (WHERE year = 2022) - 
+       AVG(mean_travel_time) FILTER (WHERE year = 2017) AS change_in_mean_commute_time
+FROM economic_commute_to_work
+WHERE zipcode LIKE '30%' AND year IN (2017, 2022)
+GROUP BY zipcode;
+```
+This query uses the `LIKE` operator to select only zipcodes that start with ""30"", which are in Georgia. It then calculates the average mean travel time for 2017 and 2022 separately, and subtracts the 2017 average from the 2022 average to get the change in mean commute time.
+
+Note that this query assumes that there are no missing values for the `mean_travel_time` column. If there are missing values, you might want to consider excluding those rows from the calculation using the `WHERE` clause.
+
+Another assumption made by this query is that the `year` column is of type `integer` or `smallint`. If it is of a different data type, the `WHERE` clause and the `FILTER` clauses might need to be adjusted accordingly."
+"For each zipcode in Atlanta, get change in percentage of those working from home between year 2019 and 2022","SELECT substring(economic_commute_to_work.zipcode, 7, 10) as zip, ((work_from_home/total_workers)*100 - commute_old.public_transport_percent) as work_from_home_change
+FROM economic_commute_to_workÃƒâ€šÃ‚Â 
+join (select zipcode, (work_from_home/total_workers)*100 as public_transport_percent
+Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â Ãƒâ€šÃ‚Â from economic_commute_to_work where year=2019) as commute_oldÃƒâ€šÃ‚Â 
+on commute_old.zipcode=economic_commute_to_work.zipcode
+where economic_commute_to_work.year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ;Ãƒâ€šÃ‚Â "," To fulfill this request, we can use a combination of the `CASE` statement and `SUM` function to calculate the percentage change for each year and then subtract these values to get the change in percentage. The SQL query is as follows:
+
+```sql
+SELECT 
+    ew.zipcode
+    , CAST(
+            SUM(CASE WHEN ew.year = 2022 THEN ew.work_from_home END) - 
+            SUM(CASE WHEN ew.year = 2019 THEN ew.work_from_home END) AS DECIMAL(10, 2)) / 
+            CAST(SUM(CASE WHEN ew.year = 2019 THEN ew.work_from_home END) AS DECIMAL(10, 2)) * 100
+        AS percent_change_working_from_home
+FROM 
+    economic_commute_to_work ew
+WHERE 
+    ew.zipcode LIKE '3%'
+GROUP BY 
+    ew.zipcode;
+```
+
+This query filters the rows with zipcodes in Atlanta (assuming '3%' matches the Atlanta city zipcodes), groups them by zipcode, and calculates the percentage change from 2019 to 2022 in the 'work_from_home' column by subtracting the sum for 2019 from the sum for 2022 and dividing the result by the sum for 2019. The final result is multiplied by 100 to get the percentage value. Please, note that the `economic_commute_to_work` table schema doesn't include a `city` column, so we assumed that Atlanta zipcodes start with '3' (this assumption should be modified according to the actual dataset).","SELECT
+    zipcode,
+    (work_from_home_2022 - work_from_home_2019) * 100.0 / work_from_home_2019 AS percentage_change
+FROM
+    (SELECT 
+        zipcode,
+        work_from_home
+    FROM
+        economic_commute_to_work
+    WHERE
+        id = '2015'
+        AND city = 'Atlanta') AND id = '2022'
+GROUP BY
+    zipcode;","```sql
+
+SELECT e1.zipcode, (e2.work_from_home - e1.work_from_home) / e1.work_from_home * 100 AS change_in_percentage
+FROM economic_commute_to_work e1
+JOIN economic_commute_to_work e2 ON e1.zipcode = e2.zipcode AND e1.year = 2019 AND e2.year = 2022
+WHERE e1.city = 'Atlanta';
+
+```","```sql
+SELECT 
+    zipcode,
+    
+    -- Calculate percentage of work-from-home employees in 2019
+    (
+        SUM(CASE WHEN year = 2019 THEN work_from_home ELSE 0 END) 
+        / SUM(total_workers) 
+    ) * 100 AS pct_wfh_2019,
+
+    -- Calculate percentage of work-from-home employees in 2022
+    (
+        SUM(CASE WHEN year = 2022 THEN work_from_home ELSE 0 END) 
+        / SUM(total_workers) 
+    ) * 100 AS pct_wfh_2022,
+
+    -- Calculate percentage change
+    ((pct_wfh_2022 - pct_wfh_2019) / pct_wfh_2019) * 100 AS pct_change
+FROM 
+    economic_commute_to_work
+WHERE 
+    -- Filter for Atlanta zip codes
+    zipcode LIKE '30%' 
+
+GROUP BY 
+    zipcode
+ORDER BY 
+    pct_change DESC;
+```
+
+**Explanation:**
+
+1. **SELECT Clause:**
+   - **zipcode:** Selects the zip code column.
+   - **pct_wfh_2019:** Calculates the percentage of work-from-home employees in 2019 for each zip code.
+   - **pct_wfh_2022:** Calculates the percentage of work-from-home employees in 2022 for each zip code.
+   - **pct_change:**  Calculates the percentage change between 2019 and 2022.
+
+2. **FROM Clause:**
+   - Specifies the `economic_commute_to_work` table as the source of data.
+
+3. **WHERE Clause:**
+   - `zipcode LIKE '30%'`: Filters the data to include only zip codes starting with '30', which typically represent Atlanta.
+
+4. **GROUP BY Clause:**
+   - Groups the results by `zipcode` to calculate the percentage change for each unique zip code.
+
+5. **ORDER BY Clause:**
+   - Sorts the results in descending order based on `pct_change`, showing the zip codes with the highest percentage change first.
+
+
+
+Let me know if you need help adjusting this query for a specific subset of data or need further clarification on any part of it.","To generate the SQL query, I'll need to know the specific zipcodes in Atlanta you're interested in. Could you provide those?","To get the change in percentage of those working from home between year 2019 and 2022 for each zipcode in Atlanta, you can use the following SQL query:
+```
+SELECT zipcode,
+       (work_from_home_2022 - work_from_home_2019) * 100.0 / work_from_home_2019 AS change_in_percentage
+FROM (
+  SELECT zipcode,
+         work_from_home AS work_from_home_2019,
+         (SELECT work_from_home
+          FROM economic_commute_to_work
+          WHERE zipcode = ectw.zipcode AND year = 2022) AS work_from_home_2022
+  FROM economic_commute_to_work ectw
+  WHERE zipcode IN (SELECT zipcode FROM economic_commute_to_work WHERE city = 'Atlanta') AND year = 2019
+) subquery
+WHERE work_from_home_2022 IS NOT NULL;
+```
+This query first filters the table to only include rows for the year 2019 and the zipcodes of interest (those in Atlanta). It then performs a subquery to get the number of people working from home in both 2019 and 2022 for each of these zipcodes. Finally, it calculates the change in percentage and returns the results.
+
+Note: I am making the assumption that the `city` column exists in the `economic_commute_to_work` table and contains the name of the city for each zipcode. If this is not the case, you will need to modify the query to correctly select the zipcodes for Atlanta.
+
+Also note that this query will only work if there are rows in the table for both 2019 and 2022 for each of the zipcodes in Atlanta. If this is not the case, you will need to handle the missing data appropriately (e.g. by using a `LEFT JOIN` instead of a subquery)."
+"For year 2022, get percentage of each commute type when commuting to work.","select year, (sum(car_alone)/sum(total_workers))*100 as 'car_alone', (sum(car_pool)/sum(total_workers))*100 as 'car_pool', (sum(public_transport)/sum(total_workers))*100 as 'public_transport', (sum(walk)/sum(total_workers))*100 as 'walk', (sum(work_from_home)/sum(total_workers))*100 as 'work_from_home'Ãƒâ€šÃ‚Â 
+from economic_commute_to_work
+where year=2022;","economic_commute_to_work (year, id, zipcode, total_workers, car_alone, car_pool, public_transport, walk, other, work_from_home, mean_travel_time)","2015; 8600000US30005; ZCTA5 30005; 18,086; 13,864; 1,149; 110; 518; 348; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30008; ZCTA5 30008; 14,238; 10,271; 2,199; 269; 120; 632; ;
+2015; 8600000US30009; ZCTA5 30009; 6,655; 5,353; 473; 84; 25; 22; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30011; ZCTA5 30011; 7,104; 6,252; 593; 15; 14; 91; ;Ãƒâ€šÃ‚Â 
+2015; 8600000US30012; ZCTA5 30012; 10,187; 6,942; 2,284; 140; 208; 262; ;
+2015; 8600000US30013; ZCTA5 30013; 11,630; 8,795; 1,892; 292; 203; 155; ;Ãƒâ€šÃ‚Â "," To fulfill the request, we can write the following SQL query:
+
+```sql
+SELECT
+  `year`,
+  `id`,
+  `zipcode`,
+  `total_workers`,
+  `car_alone`,
+  `car_pool`,
+  `public_transport`,
+  `walk`,
+  `other`,
+  `work_from_home`,
+  `mean_travel_time`,
+  ROUND(100 * `car_alone` / `total_workers`, 2) AS `car_alone_percent`,
+  ROUND(100 * `car_pool` / `total_workers`, 2) AS `car_pool_percent`,
+  ROUND(100 * `public_transport` / `total_workers`, 2) AS `public_transport_percent`,
+  ROUND(100 * `walk` / `total_workers`, 2) AS `walk_percent`,
+  ROUND(100 * `other` / `total_workers`, 2) AS `other_percent`,
+  ROUND(100 * `work_from_home` / `total_workers`, 2) AS `work_from_home_percent`
+FROM `economic_commute_to_work`
+WHERE `year` = 2022;
+```
+
+This query will retrieve the percentages of each commute type (car alone, car pool, public transport, walk, other, work from home) for the year 2022 as columns in the result. The percentage values are calculated as part of the SELECT clause using the formula (commute_count / total_workers) and rounded to 2 decimal places using the ROUND function.","SELECT
+  year,
+  commute_type,
+  (SUM(case
+    when commute_type = 'car_alone' then 1 else 0 end) * 100.0 / SUM(total_workers)) as percentage_car_alone,
+  (SUM(case
+    when commute_type = 'car_pool' then 1 else 0 end) * 100.0 / SUM(total_workers)) as percentage_car_pool,
+  (SUM(case
+    when commute_type = 'public_transport' then 1 else 0 end) * 100.0 / SUM(total_workers)) as percentage_public_transport,
+  (SUM(case
+    when commute_type = 'walk' then 1 else 0 end) * 100.0 / SUM(total_workers)) as percentage_walk,
+  (SUM(case
+    when commute_type = 'other' then 1 else 0 end) * 100.0 / SUM(total_workers)) as percentage_other,
+  (SUM(case
+    when commute_type = 'work_from_home' then 1 else 0 end) * 100.0 / SUM(total_workers)) as percentage_work_from_home
+  FROM economic_commute_to_work
+  WHERE year = 2022
+  GROUP BY year, commute_type;","```sql
+SELECT
+    YEAR(economic_commute_to_work.year) AS commute_year,
+    'Car Alone' AS commute_type,
+    (SUM(economic_commute_to_work.car_alone) / SUM(economic_commute_to_work.total_workers)) * 100 AS percentage
+FROM
+    economic_commute_to_work
+WHERE
+    YEAR(economic_commute_to_work.year) = 2022
+GROUP BY
+    economic_commute_to_work.year, commute_type
+ORDER BY
+    commute_year, commute_type;
+```","```sql
+SELECT
+    commute_type,
+    (SUM(CASE WHEN commute_type = 'car_alone' THEN total_workers ELSE 0 END) / SUM(total_workers)) * 100 AS car_alone_percent,
+    (SUM(CASE WHEN commute_type = 'car_pool' THEN total_workers ELSE 0 END) / SUM(total_workers)) * 100 AS car_pool_percent,
+    (SUM(CASE WHEN commute_type = 'public_transport' THEN total_workers ELSE 0 END) / SUM(total_workers)) * 100 AS public_transport_percent,
+    (SUM(CASE WHEN commute_type = 'walk' THEN total_workers ELSE 0 END) / SUM(total_workers)) * 100 AS walk_percent,
+    (SUM(CASE WHEN commute_type = 'other' THEN total_workers ELSE 0 END) / SUM(total_workers)) * 100 AS other_percent,
+    (SUM(CASE WHEN commute_type = 'work_from_home' THEN total_workers ELSE 0 END) / SUM(total_workers)) * 100 AS work_from_home_percent
+FROM economic_commute_to_work
+WHERE year = 2022
+GROUP BY commute_type;
+
+```
+
+
+
+This query does the following:
+
+1. **Filters the data**: It starts by selecting only the data for the year 2022 using the `WHERE` clause.
+2. **Calculates percentages**: For each commute type, it calculates the percentage by:
+   - Summing the `total_workers` for that commute type 
+   - Dividing the sum by the total sum of `total_workers` for the year
+   - Multiplying by 100 to get the percentage
+3. **Groups the results**: The `GROUP BY` clause groups the results by `commute_type`, so you get one row for each commute type with its corresponding percentage.
+
+**Please note:** This query assumes your `commute_to_work` table has a column named `commute_type`. If your column name is different, you will need to adjust the query accordingly.
+
+
+ Let me know if you have any other questions!","To generate the SQL query, I need to know the specific columns you want to include in the result. Could you specify which commute types you're interested in?","Here is a SQL query to get the percentage of each commute type when commuting to work for the year 2022:
+```
+SELECT 
+  zipcode,
+  (car_alone * 100.0 / total_workers) AS car_alone_percent,
+  (car_pool * 100.0 / total_workers) AS car_pool_percent,
+  (public_transport * 100.0 / total_workers) AS public_transport_percent,
+  (walk * 100.0 / total_workers) AS walk_percent,
+  (other * 100.0 / total_workers) AS other_percent,
+  (work_from_home * 100.0 / total_workers) AS work_from_home_percent
+FROM 
+  economic_commute_to_work
+WHERE
+  year = 2022;
+```
+This query will return the zipcode along with the percentage of workers who commute using each type of transportation. Note that if the `total_workers` field can contain null values, you may want to use a `COALESCE` function to replace any null values with `0` before performing the division.
+
+Here is an example of how you could use the `COALESCE` function:
+```
+SELECT 
+  zipcode,
+  (car_alone * 100.0 / COALESCE(total_workers, 1)) AS car_alone_percent,
+  (car_pool * 100.0 / COALESCE(total_workers, 1)) AS car_pool_percent,
+  (public_transport * 100.0 / COALESCE(total_workers, 1)) AS public_transport_percent,
+  (walk * 100.0 / COALESCE(total_workers, 1)) AS walk_percent,
+  (other * 100.0 / COALESCE(total_workers, 1)) AS other_percent,
+  (work_from_home * 100.0 / COALESCE(total_workers, 1)) AS work_from_home_percent
+FROM 
+  economic_commute_to_work
+WHERE
+  year = 2022;
+```
+This will ensure that the query returns a percentage for each zipcode, even if `total_workers` is null for some rows."
+Get median and mean household income for each year.,"SELECT year, avg(median_household_income) as `Median household income`, avg(mean_household_income) as `Mean household income` FROM economic_income_and_benefits group by year;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"," Here is the SQL query to fulfill the request of getting the median and mean household income for each year:
+
+```sql
+SELECT year, median_household_income, mean_household_income
+FROM economic_income_and_benefits
+GROUP BY year, median_household_income, mean_household_income
+ORDER BY year ASC;
+```
+
+In this query, we select three columns: `year`, `median_household_income`, and `mean_household_income` from the table `economic_income_and_benefits`, grouped by `year`, `median_household_income`, and `mean_household_income`. Finally, the result is ordered by `year` in ascending order. Please note that this will group the data by each unique combination of `year`, `median_household_income`, and `mean_household_income`. If you want to get the overall median and mean household income for each year, you may need to use some additional computational logic or use a database-specific function for median calculation.","```
+SELECT year, median_household_income as median, mean_household_income as mean FROM economic_income_and_benefits GROUP BY year;
+```","```sql
+SELECT year, ROUND(AVG(mean_household_income), 2) AS mean_households, ROUND(Median(median_household_income), 2) AS median_households
+FROM economic_income_and_benefits
+GROUP BY year
+ORDER BY year;
+```","```sql
+SELECT year, AVG(mean_household_income) AS mean_income, 
+       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median_household_income) AS median_income
+FROM economic_income_and_benefits
+GROUP BY year;
+```
+
+**Explanation:**
+
+* **`SELECT year`**: This selects the year column.
+* **`AVG(mean_household_income) AS mean_income`**: This calculates the average of the `mean_household_income` column for each year and aliases it as `mean_income`.
+* **`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median_household_income) AS median_income`**: This calculates the median `median_household_income` for each year. `PERCENTILE_CONT(0.5)` represents the 50th percentile, which is the median. 
+* **`FROM economic_income_and_benefits`**: This specifies the table to retrieve data from.
+* **`GROUP BY year`**: This groups the data by year, allowing us to calculate aggregate values for each year. 
+
+
+
+This query will give you the mean and median household income for each year available in the `economic_income_and_benefits` table.","To get the median and mean household income for each year, we can use the following SQL query:
+
+```sql
+SELECT 
+    year,
+    AVG(mean_household_income) AS mean_income,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median_household_income) OVER (PARTITION BY year) AS median_income
+FROM 
+    economic_income_and_benefits
+GROUP BY 
+    year;
+```
+
+This query calculates the mean household income by averaging the mean_household_income column and the median household income by using the PERCENTILE_CONT function to find the median of the median_household_income column, partitioned by year.","To get the median and mean household income for each year, you can use the following SQL query:
+```
+SELECT 
+  year,
+  AVG(mean_household_income) AS mean_household_income,
+  PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median_household_income) 
+    OVER (PARTITION BY year) AS median_household_income
+FROM 
+  economic_income_and_benefits
+GROUP BY
+  year;
+```
+This query calculates the mean household income using the `AVG` function and the median household income using the `PERCENTILE_CONT` function (which calculates the value at a specified percentile). The `PARTITION BY` clause is used to calculate the median household income for each year separately.
+
+Note: The `PERCENTILE_CONT` function is available in SQL Server and some other databases. If you are using a different database, you may need to use a different function to calculate the median. For example, in MySQL, you can calculate the median using the `PERCENTILE_CONT` function by using a workaround with subqueries. You can find more information about this in the MySQL documentation."
+Get percentage of households with and without mortgage for each year.,"select year, avg(units_with_mortgage) as `Units with mortgage`, avg(units_without_mortgage) as `Units without mortgage` from housing_mortgage group by year;","housing_mortgage (year, id, zipcode, units_with_mortgage, units_without_mortgage)","2015; 8600000US30005; ZCTA5 30005; 7,123; 1,239
+2015; 8600000US30008; ZCTA5 30008; 4,491; 1,152
+2015; 8600000US30009; ZCTA5 30009; 2,746; 739
+2015; 8600000US30011; ZCTA5 30011; 3,084; 686
+2015; 8600000US30012; ZCTA5 30012; 3,046; 1,789"," To fulfill the request of getting the percentage of households with and without a mortgage for each year, you can use the following SQL query:
+
+```SQL
+SELECT 
+    year,
+    (units_with_mortgage * 1.0 / (units_with_mortgage + units_without_mortgage)) * 100 AS percentage_with_mortgage,
+    (units_without_mortgage * 1.0 / (units_with_mortgage + units_without_mortgage)) * 100 AS percentage_without_mortgage
+FROM 
+    housing_mortgage
+GROUP BY 
+    year;
+```
+
+This query calculates the percentage of households with and without mortgage for each year by dividing the number of units with or without mortgage by the total number of units (units with mortgage + units without mortgage) and multiplying it by 100. The result is then displayed as two separate columns, one for the percentage of households with a mortgage and one for the percentage without a mortgage, for each year present in the table.","SELECT year,
+       SUM(units_with_mortgage)/(SUM(units_with_mortgage)+SUM(units_without_mortgage)) * 100 as percent_with_mortgage,
+       SUM(units_without_mortgage)/(SUM(units_with_mortgage)+SUM(units_without_mortgage)) * 100 as percent_without_mortgage
+FROM housing_mortgage
+GROUP BY year;","```sql
+SELECT year,
+       (units_with_mortgage / (units_with_mortgage + units_without_mortgage)) * 100 AS mortgage_percentage,
+       (units_without_mortgage / (units_with_mortgage + units_without_mortgage)) * 100 AS no_mortgage_percentage
+FROM housing_mortgage
+GROUP BY year;
+```","```sql
+SELECT
+    year,
+    (units_with_mortgage * 100.0 / (units_with_mortgage + units_without_mortgage)) AS mortgage_percentage,
+    (units_without_mortgage * 100.0 / (units_with_mortgage + units_without_mortgage)) AS no_mortgage_percentage
+FROM housing_mortgage
+GROUP BY year;
+```
+
+**Explanation:**
+
+1. **SELECT year**: This selects the 'year' column from the `housing_mortgage` table.
+2. **(units_with_mortgage * 100.0 / (units_with_mortgage + units_without_mortgage)) AS mortgage_percentage**: This calculates the percentage of households with mortgages for each year.
+   - It divides the number of units with mortgages (`units_with_mortgage`) by the total number of units (`units_with_mortgage + units_without_mortgage`)
+   - Multiplies the result by 100 to express it as a percentage.
+3. **(units_without_mortgage * 100.0 / (units_with_mortgage + units_without_mortgage)) AS no_mortgage_percentage**: This calculates the percentage of households without mortgages for each year, using a similar logic.
+4. **FROM housing_mortgage**: This specifies the table to retrieve data from.
+5. **GROUP BY year**: This groups the results by year so that we get separate percentages for each year.
+
+
+
+This query will give you a table with two new columns: `mortgage_percentage` and `no_mortgage_percentage`, showing the breakdown of households with and without mortgages for each year in your data.","To get the percentage of households with and without mortgage for each year, we can use the following SQL query:
+
+```sql
+SELECT 
+    year,
+    'With Mortgage' AS category,
+    ROUND((units_with_mortgage / (units_with_mortgage + units_without_mortgage)) * 100, 2) AS percentage
+FROM 
+    housing_mortgage
+UNION ALL
+SELECT 
+    year,
+    'Without Mortgage' AS category,
+    ROUND((units_without_mortgage / (units_with_mortgage + units_without_mortgage)) * 100, 2) AS percentage
+FROM 
+    housing_mortgage
+ORDER BY 
+    year, category;
+```
+
+This query first calculates the percentage for households with mortgage and then for those without mortgage for each year. The results are then combined and sorted by year and category.","Here is the SQL query to get the percentage of households with and without a mortgage for each year:
+```
+SELECT 
+    year,
+    ROUND(AVG(CASE WHEN units_with_mortgage > 0 THEN 100.0 * units_with_mortgage / (units_with_mortgage + units_without_mortgage) ELSE 0 END), 2) AS percentage_with_mortgage,
+    ROUND(AVG(CASE WHEN units_without_mortgage > 0 THEN 100.0 * units_without_mortgage / (units_with_mortgage + units_without_mortgage) ELSE 0 END), 2) AS percentage_without_mortgage
+FROM 
+    housing_mortgage
+GROUP BY
+    year
+ORDER BY
+    year;
+```
+This query calculates the percentage of households with and without a mortgage for each year by averaging the percentage of households with a mortgage and without a mortgage for each zip code in a given year. The `ROUND` function is used to round the percentage values to two decimal places.
+
+Note: This query assumes that the `units_with_mortgage` and `units_without_mortgage` columns represent the number of households with and without a mortgage, respectively, in a given zip code and year. If these columns represent something else, the query will need to be modified accordingly."
+Get mean commute time by zipcode in the year 2022.,"select substring(zipcode, 7, 10) as zcta, avg(mean_travel_time) from economic_commute_to_work where year=2022 group by zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"," To get the mean commute time by ZIP code in the year 2022, you would need to update the provided schema table with a column for mean commute time. 
+
+In this case, let's assume the modified schema has an additional column named `mean_commute_time` for the average commute time in minutes. So the updated schema of the table would be:
+
+```
+schema of the table: economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income, mean_commute_time)
+```
+
+The SQL query to fulfill the request would be:
+
+```sql
+SELECT zipcode, AVG(mean_commute_time) as avg_commute_time
+FROM economic_income_and_benefits
+WHERE year = 2022
+GROUP BY zipcode;
+```
+
+This query selects the zipcode and the average commute time for each group by zipcode, only including data from the year 2022. The results will display the mean commute time aggregated across all households within each zipcode for the specified year.","SELECT zipcode, AVG(total_households) as mean_households, AVG(median_household_income) as mean_median_income, AVG(mean_household_income) as mean_mean_income
+FROM economic_income_and_benefits
+WHERE year = 2022
+GROUP BY zipcode;","```sql
+SELECT e.zipcode, AVG(e.mean_household_income) AS mean_commute_time
+FROM economic_income_and_benefits e
+WHERE e.year = 2022
+GROUP BY e.zipcode
+ORDER BY e.zipcode;
+```","```sql
+SELECT zipcode, AVG(commute_time) AS mean_commute_time 
+FROM your_table_name
+WHERE year = 2022
+GROUP BY zipcode;
+```
+
+**Explanation:**
+
+* **SELECT zipcode, AVG(commute_time) AS mean_commute_time:**  This selects the `zipcode` column and calculates the average `commute_time` for each zipcode. The average is aliased as `mean_commute_time`.
+* **FROM your_table_name:** Replace `your_table_name` with the actual name of your table that contains commute time data.
+* **WHERE year = 2022:** Filters the data to include only records from the year 2022.
+* **GROUP BY zipcode:** Groups the results by `zipcode` so that the average commute time is calculated for each unique zipcode.
+
+
+
+Let me know if you have any other SQL queries you need help with!","To get the mean commute time by zipcode in the year 2022, I would need to know the specific column name in your table that contains the commute time data. Could you provide that?","Since the table `economic_income_and_benefits` does not contain any information about commute time, I'm assuming there's another table named `commute_times` that looks like this:
+
+commute\_times (year, zipcode, mean\_commute\_time)
+
+With that in mind, here's the SQL query to get the mean commute time by zipcode in the year 2022:
+```sql
+SELECT zipcode, AVG(mean_commute_time) AS mean_commute_time
+FROM commute_times
+WHERE year = 2022
+GROUP BY zipcode;
+```
+If the table `commute_times` doesn't exist, you'd need to provide the schema for the table that contains this information so I can write an accurate query for you."
+"For each zipcode in year 2022, get median household income.","SELECT substring(zipcode, 7, 10) as zcta, avg(median_household_income), avg(mean_household_income) FROM economic_income_and_benefits WHERE year=2022 group by zcta;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"," Here is an SQL query that fulfills the request to get the median household income for each zipcode in year 2022:
+
+```sql
+SELECT zipcode, median_household_income
+FROM economic_income_and_benefits
+WHERE year = 2022;
+```
+
+This query selects the `zipcode` and `median_household_income` columns from the `economic_income_and_benefits` table, and filters the rows based on the condition that the `year` is 2022. The result will show the median household income for each zipcode in the specified year.","SELECT year, zipcode, median_household_income 
+FROM economic_income_and_benefits 
+WHERE year = 2022;","```sql
+SELECT e.zipcode, e.median_household_income
+FROM economic_income_and_benefits e
+WHERE e.year = 2022
+GROUP BY e.zipcode
+HAVING COUNT(*) > 0;
+```","```sql
+SELECT zipcode, median_household_income
+FROM economic_income_and_benefits
+WHERE year = 2022
+GROUP BY zipcode;
+``` 
+
+**Explanation:**
+
+* **SELECT zipcode, median_household_income:** This specifies the columns you want to retrieve: the zipcode and the median household income.
+* **FROM economic_income_and_benefits:** This indicates the table where the data is located.
+* **WHERE year = 2022:** This filters the data to only include records from the year 2022.
+* **GROUP BY zipcode:** This groups the results by zipcode, so you get a single median income value for each unique zipcode. 
+
+
+
+Let me know if you have any other SQL queries you'd like help with!","To get the median household income for each zipcode in the year 2022, we'll need to filter the data for the specific year. Since the provided data only includes years up to 2015, we'll use that as a base and assume the schema remains the same for 2022. Here's the SQL query:
+
+```sql
+SELECT zipcode, median_household_income
+FROM economic_income_and_benefits
+WHERE year = 2022;
+```
+
+This query will return the median household income for each zipcode in the year 2022, based on the schema provided.","Here is the SQL query to get the median household income for each zipcode in the year 2022:
+```sql
+SELECT zipcode,
+       median_household_income
+FROM economic_income_and_benefits
+WHERE year = 2022
+GROUP BY zipcode;
+```
+This query selects the `zipcode` and `median_household_income` columns from the `economic_income_and_benefits` table, filters the results to only include rows with a `year` value of 2022, and groups the results by `zipcode`. The `median_household_income` value for each group is then returned.
+
+Note: If the `median_household_income` column contains null values, you may want to use the `COALESCE` function to replace null values with a suitable default value. For example, you could use the following query:
+```sql
+SELECT zipcode,
+       COALESCE(median_household_income, 0) as median_household_income
+FROM economic_income_and_benefits
+WHERE year = 2022
+GROUP BY zipcode;
+```
+This query replaces any null values in the `median_household_income` column with a default value of 0."
+"For each zipcode, get change in averaged median household income from 2017 to 2022.","SELECT substring(economic_income_and_benefits.zipcode, 7, 10) as zcta, avg(median_household_income) - median_2017.median_income FROM economic_income_and_benefits join
+(SELECT zipcode, avg(median_household_income) as median_income FROM economic_income_and_benefits where year=2016 group by zipcode) median_2017
+on economic_income_and_benefits.zipcode=median_2017.zipcode
+WHERE year=2022 group by economic_income_and_benefits.zipcode;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"," Here's an SQL query that can fulfill the given request:
+
+```sql
+WITH median_income_2017 AS (
+  SELECT 
+    zipcode,
+    median_household_income AS median_2017 
+  FROM 
+    economic_income_and_benefits 
+  WHERE 
+    year = 2017
+),
+median_income_2022 AS (
+  SELECT 
+    zipcode,
+    median_household_income AS median_2022 
+  FROM 
+    economic_income_and_benefits 
+  WHERE 
+    year = 2022
+),
+income_change AS (
+  SELECT 
+    a.zipcode,
+    (b.median_2022 - a.median_2017) AS median_change 
+  FROM 
+    median_income_2017 AS a
+  JOIN
+    median_income_2022 AS b 
+    ON a.zipcode = b.zipcode
+)
+SELECT 
+  zipcode,
+  median_change
+FROM 
+  income_change
+ORDER BY 
+  median_change DESC;
+```
+
+This query first creates two common table expressions (`median_income_2017` and `median_income_2022`) that select the `zipcode` and `median_household_income` for the respective years (2017 and 2022). These CTEs are then combined in a third CTE (`income_change`) that calculates the change in median household income. Finally, the result is presented with all relevant columns and ordered by the `median_change` column in descending order.","SELECT zipcode, 
+       SUM((CASE WHEN year = 2017 THEN median_household_income ELSE NULL END) 
+           - (CASE WHEN year = 2022 THEN median_household_income ELSE NULL END)) AS change_in_median_household_income 
+FROM economic_income_and_benefits 
+WHERE year IN(2017, 2022) 
+GROUP BY zipcode;","```sql
+SELECT e1.zipcode, (AVG(e2.median_household_income) - AVG(e1.median_household_income)) AS change_in_median_income
+FROM economic_income_and_benefits e1
+INNER JOIN economic_income_and_benefits e2 ON e1.zipcode = e2.zipcode AND e1.year = 2017 AND e2.year = 2022
+GROUP BY e1.zipcode
+```","```sql
+WITH Income2017 AS (
+    SELECT 
+        zipcode, 
+        AVG(median_household_income) AS avg_median_income_2017
+    FROM economic_income_and_benefits
+    WHERE year = 2017
+    GROUP BY zipcode
+),
+Income2022 AS (
+    SELECT 
+        zipcode, 
+        AVG(median_household_income) AS avg_median_income_2022
+    FROM economic_income_and_benefits
+    WHERE year = 2022
+    GROUP BY zipcode
+)
+SELECT 
+    i2017.zipcode, 
+    i2022.avg_median_income_2022 - i2017.avg_median_income_2017 AS change_avg_median_income
+FROM Income2017 i2017
+JOIN Income2022 i2022 ON i2017.zipcode = i2022.zipcode;
+
+```
+
+**Explanation:**
+
+1. **Common Table Expressions (CTEs):**
+   * We use two CTEs: `Income2017` and `Income2022`.
+   * Each CTE calculates the average median household income for a given year (2017 or 2022) grouped by `zipcode`.
+
+2. **JOIN:**
+   * We join the two CTEs on the `zipcode` column to ensure we are comparing the average income for the same zipcodes across the years.
+
+3. **Calculation:**
+   *  We subtract the average median income from 2017 (`i2017.avg_median_income_2017`) from the average median income from 2022 (`i2022.avg_median_income_2022`) to get the `change_avg_median_income`.
+
+
+
+Let me know if you have any other SQL query requests!","To generate the SQL query, I need to know the specific years you're interested in for the median household income. You mentioned 2017 and 2022. Is that correct?","Here is a possible SQL query that should fulfill your request:
+```
+SELECT zipcode,
+       AVG(median_household_income) FILTER (WHERE year = 2022) - 
+       AVG(median_household_income) FILTER (WHERE year = 2017) AS change_in_income
+FROM economic_income_and_benefits
+WHERE year IN (2017, 2022)
+GROUP BY zipcode
+ORDER BY change_in_income DESC;
+```
+This query first filters the table to only include rows from the years 2017 and 2022. Then, for each zipcode, it calculates the average median household income for those two years. Finally, it subtracts the average for 2017 from the average for 2022 to get the change in income.
+
+Note that this query uses the `FILTER` clause, which is available in PostgreSQL and some other database systems. If you are using a different database system that does not support `FILTER`, you can achieve the same result using a subquery instead.
+
+Also note that this query assumes that the `median_household_income` column contains the median household income, not the mean. If it contains the mean, you should use `mean_household_income` instead in the query."
+"For each zipcode of Georgia, get median and mean household income over all the years.","SELECT substring(zipcode, 7, 10) as zcta, avg(median_household_income), avg(mean_household_income) FROM economic_income_and_benefits group by zcta;","economic_income_and_benefits (year, id, zipcode, total_households, median_household_income, mean_household_income)","2015; 8600000US30005; ZCTA5 30005; 12,284; 106,516.00; 146,947.00
+2015; 8600000US30008; ZCTA5 30008; 10,372; 46,068.00; 66,045.00
+2015; 8600000US30009; ZCTA5 30009; 6,129; 78,308.00; 97,077.00
+2015; 8600000US30011; ZCTA5 30011; 4,752; 57,063.00; 66,607.00
+2015; 8600000US30012; ZCTA5 30012; 8,816; 38,745.00; 49,356.00"," To fulfill the request, you can use the following SQL query:
+
+```sql
+SELECT zipcode, 
+       AVG(median_household_income) AS median_household_income_average,
+       AVG(mean_household_income) AS mean_household_income_average
+FROM economic_income_and_benefits
+WHERE id LIKE '8600000US%'  -- assuming all Georgia zipcodes start with this prefix
+GROUP BY zipcode
+ORDER BY zipcode;
+```
+
+This query groups the data by zipcode and calculates the average median and mean household incomes over all the years for each postal code in Georgia. The `WHERE` clause is used to filter out zipcodes not in Georgia, assuming that all Georgia zipcodes start with the prefix '8600000US'. Adjust the condition in the `WHERE` clause if this assumption is incorrect.","SELECT zipcode, AVG(mean_household_income) as mean_income, AVG(median_household_income) as median_income FROM economic_income_and_benefits WHERE state_code='30' GROUP BY zipcode;
+
+Note: The state_code is derived by ""860"" in the start of the id (from the table you mentioned). If you are dealing with a different id structure, you need to correct this part of the query.","```sql
+SELECT e.zipcode,
+       AVG(e.median_household_income) AS median_income,
+       AVG(e.mean_household_income) AS mean_income
+FROM economic_income_and_benefits e
+WHERE e.state = 'GA'
+GROUP BY e.zipcode;
+```","```sql
+SELECT
+    zipcode,
+    AVG(median_household_income) AS median_income,
+    AVG(mean_household_income) AS mean_income
+FROM economic_income_and_benefits
+GROUP BY zipcode;
+``` 
+
+**Explanation:**
+
+1. **SELECT zipcode, AVG(median_household_income) AS median_income, AVG(mean_household_income) AS mean_income:** This selects the `zipcode` column and calculates the average of `median_household_income` and `mean_household_income` for each zipcode. The results are aliased as `median_income` and `mean_income` for clarity.
+2. **FROM economic_income_and_benefits:** This specifies the table from which the data is retrieved.
+3. **GROUP BY zipcode:** This groups the rows based on the `zipcode` column, allowing the aggregate functions (`AVG`) to calculate the average for each unique zipcode.","To generate the SQL query, I'll need to know the specific years you're interested in. Could you provide that information?","Here is the SQL query to get the median and mean household income for each zipcode of Georgia:
+```
+SELECT zipcode,
+       AVG(mean_household_income) AS average_household_income,
+       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY median_household_income) AS median_household_income
+FROM economic_income_and_benefits
+WHERE zipcode LIKE '30%'
+GROUP BY zipcode;
+```
+The `WHERE` clause filters the data to only include zipcodes from Georgia (assuming the first digit of Georgia zipcodes is 3). The `PERCENTILE_CONT` function is used to calculate the median household income. Note that this function is available in some databases, but not all. If it is not available in your database, you may need to use a different approach to calculate the median.
+
+Also, please note that in some databases, the syntax for the `PERCENTILE_CONT` function may be slightly different. For example, in MySQL, you can use the `PERCENTILE` function instead.
+
+Here is an example of how you can calculate the median using the `PERCENTILE` function in MySQL:
+```
+SELECT zipcode,
+       AVG(mean_household_income) AS average_household_income,
+       PERCENTILE(0.5) WITHIN GROUP (ORDER BY median_household_income) AS median_household_income
+FROM economic_income_and_benefits
+WHERE zipcode LIKE '30%'
+GROUP BY zipcode;
+```
+I hope this helps! Let me know if you have any questions."
+"For each zipcode in Georgia, get the count of non-US citizens and foreign born population","select substring(zipcode,7,10) as zcta, foreign_born_population, not_a_us_citizen from social_citizenship_status where year=2022","social_citizenship_status (year, id, zipcode, foreign_born_population, naturalized_us_citizen, not_a_us_citizen)","2015; 8600000US30005; ZCTA5 30005; 10,920; 5,035; 5,885
+2015; 8600000US30008; ZCTA5 30008; 7,428; 1,757; 5,671
+2015; 8600000US30009; ZCTA5 30009; 2,376; 959; 1,417
+2015; 8600000US30011; ZCTA5 30011; 1,310; 725; 585
+2015; 8600000US30012; ZCTA5 30012; 3,658; 1,367; 2,291"," Here is an SQL query to fulfill your request:
+
+```sql
+SELECT 
+    ZCTA5 AS zipcode, 
+    SUM(not_a_us_citizen) AS not_us_citizen_count,
+    SUM(foreign_born_population) AS foreign_born_population_count
+FROM 
+    social_citizenship_status
+WHERE 
+    year = 2015 AND id LIKE '8600000US%' 
+GROUP BY 
+    ZCTA5;
+```
+
+This query selects the `ZCTA5` column as `zipcode` and calculates the sum of the `not_a_us_citizen` and `foreign_born_population` columns separately as `not_us_citizen_count` and `foreign_born_population_count` respectively. It applies a filter on the `year` column to fetch data for the year ""2015"" and the `id` column to only fetch entries corresponding to Georgia areas (`id` starting with '8600000US'). The `GROUP BY` clause is used to group the results by `zipcode`, ensuring that you get a row of counts for each zipcode in Georgia for the given year.","SELECT zipcode, COUNT(*) AS total_non_citizens_foreign_born 
+FROM social_citizenship_status 
+WHERE state_code = 'GA' AND (NOT_a_us_citizen = 1 OR foreign_born_population = 1) 
+GROUP BY zipcode;","```sql
+SELECT sc.zipcode, COUNT(sc.foreign_born_population) AS non_us_citizen_count
+FROM social_citizenship_status sc
+WHERE sc.state = 'Georgia'
+GROUP BY sc.zipcode;
+```","```sql
+SELECT
+  zipcode,
+  SUM(CASE WHEN not_a_us_citizen = 1 THEN 1 ELSE 0 END) AS non_us_citizen_count,
+  SUM(foreign_born_population) AS foreign_born_population_count
+FROM social_citizenship_status
+WHERE state = 'GA' -- Assuming 'state' column exists
+GROUP BY zipcode;
+```
+
+**Explanation:**
+
+* **`SELECT zipcode, ...`**: This selects the `zipcode` column and calculates the desired counts.
+* **`SUM(CASE WHEN not_a_us_citizen = 1 THEN 1 ELSE 0 END) AS non_us_citizen_count`**: This calculates the total count of non-US citizens by using a `CASE` statement. If `not_a_us_citizen` is 1 (indicating non-US citizen), it adds 1 to the sum; otherwise, it adds 0.
+* **`SUM(foreign_born_population) AS foreign_born_population_count`**: This calculates the total foreign-born population by summing the `foreign_born_population` column.
+* **`FROM social_citizenship_status`**: This specifies the table to retrieve data from.
+* **`WHERE state = 'GA'`**: This filters the data to only include entries for Georgia.
+* **`GROUP BY zipcode`**: This groups the rows by `zipcode` so the counts are calculated for each zipcode separately.
+
+
+
+Let me know if you have any other requests or if you need modifications to this query!","To fulfill the request, I'll need to join the `social_citizenship_status` table with a table that contains the zipcodes and their corresponding locations to filter only Georgia's zipcodes. Unfortunately, I can't directly join tables in this conversation. However, I can guide you on how to structure the query. You would need to use a JOIN with a condition to filter by Georgia's zipcodes. Then, you can use the `foreign_born_population` and `not_a_us_citizen` columns to get the counts you're looking for.","Here is a possible SQL query to fulfill the request:
+```
+SELECT zipcode, SUM(foreign_born_population) AS total_foreign_born, SUM(not_a_us_citizen) AS total_non_us_citizen
+FROM social_citizenship_status
+WHERE zipcode REGEXP '^ZCTA5 [0-9]{5}$' AND state = 'Georgia'
+GROUP BY zipcode;
+```
+This query first filters the rows of the `social_citizenship_status` table to only include those with a zipcode that starts with 'ZCTA5' followed by five digits, and those with a state value of 'Georgia'. It then groups the remaining rows by zipcode and calculates the sum of the `foreign_born_population` and `not_a_us_citizen` columns for each group, giving the total foreign-born population and non-US citizen count for each zipcode.
+
+Note that the `REGEXP` operator is used to match the regular expression pattern for the zipcode values. This operator is specific to certain SQL databases, such as MySQL. If you are using a different database, you may need to use a different method to match the zipcode pattern.
+
+Also note that the query does not filter the rows based on the year column. If you want to include only rows with a specific year or range of years, you can add a condition to the `WHERE` clause to specify that. For example, to include only rows with a year value of 2015, you can add the condition `year = 2015` to the `WHERE` clause.
+
+I hope this helps! Let me know if you have any questions."
+"Get the average of each ethnic group (black, white, asian) by year.","SELECT year, avg(black), avg(white), avg(asian) FROM demographic_race group by year;","demographic_race (year, id, zipcode, race_total_populatio, one_race, two_or_more_races, white, black, american_indian_and_alaska_native, asian, native_hawaiian_and_other_pacific_islander, some_other_race, hispanic_or_latino_total, hispanic_or_latino, not_hispanic_or_latino)","2015; 8600000US30005; ZCTA5 30005; 38,887; 37,512; ; ; ; ; ; ; ; 38,887; 2,531; 36,356
+2015; 8600000US30008; ZCTA5 30008; 32,905; 31,945; ; ; ; ; ; ; ; 32,905; 9,489; 23,416
+2015; 8600000US30009; ZCTA5 30009; 14,759; 14,049; ; ; ; ; ; ; ; 14,759; 1,109; 13,650
+2015; 8600000US30011; ZCTA5 30011; 14,600; 14,305; ; ; ; ; ; ; ; 14,600; 1,441; 13,159
+2015; 8600000US30012; ZCTA5 30012; 27,233; 26,908; ; ; ; ; ; ; ; 27,233; 5,072; 22,161"," Here is an SQL query that fulfills the given request:
+
+```sql
+SELECT 
+    year,
+    AVG(white) AS avg_white,
+    AVG(black) AS avg_black,
+    AVG(asian) AS avg_asian
+FROM
+    demographic_race
+GROUP BY
+    year;
+```
+
+This query selects the year column and calculates the average of the white, black, and asian columns, aliasing those averages with the names `avg_white`, `avg_black`, and `avg_asian`, respectively. The `GROUP BY` clause groups the results by year, so the averages are computed separately for each year.
+
+Please note that this query assumes that the white, black, and asian columns hold integer values representing the population of each ethnicity for each record. If the schema and data type are different, the query would need to be adjusted accordingly.","SELECT 
+    race_total_populatio,
+    AVG(black) as avg_black,
+    AVG(white) as avg_white,
+    AVG(asian) as avg_asian
+FROM
+    demographic_race
+WHERE
+    race_total_populatio IS NOT NULL AND 
+    (year = 2015 OR year = 2016 OR year = 2017 OR year = 2018 OR year = 2019)
+GROUP BY race_total_populatio, EXTRACT(YEAR FROM year)
+ORDER BY year;","```sql
+SELECT r.year,
+       AVG(CASE WHEN r.race = 'white' THEN r.white END) AS average_white,
+       AVG(CASE WHEN r.race = 'black' THEN r.black END) AS average_black,
+       AVG(CASE WHEN r.race = 'asian' THEN r.asian END) AS average_asian
+FROM demographic_race r
+GROUP BY r.year
+ORDER BY r.year;
+```","```sql
+SELECT 
+    year,
+    race
+    , AVG(race_total_populatio) AS average_population
+FROM 
+    demographic_race
+WHERE 
+    race IN ('black', 'white', 'asian')
+GROUP BY 
+    year, race
+ORDER BY 
+    year, race; 
+```
+
+**Explanation:**
+
+1. **SELECT clause:**
+   - `year`: Selects the year column.
+   - `race`: Selects the race column.
+   - `AVG(race_total_populatio) AS average_population`: Calculates the average of the `race_total_population` for each group and aliases it as `average_population`.
+
+2. **FROM clause:** Specifies the table to query, which is `demographic_race`.
+
+3. **WHERE clause:** Filters the data to include only records where the `race` column is one of 'black', 'white', or 'asian'.
+
+4. **GROUP BY clause:** Groups the results by `year` and `race`, so the average is calculated for each combination.
+
+5. **ORDER BY clause:** Orders the results first by `year` and then by `race` for better readability.
+
+
+
+Let me know if you have any other questions or need help with a different SQL query!","To get the average of each ethnic group by year, we need to first extract the race data for each year. Then, we can calculate the average for each ethnic group. Here's the SQL query for that:
+
+```sql
+SELECT 
+    year,
+    AVG(white) AS avg_white,
+    AVG(black) AS avg_black,
+    AVG(asian) AS avg_asian
+FROM 
+    demographic_race
+GROUP BY 
+    year;
+```
+
+This query will give us the average population for each ethnic group (white, black, and asian) by year.","Here is the SQL query to get the average of each ethnic group (black, white, asian) by year:
+```
+SELECT year, AVG(black) AS avg_black, AVG(white) AS avg_white, AVG(asian) AS avg_asian
+FROM demographic_race
+WHERE race_total_population > 0
+AND (black > 0 OR white > 0 OR asian > 0)
+GROUP BY year;
+```
+This query filters out the rows where the total population is zero, as well as the rows where none of the black, white, or asian populations are present. It then calculates the average of the black, white, and asian populations for each year and returns the result."
+Get the percentage of types of education attained by population aged 25 and above for each year.,"select year, (sum(less_than_9th_grade)/sum(population_25_years_and_over))*100 as 'less_than_9th_grade', (sum(9th_to_12th_grade_no_diploma)/sum(population_25_years_and_over))*100 as '9th_to_12th', (sum(high_school_graduate)/sum(population_25_years_and_over))*100 as 'high_school_graduate', (sum(some_college_no_degree)/sum(population_25_years_and_over))*100 as 'some_college_no_degree', (sum(associate_degree)/sum(population_25_years_and_over))*100 as 'associate_degree', (sum(bachelors_degree)/sum(population_25_years_and_over))*100 as 'bachelors_degree', (sum(graduate_or_professional_degree)/sum(population_25_years_and_over))*100 as 'graduate_or_professional_degree'Ãƒâ€šÃ‚Â 
+from social_education_attainment
+group by year;","social_education_attainment (year, id, zipcode, population_25_years_and_over, less_than_9th_grade, 9th_to_12th_grade_no_diploma, high_school_graduate, some_college_no_degree, associate_degree, bachelors_degree, graduate_or_professional_degree, high_school graduate_or_higher, bachelors_degree_or_higher)","2015; 8600000US30005; ZCTA5 30005; 23,756; 279; 467; 2,062; 3,507; 1,441; 9,764; 6,236; 0; 0
+2015; 8600000US30008; ZCTA5 30008; 20,488; 2,121; 2,366; 5,329; 4,558; 1,297; 3,440; 1,377; 0; 0
+2015; 8600000US30009; ZCTA5 30009; 10,293; 281; 253; 1,571; 2,008; 977; 3,459; 1,744; 0; 0
+2015; 8600000US30011; ZCTA5 30011; 9,390; 459; 786; 3,478; 2,012; 737; 1,288; 630; 0; 0
+2015; 8600000US30012; ZCTA5 30012; 17,005; 1,507; 2,105; 6,380; 3,608; 1,026; 1,610; 769; 0; 0"," To get the percentage of types of education attained by the population aged 25 and above for each year, you can use the following SQL query:
+
+```sql
+SELECT 
+  year,
+  high_school_graduate_or_higher,
+  bachelors_degree_or_higher,
+  ROUND(
+    (high_school_graduate_or_higher / population_25_years_and_over) * 100,
+    2
+  ) AS high_school_or_higher_percentage,
+  ROUND(
+    (bachelors_degree_or_higher / population_25_years_and_over) * 100,
+    2
+  ) AS bachelors_or_higher_percentage
+FROM social_education_attainment
+```
+
+This query selects the year, the number of people aged 25 and above with a high school graduate or higher degree (`high_school_graduate_or_higher`), and the number of people aged 25 and above with a bachelor's degree or higher (`bachelors_degree_or_higher`). The `ROUND` function is used to round the calculated percentages to two decimal places. Finally, the results are grouped by year (not shown in the example output above) and returned in the requested format.
+
+Note that the total number of people aged 25 and above is stored in the `population_25_years_and_over` column.","SELECT year, 
+       ROUND(SUM(higher_education_rate), 2) AS percentage_higher_education 
+FROM   (SELECT year, 
+              SUM((LEAST(less_than_9th_grade, 9th_to_12th_grade_no_diploma, high_school_graduate, 
+                              some_college_no_degree, associate_degree, bachelors_degree, graduate_or_professional_degree) / population_25_years_and_over) * 100) AS higher_education_rate 
+      FROM   social_education_attainment 
+      WHERE  year = 2015 
+      AND    population_25_years_and_over > 0 
+      GROUP  BY year) AS derived_table 
+GROUP  BY year; 
+
+(Note: Please substitute year = 2015 with the desired year)","```sql
+SELECT e.year,
+       SUM(CASE WHEN e.high_school_graduate_or_higher = 1 THEN 100.0 / s.population_25_years_and_over ELSE 0 END) AS high_school_graduate_or_higher_percentage,
+       SUM(CASE WHEN e.bachelors_degree_or_higher = 1 THEN 100.0 / s.population_25_years_and_over ELSE 0 END) AS bachelors_degree_or_higher_percentage
+FROM social_education_attainment e
+JOIN (SELECT * FROM social_education_attainment WHERE year = 2015) s ON e.year = s.year
+GROUP BY e.year
+ORDER BY e.year;
+```","```sql
+WITH EducationPercentages AS (
+    SELECT 
+        year,
+        CAST(less_than_9th_grade AS REAL) * 100 / population_25_years_and_over AS less_than_9th_grade_percentage,
+        CAST(9th_to_12th_grade_no_diploma AS REAL) * 100 / population_25_years_and_over AS 9th_to_12th_grade_no_diploma_percentage,
+        CAST(high_school_graduate AS REAL) * 100 / population_25_years_and_over AS high_school_graduate_percentage,
+        CAST(some_college_no_degree AS REAL) * 100 / population_25_years_and_over AS some_college_no_degree_percentage,
+        CAST(associate_degree AS REAL) * 100 / population_25_years_and_over AS associate_degree_percentage,
+        CAST(bachelors_degree AS REAL) * 100 / population_25_years_and_over AS bachelors_degree_percentage,
+        CAST(graduate_or_professional_degree AS REAL) * 100 / population_25_years_and_over AS graduate_or_professional_degree_percentage,
+        CAST(high_school_graduate_or_higher AS REAL) * 100 / population_25_years_and_over AS high_school_graduate_or_higher_percentage,
+        CAST(bachelors_degree_or_higher AS REAL) * 100 / population_25_years_and_over AS bachelors_degree_or_higher_percentage
+    FROM social_education_attainment
+)
+SELECT 
+    year,
+    less_than_9th_grade_percentage,
+    9th_to_12th_grade_no_diploma_percentage,
+    high_school_graduate_percentage,
+    some_college_no_degree_percentage,
+    associate_degree_percentage,
+    bachelors_degree_percentage,
+    graduate_or_professional_degree_percentage,
+    high_school_graduate_or_higher_percentage,
+    bachelors_degree_or_higher_percentage
+FROM EducationPercentages
+ORDER BY year;
+```
+
+**Explanation:**
+
+1. **WITH EducationPercentages AS:** This creates a common table expression (CTE) named ""EducationPercentages"" to simplify the calculation logic.
+
+2. **Calculate percentages:** We calculate each education type percentage by dividing the corresponding column by `population_25_years_and_over` and multiplying by 100. We use `CAST` to convert the result to a REAL data type for accurate percentages.
+
+3. **SELECT:** The main query selects all the calculated percentages and groups them by `year`.
+
+4. **ORDER BY:** The results are ordered by `year` for easy readability.
+
+
+
+Please note: Make sure to adjust the table and column names to match your specific schema.","To generate the SQL query, I need to know the specific columns you want to include in the result. Could you specify which education levels you're interested in?","To calculate the percentage of types of education attained by the population aged 25 and above for each year, you can use the following SQL query:
+```vbnet
+SELECT 
+  year,
+  (SUM(less_than_9th_grade) / SUM(population_25_years_and_over)) * 100 AS `Less than 9th grade %`,
+  (SUM(9th_to_12th_grade_no_diploma) / SUM(population_25_years_and_over)) * 100 AS `9th to 12th grade no diploma %`,
+  (SUM(high_school_graduate) / SUM(population_25_years_and_over)) * 100 AS `High school graduate %`,
+  (SUM(some_college_no_degree) / SUM(population_25_years_and_over)) * 100 AS `Some college no degree %`,
+  (SUM(associate_degree) / SUM(population_25_years_and_over)) * 100 AS `Associate degree %`,
+  (SUM(bachelors_degree) / SUM(population_25_years_and_over)) * 100 AS `Bachelors degree %`,
+  (SUM(graduate_or_professional_degree) / SUM(population_25_years_and_over)) * 100 AS `Graduate or professional degree %`,
+  (SUM(high_school_graduate) + SUM(some_college_no_degree) + SUM(associate_degree) + SUM(bachelors_degree) + SUM(graduate_or_professional_degree)) / SUM(population_25_years_and_over)) * 100 AS `High school graduate or higher %`,
+  (SUM(bachelors_degree) + SUM(graduate_or_professional_degree)) / SUM(population_25_years_and_over)) * 100 AS `Bachelors degree or higher %`
+FROM social_education_attainment
+GROUP BY year
+ORDER BY year;
+```
+This query calculates the percentage of each education level by dividing the number of people with that education level by the total population aged 25 and above for each year, then multiplying by 100. It calculates the percentages for all the given education levels as well as the percentages for high school graduate or higher and bachelors degree or higher."
+"For all years after 2016, for each zipcode, get percentage of households with a computer and percentage of housholds with broadband subscription.","select year, (sum(with_a_computer)/sum(total_households))*100 as 'with_computer', (sum(with_broadband_internet_subscription)/sum(total_households))*100 as 'broadband_connection' from social_computer_internet_usage where year>=2017 group by year;","social_computer_internet_usage (year, id, zipcode, total_households, with_a_computer, with_broadband_internet_subscription)","2015; 8600000US30005; ZCTA5 30005; (X); (X); (X)
+2015; 8600000US30008; ZCTA5 30008; (X); (X); (X)
+2015; 8600000US30009; ZCTA5 30009; (X); (X); (X)
+2015; 8600000US30011; ZCTA5 30011; (X); (X); (X)
+2015; 8600000US30012; ZCTA5 30012; (X); (X); (X)"," Here's an SQL query that fulfills the request:
+
+```sql
+SELECT
+  year,
+  zipcode,
+  ROUND((with_a_computer / total_households) * 100, 2) AS percentage_households_with_computer,
+  ROUND((with_broadband_internet_subscription / total_households) * 100, 2) AS percentage_households_with_broadband
+FROM social_computer_internet_usage
+WHERE year > 2016
+GROUP BY year, zipcode;
+```
+
+This query retrieves the year, zipcode, and calculates the percentage of households with a computer and the percentage of households with broadband subscription for each zipcode where the year is greater than 2016. The percentages are rounded to 2 decimal places.","SELECT
+  year,
+  zipcode,
+  (100.0 * total_households_with_a_computer / total_households) AS pct_with_a_computer,
+  (100.0 * total_households_with_broadband_internet_subscription / total_households) AS pct_with_broadband_subscription
+FROM
+  (
+    SELECT
+      year,
+      zipcode,
+      SUM(total_households) AS total_households,
+      SUM(with_a_computer) AS total_households_with_a_computer,
+      SUM(with_broadband_internet_subscription) AS total_households_with_broadband_internet_subscription
+    FROM
+      social_computer_internet_usage
+    WHERE
+      year > 2016
+    GROUP BY
+      year,
+      zipcode
+  ) AS subquery
+WHERE
+  year > 2016;","```sql
+SELECT c.year, c.zipcode,
+    (c.with_a_computer / c.total_households) * 100 AS percentage_computer,
+    (c.with_broadband_internet_subscription / c.total_households) * 100 AS percentage_broadband
+FROM social_computer_internet_usage c
+WHERE c.year > 2016;
+```","```sql
+SELECT
+    year,
+    zipcode,
+    (with_a_computer / total_households) * 100 AS computer_percentage,
+    (with_broadband_internet_subscription / total_households) * 100 AS broadband_percentage
+FROM
+    social_computer_internet_usage
+WHERE
+    year > 2016
+GROUP BY
+    year, zipcode
+ORDER BY
+    year, zipcode;
+```
+
+**Explanation:**
+
+1. **SELECT:** This clause specifies the columns we want to retrieve:
+   - `year`: The year of the data.
+   - `zipcode`: The postal code.
+   - `computer_percentage`: Calculated as `(with_a_computer / total_households) * 100`, representing the percentage of households with a computer in each zipcode for each year.
+   - `broadband_percentage`: Calculated similarly for broadband subscription.
+
+2. **FROM:** This clause indicates the table we are querying, which is `social_computer_internet_usage`.
+
+3. **WHERE:** This clause filters the data to include only years after 2016.
+
+4. **GROUP BY:** This clause groups the results by `year` and `zipcode`, allowing us to calculate percentages for each unique combination.
+
+5. **ORDER BY:** This clause sorts the results by `year` and then by `zipcode` for easier readability.
+
+
+
+This query will provide you with a table containing the year, zip code, percentage of households with computers, and percentage of households with broadband subscriptions for each zip code in years after 2016.","To fulfill the request, I will need to calculate the percentage of households with a computer and broadband subscription for each zipcode starting from 2016. Here's the SQL query:
+
+```sql
+SELECT 
+    zipcode,
+    YEAR,
+    ROUND((with_a_computer / total_households) * 100, 2) AS computer_percentage,
+    ROUND((with_broadband_internet_subscription / total_households) * 100, 2) AS broadband_percentage
+FROM 
+    social_computer_internet_usage
+WHERE 
+    YEAR > 2015
+ORDER BY 
+    zipcode;
+```
+
+This query will first filter out the data for years after 2015, then calculate the percentage of households with a computer and broadband subscription for each zipcode, rounding the results to two decimal places. Finally, it will sort the results by zipcode.","Here is the SQL query to fulfill the request:
+
+```sql
+SELECT 
+    zipcode,
+    (SUM(with_a_computer) * 100.0 / SUM(total_households)) AS percentage_with_computer,
+    (SUM(with_broadband_internet_subscription) * 100.0 / SUM(total_households)) AS percentage_with_broadband
+FROM
+    social_computer_internet_usage
+WHERE
+    year > 2016
+GROUP BY
+    zipcode
+ORDER BY
+    zipcode;
+```
+
+This query will return the percentage of households with a computer and the percentage of households with a broadband subscription for each zipcode, for all years after 2016. It calculates the required percentages by dividing the sum of the `with_a_computer` and `with_broadband_internet_subscription` columns by the sum of the `total_households` column for each zipcode, and then multiplying by 100.0 to get the percentage."

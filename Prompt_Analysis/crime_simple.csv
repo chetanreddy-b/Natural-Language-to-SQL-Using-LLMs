@@ -1,0 +1,3799 @@
+Natural Language Query,SQL Query,Schema,Top 5 Entries of Table,Zero_Shot,One_Shot,Few_Shot
+Give total crimes occurred in Atlanta on each day of the week,"SELECT
+  DAYOFWEEK(`atlanta_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  DAYOFWEEK(`atlanta_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`atlanta_crime_data`.`Crime_Date`) ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," SELECT DAYNAME(date) AS day_of_week, COUNT(*) AS total_crimes
+FROM Atlanta_Crime_Data
+GROUP BY DAYNAME(date)
+ORDER BY CASE
+    WHEN DAYNAME(date) = 'Monday' THEN 1
+    WHEN DAYNAME(date) = 'Tuesday' THEN 2
+    WHEN DAYNAME(date) = 'Wednesday' THEN 3
+    WHEN DAYNAME(date) = 'Thursday' THEN 4
+    WHEN DAYNAME(date) = 'Friday' THEN 5
+    WHEN DAYNAME(date) = 'Saturday' THEN 6
+    WHEN DAYNAME(date) = 'Sunday' THEN 7
+END;"," To fulfill the natural language request, you can use the following SQL query. This query will count the total number of crimes that occurred in Atlanta grouped by each day of the week:
+
+```sql
+SELECT
+    DAYNAME(Crime_Date) AS Day_of_the_Week,
+    COUNT(*) AS Total_Crimes
+FROM
+    atlanta_crime_data
+WHERE
+    Area_Name = 'Atlanta'
+GROUP BY
+    DAYNAME(Crime_Date)
+ORDER BY
+    FIELD(DAYNAME(Crime_Date), 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+```
+
+This query works as follows:
+
+1. `DAYNAME(Crime_Date) AS Day_of_the_Week` - This part of the query extracts the name of the week from the `Crime_Date` column and labels it as `Day_of_the_Week`.
+2. `COUNT(*) AS Total_Crimes` - This part of the query counts the total number of rows for each group (i.e., each day of the week) and labels it as `Total_Crimes`.
+3. `FROM atlanta_crime_data` - The query is executed on the `atlanta_crime_data` table.
+4. `WHERE Area_Name = 'Atlanta'` - The query filters the data to return only rows where the `Area_Name` is 'Atlanta'.
+5. `GROUP BY DAYNAME(Crime_Date)` - This part groups the data by the day of the week.
+6. `ORDER BY FIELD(DAYNAME(Crime_Date), 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')` - This sorts the result by the day of the week in the order of Sunday to Saturday.
+
+Execute this SQL query on your database to get the total crimes occurred in Atlanta on each day of the week."," Here's the SQL query to get the total crimes occurred in Atlanta on each day of the week based on the given schema:
+
+```
+SELECT Day_Occurred, COUNT(*) as Total_Crimes 
+FROM atlanta_crime_data 
+WHERE Area_Name LIKE '%Atlanta%' 
+GROUP BY Day_Occurred 
+ORDER BY FIELD(Day_Occurred, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+```
+
+This query filters the ""atlanta_crime_data"" table to only select rows where the ""Area_Name"" contains the word ""Atlanta"". It then groups the resulting rows by the ""Day_Occurred"" column and counts the number of rows for each day, labeling the count as ""Total_Crimes"". The results are ordered by the days of the week starting from Monday and ending with Sunday."
+Give total crimes occurred in Atlanta during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    atlanta_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," SELECT
+  EXTRACT(YEAR FROM incident_date) AS year,
+  EXTRACT(MONTH FROM incident_date) AS month,
+  COUNT(*) AS total_crimes
+FROM
+  crimes
+WHERE
+  city = 'Atlanta'
+GROUP BY
+  year,
+  month
+ORDER BY
+  year,
+  month;
+
+This SQL query selects the year, month, and count of crimes from the ""crimes"" table where the city is 'Atlanta'. It groups the results by year and month to get the total crimes occurred in Atlanta during each month of the year. Finally, it orders the results by year and month."," To fulfill the request, you can use the following SQL query:
+
+```sql
+SELECT
+  EXTRACT(MONTH FROM Crime_Date) AS Month,
+  COUNT(Crime_ID) AS Total_Date) AS Crime_Date
+
+FROM atlanta_crime_data
+WHERE Area_Name = 'Atlanta'
+GROUP BY Month
+ORDER BY Month;
+```
+
+This query extracts the month from the `Crime_Date` column and counts the number of crime IDs (i.e., total crimes) for each month. Additionally, it filters the results to only include crimes that occurred in Atlanta using the WHERE clause and `[Area_Name = 'Atlanta']`. The results are then grouped by the month and returned in ascending order."," To fulfill the request, we can use a SQL query that groups the crime data by the month of the year, and then counts the number of total crimes that happened in Atlanta. Assuming the Atlanta Area_Name is specifically 'Atlanta' in the data set (though it seems not explicit in the provided data), here's an example query:
+
+```sql
+SELECT 
+  DATE_FORMAT(Crime_Date, '%Y-%m') AS Month, 
+  COUNT(*) AS Total_Crimes 
+FROM 
+  atlanta_crime_data 
+WHERE 
+  Area_Name = 'Atlanta' 
+GROUP BY 
+  Month 
+ORDER BY 
+  Month;
+```
+
+This query selects the Crime_Date (if it has different format or null values, it may need adjustment), formats it by year and month, then counts the total events grouped by month. Finally, it orders the output by the month in ascending order.
+
+Depending on the SQL database you are using (MySQL, PostgreSQL, etc.), the syntax to extract the year and month from the `Crime_Date` may vary. This example uses MySQL's `DATE_FORMAT` function to extract and format the year and month. If you use a different RDBMS, you might need to use a different function or method. For example, PostgreSQL uses `TO_CHAR`:
+
+```sql
+SELECT 
+  TO_CHAR(Crime_Date, 'YYYY-MM') AS Month, 
+  COUNT(*) AS Total_Crimes 
+FROM 
+  atlanta_crime_data 
+WHERE 
+  Area_Name = 'Atlanta' 
+GROUP BY 
+  Month 
+ORDER BY 
+  Month;
+```
+
+Remember to make sure that your database supports the function used in this query, otherwise, you may need to adjust the function accordingly."
+Give total crimes occurred in Atlanta at each hour of the day,"SELECT
+  CASE
+    WHEN HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s')) = 0 THEN 24
+    ELSE HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s'))
+  END AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," To fulfill the request, we will need to write an SQL query that groups the crime data by hour and then sums the number of crimes that occurred in Atlanta for each hour. Below is an example SQL query, assuming we have a table named `Crimes` with columns `Location`, `CrimeDateTime`, and `CrimeCount`. The `CrimeDateTime` would be of type DATE or DATETIME or TIMESTAMP.
+
+```sql
+SELECT 
+    EXTRACT(HOUR FROM CrimeDateTime) AS HourOfDay,
+    SUM(CrimeCount) AS TotalCrimes
+FROM 
+    Crimes
+WHERE 
+    Location = 'Atlanta'
+GROUP BY 
+    HourOfDay
+ORDER BY 
+    HourOfDay;
+```
+
+If the table is structured differently, you may need to adjust the column and table names in the query above."," To get the total crimes that occurred in Atlanta at each hour of the day, you can use the following SQL query. This query assumes that the 'Crime_Time' column is in a format that SQL can extract the hour from, such as 'HH:MM:SS' or 'HH:MM' in 24-hour format.
+
+```sql
+SELECT 
+  EXTRACT(HOUR FROM Crime_Time) AS 'Hour', 
+  COUNT(*) AS 'Total_Crimes'
+FROM 
+  atlanta_crime_data
+WHERE 
+  Area_Name = 'Atlanta'
+GROUP BY 
+  Hour
+ORDER BY 
+  Hour;
+```
+
+This query:
+
+1. Extracts the hour part from the `Crime_Time` column using the `EXTRACT(HOUR FROM Crime_Time)` function (this function name might vary depending on the SQL dialect you are using).
+2. Counts the total number of crimes for each hour using the `COUNT(*)` function.
+3. Filters the crimes that occurred in the 'Atlanta' area by using the `WHERE Area_Name = 'Atlanta'` clause.
+4. Groups the results by the hour of the day using the `GROUP BY Hour` clause, so that the count is calculated for each distinct hour.
+5. Orders the results by the hour of the day using the `ORDER BY Hour` clause for easy reading and analysis.
+
+Please note that the exact function to extract the hour from a datetime or timestamp column may vary depending on the specific SQL database you are using (e.g., MySQL, PostgreSQL, SQL Server, etc.). The example above uses a generic function `EXTRACT`, which is common in many databases, but you might need to adjust it according to your database system's syntax. For example, in SQL Server, you might use `DATEPART(HOUR, Crime_Time)` instead."," To fulfill the request, we can use the following SQL query:
+
+```sql
+SELECT 
+    DATE_PART('hour', Crime_Time) AS Hour_of_Day,
+    COUNT(*) AS Total_Crimes
+FROM 
+    atlanta_crime_data
+WHERE 
+    Area_Name = 'Atlanta'
+GROUP BY
+    DATE_PART('hour', Crime_Time)
+ORDER BY
+    Hour_of_Day;
+```
+
+This query will group the crimes based on the hour of the day that they occurred and count the number of crimes that occurred during each hour of the day in Atlanta. The `DATE_PART` function is used to extract the hour part from the `Crime_Time` column. The results will be ordered by the hour of the day."
+Give total count of crimes in Atlanta grouped by week since January 2009,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`atlanta_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `atlanta_crime_data`.`Report_#`) AS `count`
+FROM
+  `atlanta_crime_data`
+WHERE
+  `atlanta_crime_data`.`Crime_Date` >= convert_tz(
+    '2009-01-05 00:00:00.000',
+    'America/New_York',
+    @@session.time_zone
+  )
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`atlanta_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`atlanta_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," ```sql
+SELECT
+  DATE_TRUNC('week', date_occurred) AS week_start_date,
+  COUNT(*) AS total_crimes
+FROM
+  crimes
+WHERE
+  city = 'Atlanta'
+  AND date_occurred >= '2009-01-01'
+GROUP BY
+  week_start_date
+ORDER BY
+  week_start_date;
+```
+
+This SQL query does the following:
+
+1. Filters the `crimes` table to include only the rows with the `city` column set to 'Atlanta' and the `date_occurred` column equal to or later than '2009-01-01'.
+2. Groups the output by week using `DATE_TRUNC()` function to truncate the `date_occurred` column by week.
+3. Counts the total number of crimes in each week with the `COUNT(*)` function.
+4. Arranges the output by the starting date of each week with the `ORDER BY` clause."," To fulfill the natural language request, we can write the following SQL query:
+
+```sql
+SELECT
+  YEAR(Crime_Date) AS Year,
+  WEEK(Crime_Date) AS Week,
+  COUNT(*) AS Total_Crimes
+FROM
+  atlanta_crime_data
+WHERE
+  Crime_Date >= '2009-01-01' AND
+  Area_Name = 'Atlanta'
+GROUP BY
+  Year,
+  Week
+ORDER BY
+  Year,
+  Week
+```
+
+This SQL query does the following:
+
+1. Selects the year and week of the `Crime_Date`, and counts the total number of crimes in each week.
+2. Filters the data from the `atlanta_crime_data` table to only include records of crimes that occurred in Atlanta starting from January 1st, 2009.
+3. Groups the data by year and week (using the WEEK() function).
+4. Orders the results by year and week to provide an easier-to-read output."," Here's an SQL query to give a total count of crimes in Atlanta grouped by week since January 2009:
+
+```sql
+SELECT WEEK(Crime_Date) AS week_number, COUNT(*) AS total_crimes
+FROM atlanta_crime_data
+WHERE Crime_Date >= '2009-01-01' AND Area_Name = 'Atlanta'
+GROUP BY WEEK(Crime_Date)
+ORDER BY WEEK(Crime_Date);
+```
+
+This query will group the crimes by week (using the `WEEK()` function on the `Crime_Date` column) and count the rows in each group (using the `COUNT(*)` aggregate function), where the crime occurred in Atlanta and the crime date is on or after January 1st, 2009. The result will be ordered by week number."
+Give total crimes occurred in LA on each day of the week,"SELECT
+  DAYOFWEEK(`la_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  DAYOFWEEK(`la_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`la_crime_data`.`Crime_Date`) ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," SELECT DAYOFWEEK(date) AS day_of_week, COUNT(*) AS total_crimes
+FROM crimes
+WHERE location = 'LA'
+GROUP BY day_of_week
+ORDER BY day_of_week;"," To fulfill the request, we need to write an SQL query that returns the total number of crimes that occurred in Los Angeles (LA) on each day of the week, based on the provided schema of the `la_crime_data` table.
+
+We can use the `DAYNAME()` function to extract the name of the day from the `Crime_Date` column and the `COUNT()` function to count the total crimes. The `WHERE` clause will be used to filter the entries by ""Area_Name"" to include only those within LA. We will group the results by the day of the week obtained from `DAYNAME()`.
+
+Here is the SQL query:
+
+```sql
+SELECT DAYNAME(Crime_Date) AS DayOfWeek, COUNT(*) AS TotalCrimes
+FROM la_crime_data
+WHERE Area_Name = 'Los Angeles'
+GROUP BY DayOfWeek
+ORDER BY FIELD(DayOfWeek, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+```
+
+This query will return a result set with two columns:
+
+1. `DayOfWeek` - The name of the day of the week when crimes occurred.
+2. `TotalCrimes` - The total number of crimes that occurred on each day of the week in LA.
+
+The result will be ordered by the correct day of the week sequence, starting from Monday and ending on Sunday."," To fulfill the request, we can use the following SQL query:
+
+```SQL
+SELECT
+    DAYNAME(Crime_Date) AS DayOfWeek,
+    COUNT(*) AS Total_Crimes
+FROM
+    la_crime_data
+WHERE
+    Area_Name = 'LA'
+GROUP BY
+    DAYNAME(Crime_Date)
+ORDER BY
+    DayOfWeek ASC;
+```
+
+This query selects the day of the week and the count from the `la_crime_data` table for areas named 'LA'. It groups the results by the day of the week using `DAYNAME()` and orders by the day of the week in ascending order using `ORDER BY`. The result is a list of days of the week with the total number of crimes that occurred in LA on each day, like this:
+
+| DayOfWeek | Total_Crimes |
+|-------|-------|
+| Monday | * |
+| Tuesday | * |
+| Wednesday | * |
+| Thursday | * |
+| Friday | * |
+| Saturday | * |
+| Sunday | * |
+
+Where '*' represents the total count for each day of the week."
+Give total crimes occurred in LA during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    la_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," Here is a sample SQL query to fulfill the request. This query assumes that we have a table named ""Crimes"" with columns ""CrimeDate"" (date of the crime) and ""CrimeDescription"" (description of the crime), and that LA is coded as ""Los Angeles"" in the ""Location"" column.
+
+```sql
+SELECT 
+  YEAR(CrimeDate) as Year,
+  MONTH(CrimeDate) as Month,
+  COUNT(*) as TotalCrimes
+FROM
+  Crimes
+WHERE
+  Location = 'Los Angeles'
+GROUP BY
+  Year,
+  Month
+ORDER BY
+  Year,
+  Month;
+```
+
+This query works as follows:
+
+- The `SELECT` statement selects the year and month from each ""CrimeDate"" (and also counts the number of crimes with `COUNT(*)`).
+- The `FROM` clause specifies the ""Crimes"" table from which to retrieve the data.
+- The `WHERE` clause filters the crimes to include only those that happened in ""Los Angeles"".
+- The `GROUP BY` statement groups the crimes by year and month, allowing us to sum the crimes within each month.
+- The `ORDER BY` clause sorts the result in ascending order of year and then month, giving us a complete record of the total crimes for each month of the year in Los Angeles.
+
+Please adjust the table and column names to fit your actual database schema."," ```sql
+SELECT
+    MONTH(Crime_Date) AS Month,
+    SUM(1) AS Total_Crimes
+FROM
+    la_crime_data
+WHERE
+    Area_Name = 'Los Angeles'
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);
+```
+
+This query will return the total crimes occurred in Los Angeles (LA) during each month of the year. It groups the results by month, and sorts the results in ascending order by month."," To obtain the total number of crimes that occurred in LA during each month of the year from the `la_crime_data` table, we can use the following SQL query:
+
+```sql
+SELECT
+    MONTH(Crime_Date) AS Month,
+    YEAR(Crime_Date) AS Year,
+    COUNT(Crime_ID) AS Total_Crimes
+FROM
+    la_crime_data
+WHERE
+    Area_Name LIKE 'LA'
+GROUP BY
+    MONTH(Crime_Date),
+    YEAR(Crime_Date)
+ORDER BY
+    Year,
+    Month;
+```
+
+In this query:
+
+- `MONTH(Crime_Date)` and Year.
+- We extract the month and year from the `Crime_Date` using the `MONTH` and `YEAR` functions.
+- We count the number of crime in each month using the `COUNT` function and alias it as `Total_Crimes`.
+- We only consider records where the `Area_Name` is equal to 'LA'.
+- We group the results by `YEAR` and `MONTH`.
+- We order the results by year and month to get the total number of crimes that happened in LA in a specific month and year.
+
+Note that we need to switch the specific city to 'LA' assuming that it's named as such in the `Area_Name` column of the `la_crime_data` table. If LA has a different name in your database, you may have to replace `Area_Name = 'LA'` with the appropriate criteria. Additionally, if the format of the `Crime_Date` is not a date datatype, you may need to convert the `Crime_Date` before using the `MONTH` and `YEAR` functions.
+
+This will give a result set with the `Month`, `Year` and number of crimes for each month and year within LA area."
+Give total crimes occurred in LA at each hour of the day,"SELECT
+  FLOOR(`la_crime_data`.`Crime_Time` / 100) + 1 AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," To fulfill this request, you would typically need a database table that contains records of crimes, including attributes such as the city (e.g., Los Angeles) and the timestamp of when the crime occurred. The exact structure of this table might vary, but for the purpose of this query, let's assume there is a table named `Crimes` with the following relevant columns:
+
+- `crime_id`: The unique identifier for each crime record.
+- `city`: The city where the crime occurred.
+- `timestamp`: The date and time when the crime occurred (e.g., `2023-04-01 15:30:00`).
+
+Given this structure, you can write an SQL query to count the total number of crimes that occurred in Los Angeles at each hour of the day. Here is an example of how this SQL query might look:
+
+```sql
+SELECT 
+    EXTRACT(HOUR FROM timestamp) AS hour_of_day, -- Extracting the hour from the timestamp
+    COUNT(*) AS total_crimes -- Counting the total number of crimes for each hour
+FROM 
+    Crimes
+WHERE 
+    city = 'Los Angeles' -- Filtering for only crimes that occurred in Los Angeles
+GROUP BY 
+    hour_of_day -- Grouping the results by the hour of the day
+ORDER BY 
+    hour_of_day; -- Ordering the results by the hour of the day for readability
+```
+
+This query uses the `EXTRACT` function to get the hour part of the `timestamp` field for each crime. Then, it counts the number of crimes for each hour using `COUNT(*)`, while filtering the results to include only crimes in Los Angeles. The results are grouped by the extracted hour and sorted by the hour for easier reading.
+
+Please adjust the column names and table name (`Crimes` and `timestamp`) as needed based on the actual structure of your database."," To fulfill the request, you can write an SQL query that groups the data by the hour of the day (`Crime_Time`) and counts the number of crimes (`Crime_ID`) that occurred in LA. The following is an example query:
+
+```sql
+SELECT
+    EXTRACT(HOUR FROM Crime_Time) AS HourOfDay,
+    COUNT(Crime_ID) AS Total_Crimes
+FROM
+    la_crime_data
+WHERE
+    Area_Name = 'LA'
+GROUP BY
+    HourOfDay
+ORDER BY
+    HourOfDay;
+```
+
+This query extracts the hour from `Crime_Time` and groups the data by `HourOfDay`. It then counts the number of crimes for each hour only if the `Area_Name` is 'LA'. The results are ordered by the `HourOfDay`. 
+
+Please note that the column names and table name are case-sensitive, and you might need to adjust them according to your actual database schema. Also, the `EXTRACT` function might vary depending on the SQL dialect you're using."," To fulfill the natural language request of finding the total crimes occurred in LA at each hour of the day, we can write the following SQL query:
+
+```sql
+SELECT 
+  EXTRACT(HOUR FROM Crime_Time) AS Hour_Of_Day,
+  COUNT(*) AS Total_Crimes
+FROM 
+  la_crime_data
+WHERE 
+  Area_Name = 'LA'
+GROUP BY
+  Hour_Of_Day
+ORDER BY
+  Hour_Of_Day;
+```
+This query uses the `EXTRACT()` function to extract the hour component from the `Crime_Time` column (which is assumed to be in a time-related format). It then counts the occurrences of each hour by grouping the rows by the extracted hour value. The `WHERE` clause ensures that we only look at the crimes that occurred in the area named 'LA'. The result is sorted by the hour of the day to give an easily readable output."
+Give total count of crimes in LA grouped by week,"SELECT
+  STR_TO_DATE(
+    CONCAT(YEARWEEK(`la_crime_data`.`Crime_Date`), ' Sunday'),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `la_crime_data`.`Report_#`) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(YEARWEEK(`la_crime_data`.`Crime_Date`), ' Sunday'),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(YEARWEEK(`la_crime_data`.`Crime_Date`), ' Sunday'),
+    '%X%V %W'
+  ) ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," To fulfill this request, you need to write an SQL query that groups the crimes by their occurrences in weeks in the city of LA. Assuming your database has a table named 'crimes' with a column 'date' that stores the date of each crime, and a column 'city' that stores the city where the crime occurred, you can use the following SQL query:
+
+```sql
+SELECT 
+  YEAR(date) AS year,
+  WEEK(date) AS week,
+  COUNT(*) AS total_crimes
+FROM crimes
+WHERE city = 'LA'
+GROUP BY YEAR(date), WEEK(date)
+ORDER BY YEAR(date), WEEK(date);
+```
+
+This query extracts the year and week from the 'date' column using the YEAR() and WEEK() functions, respectively. It then filters and groups the data by these year and week values and the city 'LA' using the WHERE clause and GROUP BY clause. Finally, it counts the total number of crimes in each group using the COUNT(*) aggregate function and orders the output by year and week."," To fulfill this request, we can write an SQL query that groups the crimes in LA by week using the `DATE_FORMAT()` function and `WEEK()` function. This operation will be performed on the `Crime_Date` column, and it counts the total number of crimes for each week.
+
+Here is a sample SQL query that fulfills the request:
+
+```sql
+SELECT 
+    DATE_FORMAT(Crime_Date, '%Y-%u') AS Week, -- Extract the year and week number from Crime_Date
+    COUNT(*) AS Total_Crimes 
+FROM 
+    la_crime_data 
+WHERE 
+    Area_Name = 'Los Angeles' -- Filter to only include LA crimes
+GROUP BY 
+    Week 
+ORDER BY 
+    Week; -- Sort the result by week
+```
+
+This query will give you a row for each week, along with the total count of crimes for that week in the LA area."," Here is an SQL query to fulfill the given natural language request:
+
+```sql
+SELECT 
+    YEAR(Crime_Date) AS Year, 
+    WEEK(Crime_Date) AS Week, 
+    COUNT(*) AS Total_Crimes
+FROM 
+    la_crime_data
+WHERE 
+    Area_Name = 'LA'
+GROUP BY 
+    Year, Week
+ORDER BY 
+    Year, Week;
+```
+
+This query will return the total count of crimes in LA grouped by week for each year. The `WHERE` clause filters the rows to only include those related to LA. The `GROUP BY` statement groups the rows by year and week extracted from the `Crime_Date` field. The `COUNT(*)` function is used to count the number of crimes in each group. The result is ordered by year and week for better readability."
+Give total crimes occurred in New York on each day of the week,"SELECT
+  DAYOFWEEK(`nyc_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  DAYOFWEEK(`nyc_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`nyc_crime_data`.`Crime_Date`) ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Assuming you have a table named ""crimes"" that contains a ""city"" column, a ""crime_date"" column, and a ""crime_type"" column, you can write the following SQL query to get the total number of crimes that occurred in New York on each day of the week:
+
+```sql
+SELECT 
+    DAYNAME(crime_date) AS day_of_week,
+    COUNT(*) AS total_crimes
+FROM crimes
+WHERE 
+    city = 'New York'
+GROUP BY 
+    day_of_week
+ORDER BY 
+    FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+```
+
+This query will group the crimes by the day of the week and count the total number of crimes for each day (in the order of Monday, Tuesday, Wednesday, etc.)."," To fulfill the request, we need to extract the day of the week from the Crime_Date column, group the records by this day, and then count the total number of crimes for each day. Assuming the Crime_Date format contains full date information (e.g., ""YYYY-MM-DD""), we can use the DATENAME function (if using SQL Server) or appropriate date function for other databases to retrieve the day of the week name. Below is a query example using SQL Server:
+
+```sql
+SELECT
+    DATENAME(weekday, Crime_Date) AS DayOfWeek,
+    COUNT(Crime_ID) AS TotalCrimes
+FROM
+    nyc_crime_data
+WHERE
+    Area_Name = 'New York'
+GROUP BY
+    DATENAME(weekday, Crime_Date)
+ORDER BY
+    MIN(DATEPART(weekday, Crime_Date))
+```
+
+This SQL query does the following:
+- Selects the day of the week from the Crime_Date column, named as DayOfWeek.
+- Counts the total number of crimes (`Crime_ID`) that occurred on each day, named as TotalCrimes.
+- Filters the records to include only those from the 'New York' area (`Area_Name = 'New York'`).
+- Groups the results by the day of the week.
+- Orders the results correctly by the first day of the week (usually Sunday in most Western countries) using the `MIN` function combined with `DATEPART` to sort the days correctly in a week.
+
+If you're using a database other than SQL Server, like MySQL or PostgreSQL, the function to get the day name from the date might be different (e.g., `DAYNAME()` function in MySQL or `to_char()` in PostgreSQL) and you would need to adjust the query accordingly."," To fulfill the request, we can use the following SQL query that groups the crimes by the day of the week and calculates the total count of crimes for each day:
+
+```sql
+SELECT
+  DAYNAME(Crime_Date) AS Day_of_Week,
+  COUNT(*) AS Total_Crimes
+FROM
+  nyc_crime_data
+WHERE
+  Area_Name = 'New York'
+GROUP BY
+  DAYOFWEEK(Crime_Date)
+ORDER BY
+  DAYOFWEEK(Crime_Date);
+```
+
+This query uses the `DAYNAME()` function to retrieve the name of the weekday for each crime date, and the `DAYOFWEEK()` function to group the aggregated results by the day of the week. The `COUNT(*)` function returns the total number of crimes for each day. The `WHERE` clause filters the results to include only crimes that occurred in New York. The `ORDER BY` clause sorts the results by the index value of the weekday. The expected result would include columns `Day_of_Week` and `Total_Crimes`."
+Give total crimes occurred in New York during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    nyc_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Here's an SQL query that would accomplish this request:
+
+```sql
+SELECT 
+    YEAR(crime_date) AS year,
+    MONTH(crime_date) AS month,
+    COUNT(*) AS total_crimes
+FROM crimes
+WHERE crime_date BETWEEN '2022-01-01' AND '2022-12-31'
+AND city = 'New York'
+GROUP BY YEAR(crime_date), MONTH(crime_date)
+ORDER BY YEAR(crime_date), MONTH(crime_date);
+```
+
+In this query, we assume there's a table called `crimes` with columns `crime_date` (the date the crime occurred) and `city` (the city where the crime happened). The query filters for crimes that occurred in New York during the year 2022 and groups the results by year and month. Finally, it orders the results by year and month.
+
+Please adjust the table name, column names, and filtering logic as necessary to fit your actual schema and data."," ```sql
+SELECT 
+    YEAR(Crime_Date) AS year, 
+    MONTH(Crime_Date) AS month, 
+    COUNT(*) AS total_crimes
+FROM 
+    nyc_crime_data
+WHERE 
+    Area_Name = 'New York'
+GROUP BY 
+    year, 
+    month
+ORDER BY 
+    year, 
+    month;
+```
+
+Explanation:
+
+The above SQL query will return the total number of crimes occurring in New York for each month of the year. It does the following:
+
+1. Filters the `nyc_crime_data` table to only include data for the `Area_Name` New York.
+2. Groups the data by the year and month of the `Crime_Date`.
+3. Counts the number of records (crimes) for each group.
+4. Orders the results by the year and month, to see the data in chronological order."," Here is the SQL query to get the total crimes occurred in New York during each month of the year:
+
+```sql
+SELECT 
+    EXTRACT(MONTH FROM Crime_Date) AS Month,
+    COUNT(*) AS Total_Crimes
+FROM nyc_crime_data
+WHERE Area_Name = 'New York'
+GROUP BY Month
+ORDER BY Month
+```
+
+This SQL query fetches the total number of crimes that happened in New York, grouped by each month of the year. The result will be a list of months (2-12) along with the total number of crimes that occurred in New York during each of those months."
+Give total crimes occurred in New York at each hour of the day,"SELECT
+  HOUR(`nyc_crime_data`.`Crime_Time`) + 1 AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Here's an SQL query to calculate the total number of crimes that occurred in New York at each hour of the day, assuming you have a crimes table with a datetime column named `crime_time` and a city column named `city`:
+
+```sql
+SELECT EXTRACT(HOUR FROM crime_time) AS hour_of_day,
+       COUNT(*) AS total_crimes
+FROM crimes
+WHERE city = 'New York'
+GROUP BY hour_of_day
+ORDER BY hour_of_day;
+```
+
+This query uses the `EXTRACT()` function to extract the hour from the `crime_time` column. We then group the results by this value using the `GROUP BY` clause and count the number of rows for each hour using the `COUNT(*)` function. The `ORDER BY` clause is used to sort the results by the hour in ascending order.
+
+Please make sure to adapt this query to your database schema and column names if they're different from the ones used in this example."," To fulfill this request, we can use the SQL query below. This script will extract the hour from the ""Crime_Time"" column, group the rows by this hour value, and then count the total number of crimes that happened each hour of the day in New York.
+
+Assuming the ""Crime_Time"" column stores time data in a format compatible with SQL's DATE or TIME functions, I'll write the query accordingly:
+```sql
+SELECT
+  EXTRACT(HOUR FROM Crime_Time) AS Crime_Hour,
+  COUNT(*) AS Total_Crimes
+FROM
+  nyc_crime_data
+WHERE
+  Area_Name = 'New York'
+GROUP BY
+  Crime_Hour
+ORDER BY
+  Crime_Hour;
+```
+In this query:
+- `EXTRACT(HOUR FROM Crime_Time)` extracts the hour component from the ""Crime_Time"" column.
+- `COUNT(*)` calculates the total number of crimes that occurred for each hour.
+- `WHERE Area_Name = 'New York'` filters the rows to consider only those occurring in New York.
+- `GROUP BY Crime_Hour` groups the results by the hour so that we can count the crimes for each hour.
+- `ORDER BY Crime_Hour` orders the results chronologically, from 00:00 to 23:00. If there are missing hours, they will not appear in the results.
+
+Please modify the query if the ""Crime_Time"" column has a different format or if there are any other specific requirements."," To fulfill the request, we can write the following SQL query using the nyc_crime_data table:
+
+```sql
+SELECT
+    EXTRACT(HOUR FROM Crime_Time) AS hour_of_day,
+    COUNT(*) AS total_crimes
+FROM 
+    nyc_crime_data
+WHERE
+    Crime_Date::DATE = 'today' AND Area_Name = 'New York'
+GROUP BY
+    EXTRACT(HOUR FROM Crime_Time)
+ORDER BY
+    hour_of_day;
+```
+
+This SQL query extracts the hour from the Crime_Time field and groups the result by the hour to calculate the total number of crimes per hour. The WHERE clause filters the records for the current date and the area name 'New York'. The ORDER BY clause sorts the result by the hour of the day."
+Give total count of crimes in New York grouped by week since January 2023,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`nyc_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `nyc_crime_data`.`Report_#`) AS `count`
+FROM
+  `nyc_crime_data`
+WHERE
+  `nyc_crime_data`.`Crime_Date` >= convert_tz(
+    '2023-01-02 00:00:00.000',
+    'America/New_York',
+    @@session.time_zone
+  )
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`nyc_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`nyc_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," SELECT
+   COUNT(*) AS total_crimes,
+   YEARWEEK(crime_date) AS week_number
+FROM
+   crimes
+WHERE
+   crime_date >= '2023-01-01'
+   AND state = 'New York'
+GROUP BY
+   week_number
+ORDER BY
+   week_number;"," ```sql
+SELECT COUNT(*),
+       DATE_FORMAT(Crime_Date, '%v') AS Week_Number
+FROM nyc_crime_data
+WHERE Crime_Date >= '2023-01-01' AND Area_Name = 'New York'
+GROUP BY Week_Number
+ORDER BY Week_Number;
+```
+
+This SQL query will give you the total count of crimes in New York grouped by week since January 2023. The ""%v"" format specifier returns the ISO 8601 week number (Monday as the first day of the week). Note that the Query might change depending on the SQL dialect used.
+
+If you are using PostgreSQL, the equivalent query using the extract and to_char function would be:
+
+```sql
+SELECT COUNT(*),
+       to_char(Crime_Date, 'IW') AS Week_Number
+FROM nyc_crime_data
+WHERE Crime_Date >= '2023-01-01' AND Area_Name = 'New York'
+GROUP BY Week_Number
+ORDER BY Week_Number;
+```"," Here's an SQL query that fulfills the request:
+
+```sql
+SELECT
+  DATE_TRUNC('week', Crime_Date) AS Week_Start,
+  COUNT(*) AS Total_Crime_Count
+FROM
+  nyc_crime_data
+WHERE
+  Crime_Date >= '2023-01-01'
+GROUP BY
+  Week_Start
+ORDER BY
+  Week_Start;
+```
+
+The above query does the following:
+
+- It selects the week start date and the total count of crimes for each week
+- It filters the data to only include crimes with a `Crime_Date` greater than or equal to January 1st, 2023
+- It groups the data by the week start date
+- It orders the results by the week start date"
+Give total crimes occurred in Philly on each day of the week,"SELECT
+  DAYOFWEEK(`philly_crime_data`.`Crime_Date`) AS `Crime_Date`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  DAYOFWEEK(`philly_crime_data`.`Crime_Date`)
+ORDER BY
+  DAYOFWEEK(`philly_crime_data`.`Crime_Date`) ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To create an SQL query that fulfills the given request, we first need to make a few assumptions about the structure of the database. Let's assume there are two tables: `Crimes` and `Crime_Dates`.
+
+The `Crimes` table contains information about each crime. It might look like this:
+```
+CREATE TABLE Crimes (
+    CrimeID INT PRIMARY KEY,
+    CrimeType VARCHAR(100),
+    City VARCHAR(100)
+);
+```
+
+The `Crime_Dates` table contains the dates for each crime. It might look like this:
+```
+CREATE TABLE Crime_Dates (
+    CrimeID INT,
+    Date DATE,
+    FOREIGN KEY (CrimeID) REFERENCES Crimes(CrimeID)
+);
+```
+
+Given these structures, we can create an SQL query to calculate the total number of crimes that occurred in Philadelphia on each day of the week. Note that the database needs to recognize the correct day of the week for the date provided in the `Crime_Dates` table. In most SQL systems, this can be done using the `DAYOFWEEK` function.
+
+The SQL query would look like this:
+
+```sql
+SELECT 
+    CASE
+        WHEN DAYOFWEEK(Date) = 1 THEN 'Sunday'
+        WHEN DAYOFWEEK(Date) = 2 THEN 'Monday'
+        WHEN DAYOFWEEK(Date) = 3 THEN 'Tuesday'
+        WHEN DAYOFWEEK(Date) = 4 THEN 'Wednesday'
+        WHEN DAYOFWEEK(Date) = 5 THEN 'Thursday'
+        WHEN DAYOFWEEK(Date) = 6 THEN 'Friday'
+        WHEN DAYOFWEEK(Date) = 7 THEN 'Saturday'
+    END AS DayOfWeek,
+    COUNT(*) AS TotalCrimes
+FROM 
+    Crime_Dates
+INNER JOIN 
+    Crimes
+ON 
+    Crime_Dates.CrimeID = Crimes.CrimeID
+WHERE 
+    Crimes.City = 'Philly'
+GROUP BY 
+    DayOfWeek;
+```
+
+This query joins the `Crimes` and `Crime_Dates` tables on the CrimeID field to find all the crimes that occurred in Philadelphia (`Crimes.City = 'Philly'`). The `CASE` statement inside the `SELECT` clause classifies each date into the corresponding day of the week. The `COUNT(*)` function then counts the number of crimes (`TotalCrimes`) that occurred on each day of the week, and the results are grouped by the day of the week (`DayOfWeek`)."," To fulfill the request, you can use the following SQL query. This query groups the crime data by day of the week and calculates the total number of crimes that occurred in Philly on each day:
+
+```sql
+SELECT 
+  CASE 
+    WHEN STRFTIME('%w', Crime_Date) = '0' THEN 'Sunday'
+    WHEN STRFTIME('%w', Crime_Date) = '1' THEN 'Monday'
+    WHEN STRFTIME('%w', Crime_Date) = '2' THEN 'Tuesday'
+    WHEN STRFTIME('%w', Crime_Date) = '3' THEN 'Wednesday'
+    WHEN STRFTIME('%w', Crime_Date) = '4' THEN 'Thursday'
+    WHEN STRFTIME('%w', Crime_Date) = '5' THEN 'Friday'
+    WHEN STRFTIME('%w', Crime_Date) = '6' THEN 'Saturday'
+  END AS Day_of_Week,
+  COUNT(*) AS Total_Crimes
+FROM philly_crime_data
+GROUP BY Day_of_Week
+ORDER BY CASE 
+    WHEN Day_of_Week = 'Sunday' THEN 1
+    WHEN Day_of_Week = 'Monday' THEN 2
+    WHEN Day_of_Week = 'Tuesday' THEN 3
+    WHEN Day_of_Week = 'Wednesday' THEN 4
+    WHEN Day_of_Week = 'Thursday' THEN 5
+    WHEN Day_of_Week = 'Friday' THEN 6
+    WHEN Day_of_Week = 'Saturday' THEN 7
+  END
+```
+
+Note: This query uses SQLite's STRFTIME function to retrieve the day of the week as a string. Depending on your database, you may need to adapt the query to the specific date function of your system (e.g., using `DAYNAME(Crime_Date)` in MySQL)."," Too X; 49; 5800 BLOCK BROAD ST; 75.18900040; 39.98046634; 40.01470675→
+7; 3,165,159; February 21, 2024; 11:21 PM; 1; 5200 BLOCK BROAD ST; 75.1826190; 39.9367052
+8; 3,165,160; February 21, 2024; 11:19 PM; Break-In-Attempt; 21; 3300 BLOCK N AT ST; 75.18647075; 40.0013319
+9; 3,165,161; February 21, 2024; 11:18 PM; 2; 4900 BLOCK BROAD ST; 75.1461092; 39.9850760
+10; 3,166,896; February 21, 2024; 11:18 PM; Thefts of Inside; 3; 4400 BLOCK VINE ST; 75.1951405; 40.0371150
+11; 3,166,897; February 21, 2024; 11:18 PM; 2800 BLOCK W. LITTLE CIGAR ST; 75.0836336; 39.9829114
+12; 3,166,898; February 21, 2024; 11:16 PM; Attempted Thefts; 26; 2600 BLOCK N W St.; 87.9729745; 39.9731562
+13; 3,171,220; February 21, 2024; 11:14 PM; Attempted Thefts; 22; 2650 BLOCK S. COMSTON ST; 75.1901062; 39.9939718
+14; 3,175,373; February 21, 2024; 11:12 PM; Orlando; 5900 BLOCK BROAD ST; 75.1627944; 39.9643133
+15; 3,171,219; February 21, 2024; 11:11 PM; Harassment; 56; 2100 BLOCK W. COLLINS ST; 75.1587908; 39.9614013
+16; 3,171,220; February 21, 2024; 11:04 PM; Vandalism/Criminal Mischief; 40; 2100 BLOCK W. COLLINS ST; 75.1552400; 39.9641683
+
+Output format: date_of_weekday, total_crimes
+
+To fulfill this request, we can write a SQL query using the `DATE_ADD` and `DATEDIFF` functions to extract the day of the week from the `Crime_Date` date column, and the `COUNT` function to group by each day of the week and calculate the total number of crimes:
+
+```sql
+SELECT 
+  DATE_FORMAT(Crime_Date, '%W') AS date_of_weekday,
+  COUNT(*) AS total_crimes
+FROM philly_crime_data
+GROUP BY DATE_FORMAT(Crime_Date, '%W')
+ORDER BY DATEDIFF(Crime_Date, '2024-02-21');
+```
+
+This would give us the total number of crimes grouped by the day of the week for the specified date range. Note that the `DATE_FORMAT` function is used to format the `Crime_Date` column to return the weekday name, and the `COUNT` function is used to calculate the total number of crimes for each day. `DATEDIFF` is used to order the results by the specific weekday.
+
+Assuming that the provided data is for only one day (February 21, 2024) as per the provided data rows, you would get the following output using the sample data provided:
+
+date_of_weekday  | total_crimes
+------------------|--------------
+Monday           | 2
+Sunday           | 3
+
+Note that the above output is specific to the provided sample data. The actual result would vary depending on the available data in your `philly_crime_data` table."
+Give total crimes occurred in Philly during each month of the year,"SELECT
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    philly_crime_data
+GROUP BY
+    MONTH(Crime_Date)
+ORDER BY
+    MONTH(Crime_Date);","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," Here's an SQL query assuming you have a `Crimes` table that includes a `date` column and a `city` column, where `Philly` is one of the cities recorded.
+
+```sql
+SELECT 
+  DATE_FORMAT(date, '%Y-%m') AS month,
+  COUNT(*) AS total_crimes
+FROM 
+  Crimes
+WHERE 
+  city = 'Philly'
+GROUP BY 
+  month
+ORDER BY 
+  month;
+```
+
+This query groups the crime data by year and month, filters by `Philly`, and counts the number of crimes in each month. The `DATE_FORMAT` function is used to extract the year and month from the `date` column.
+
+Please note that depending on your SQL dialect this form of `DATE_FORMAT` might be different. Here are some alternative approaches for some common SQL dialects:
+
+* MySQL:
+    * `DATE_FORMAT(date, '%Y-%m')` (as in above query)
+
+* PostgreSQL:
+    * `TO_CHAR(date, 'YYYY-MM')`
+
+* SQL Server:
+    * `FORMAT(date, 'yyyy-MM')`
+
+* Oracle:
+    * `TO_CHAR(date, 'YYYY-MM')`
+
+* SQLite:
+    * `strftime('%Y-%m', date)`
+
+Please ensure that you adjust the code according to your SQL dialect and database schema requirements."," To fulfill the request, we can write an SQL query that groups the data by month and calculates the total number of crimes that occurred in each month. The SQL query would look like this:
+
+```sql
+SELECT
+    EXTRACT(MONTH FROM Crime_Date) AS ""Month"",
+    COUNT(*) AS ""Total Crimes""
+FROM
+    philly_crime_data
+GROUP BY
+    EXTRACT(MONTH FROM Crime_Date)
+ORDER BY
+    ""Month"";
+```
+
+This query will extract the month from the `Crime_Date` column, count the number of crimes that occurred for each month using `COUNT(*)`, and group the results by month. The output will show the total crimes for each month of the year. You can also add the `EXTRACT(YEAR FROM Crime_Date)` part to differentiate between years if the data spans multiple years."," Here's an SQL query to find the total crimes occurred in Philly during each month of the year:
+
+Assuming the Crimes started being recorded in the year 2022
+
+```sql
+SELECT 
+  EXTRACT(MONTH FROM Crime_Date) AS Month, 
+  COUNT(*) AS Total_Crimes
+FROM 
+  philly_crime_data
+WHERE
+  Crime_Date BETWEEN '2022-01-01' AND '2023-12-31'
+GROUP BY
+  Month
+ORDER BY
+  Month;
+```
+
+Explanation: The above query first filters the rows only belonging to the year 2022 and 2023 using the WHERE clause. Then, it separates the year into months using the EXTRACT function. The COUNT(*) function is then used to count the number of crimes occurred in each month. Finally, the GROUP BY clause groups the result set by Month and the ORDER BY clause orders the result set in ascending order by Month.
+
+(Note that the date extract is case-sensitive and should be written according to your SQL dialect.)"
+Give total crimes occurred in Philly at each hour of the day,"SELECT
+  HOUR(`philly_crime_data`.`Crime_Time`) + 1 AS `Hour`,
+  COUNT(*) AS `Count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  `Hour`
+ORDER BY
+  `Hour` ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To fulfill the request of providing the total number of crimes occurred in Philadelphia at each hour of the day, we'll assume that your database has a table named `crimes` with fields such as `crime_id`, `crime_time` (a datetime field), and `city` (to identify the crime location). 
+
+The SQL query below collects the total crimes that happened within each hour in Philadelphia. 
+
+Note that here I am missing information on the time format in your database. Below query assumes it includes the hour part if your column is of type datetime or timestamp. 
+
+```sql
+SELECT 
+    DATEPART(HOUR, crime_time) as hour_of_day, 
+    COUNT(crime_id) as total_crimes
+FROM 
+    crimes
+WHERE 
+    city = 'Philly'
+GROUP BY 
+    DATEPART(HOUR, crime_time)
+ORDER BY 
+    hour_of_day;
+```
+
+In this query:
+
+1. `DATEPART(HOUR, crime_time) as hour_of_day` extracts the hour from the `crime_time` field.
+2. `COUNT(crime_id) as total_crimes` counts the number of crimes in each hour.
+3. The `FROM` clause specifies the table (crimes) to select data from.
+4. The `WHERE` clause filters records that only occurred in Philadelphia.
+5. The `GROUP BY` clause groups the selection by the extracted hour part of the `crime_time` field.
+6. The `ORDER BY` clause sorts the result by the hour of the day.
+
+Please adjust the query according to your table and column names and consider timezone conversions if your `crime_time` is stored in a different timezone from the one you're calculating the hour of day for.
+
+Please be aware that this query might produce a different result depending on how you stored the time zone in your database and how accurate do you need the results to be. If you need more precise results considering local time zones, you'll need to take the time zone into account when constructing the date-time values."," To fulfill the request, we can write the following SQL query:
+
+```sql
+SELECT 
+    DATE(Crime_Date) AS Date, 
+    EXTRACT(HOUR FROM Crime_Time) AS Hour, 
+    COUNT(*) AS Total_Crimes
+FROM 
+    philly_crime_data
+WHERE 
+    Area_# = 'Philly'
+GROUP BY 
+    Date, 
+    Hour
+ORDER BY 
+    Date, 
+    Hour;
+```
+
+This SQL query selects the date and hour of each crime entry, counts the total number of crimes that occurred in each hourly interval, filters the results to include only Philadelphia (Philly) crimes, and groups the results by both date and hour. The results are sorted by date and hour to provide a comprehensive view of the total crimes occurring at each hour of the day in Philly."," Based on the request, you can write the following SQL query to obtain the total crimes occurred in Philly at each hour of the day:
+
+```sql
+SELECT 
+    DATE_FORMAT(Crime_Time, '%H') AS Hour_Of_Day,
+    COUNT(*) AS Total_Crimes
+FROM 
+    philly_crime_data
+GROUP BY 
+    Hour_Of_Day
+ORDER BY
+    Hour_Of_Day;
+```
+
+This query calculates the hour of the day for each `Crime_Time` entry, then it groups the rows by the hour value and counts the total number of crimes for each hour. The result will show the total number of crimes that occurred in Philly each hour of the day, ordered from 00:00 to 23:00."
+Give total count of crimes in Philly grouped by week,"SELECT
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`philly_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) AS `Crime_Date`,
+  count(distinct `philly_crime_data`.`Crime_ID`) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`philly_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  )
+ORDER BY
+  STR_TO_DATE(
+    CONCAT(
+      YEARWEEK(`philly_crime_data`.`Crime_Date`),
+      ' Sunday'
+    ),
+    '%X%V %W'
+  ) ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," SELECT 
+    EXTRACT(WEEK FROM incident_date) AS week_number,
+    COUNT(*) AS total_crimes
+FROM 
+    crimes
+WHERE 
+    city = 'Philly'
+GROUP BY 
+    week_number
+ORDER BY 
+    week_number;"," SELECT
+    DATE_TRUNC('week', Crime_Date) AS Week_Start,
+    COUNT(Crime_ID) AS Total_Crimes
+FROM
+    philly_crime_data
+GROUP BY
+    Week_Start
+ORDER BY
+    Week_Start;"," Here's how you can write the SQL query to fulfill the request:
+
+SELECT
+    DATE_TRUNC('week', Crime_Date) AS Week_Start_Date,
+    COUNT(Crime_ID) AS Total_Crimes_Per_Week
+FROM
+    philly_crime_data
+WHERE
+    Area_# = '19'
+GROUP BY
+    Week_Start_Date
+ORDER BY
+    Week_Start_Date;
+
+This query will return the total count of crimes in Philly grouped by week, where the area number is '19' which is likely representing Philadelphia. Please adjust the 'Area_#' to match the specific area number you need. If area numbers are not used, remove the WHERE clause."
+Give the amount of crimes in each area of Atlanta,"SELECT
+  `atlanta_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `atlanta_crime_data`.`Area_Name`
+ORDER BY
+  `atlanta_crime_data`.`Area_Name` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," To fulfill the request, you'll need an SQL query that joins the relevant tables containing crime data and area information. Assuming you have a table named `Crimes` with a column `AreaID` representing the area, and another table named `Areas` with a column `ID` and a column `AreaName` representing the name of each area, the below query can be used:
+
+```sql
+SELECT 
+    A.AreaName, 
+    COUNT(*) AS NumberOfCrimes
+FROM 
+    Crimes AS C 
+JOIN
+    Areas AS A ON C.AreaID = A.ID
+GROUP BY 
+    A.AreaName
+ORDER BY 
+    NumberOfCrimes DESC;
+```
+ 
+This query will give you the number of crimes in each area of Atlanta, sorted in descending order by the number of crimes. Make sure to adjust the table and column names according to your database schema."," To fulfill the request, you can use the following SQL query:
+
+```sql
+SELECT Area_Name, COUNT(*) AS Crime_Count
+FROM atlanta_crime_data
+GROUP BY Area_Name;
+```
+
+This query will display the area names along with the count of crimes that occurred in each area. The `COUNT(*)` function is used to count the rows for each `Area_Name`, and the result is grouped by the `Area_Name` using the `GROUP BY` clause."," Here's an SQL query to fulfill the request:
+
+```
+SELECT Area_Name, COUNT(*) AS number_of_crimes
+FROM atlanta_crime_data
+GROUP BY Area_Name
+ORDER BY number_of_crimes DESC;
+```
+
+This query will group the crimes by Area_Name and count the number of occurrences in each area. The results will then be sorted in descending order based on the number of crimes."
+Give the amount of crimes in each area of LA,"SELECT
+  `la_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `la_crime_data`.`Area_Name`
+ORDER BY
+  `la_crime_data`.`Area_Name` ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," Here's an example SQL query that retrieves the number of crimes in each area of LA. Please note that you will need to adjust the table name and column names according to your actual database schema.
+
+```sql
+SELECT Crimes.area, COUNT(*) AS crime_count
+FROM Crimes
+JOIN Areas ON Crimes.area_id = Areas.area_id
+WHERE Areas.city = 'Los Angeles'
+GROUP BY Crimes.area
+ORDER BY crime_count DESC;
+```
+
+This query assumes that you have the following tables and columns in your database:
+
+1. A `Crimes` table with a column named `area_id` that identifies the area where a crime occurred.
+2. An `Areas` table with columns named `area_id` that links to the `Crimes` table and `city` that identifies the city where the area belongs.
+
+The query will join the `Crimes` table with the `Areas` table on their shared `area_id` column. It will then filter the records to include only those where the `Areas.city` is 'Los Angeles', and aggregate the results to count the number of crimes in each LA area. Finally, it orders the results by the number of crimes in descending order."," Here's an SQL query that will provide the amount of crimes in each area of Los Angeles based on your schema:
+
+```sql
+SELECT Area_Name, COUNT(Crime_ID) AS NumberOfCrimes
+FROM la_crime_data
+GROUP BY Area_Name
+ORDER BY NumberOfCrimes DESC;
+```
+
+This query groups records by the `Area_Name`, counts the number of crimes in each area using the `COUNT()` function, and orders the result by the number of crimes in descending order, so that areas with the most crimes appear first."," To0; BIKE THEFT; SoMALIAN; 37; M; 2200 END YaYA St; 34.12010000° N; 118.3530000° W
+3,419; 200,193,110; April 2, 2020; March 28, 2020; 2,000; BIKE SHOW, ARREST.; Mid-Wilshire; 32; M; 600 N DUFFY ST; 34.10140000° N; 118.38870000° W
+5; 200,168,199; September 9, 2023; June 21, 2020; 7800 CLAIR AVE; 34.14880000° N; 118.55070000°W
+
+Query:
+
+SELECT Area_Name, COUNT(*) AS Crime_Count
+FROM la_crime_data
+GROUP BY Area_Name;"
+Give the amount of crimes in each area of New York,"SELECT
+  `nyc_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `nyc_crime_data`.`Area_Name`
+ORDER BY
+  `nyc_crime_data`.`Area_Name` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," To resolve the request, we first need to identify the structure of the relevant database containing information about crimes in New York. This is essential for writing an effective SQL query. For the purpose of this example, let's assume the following (simplified) database structure:
+
+1. **Crimes** table: This table contains details about each crime, including a foreign key to the area where the crime occurred.
+   - *crime_id* (unique identifier for each crime)
+   - *crime_type* (description of the crime)
+   - *area_id* (reference to the area where the crime occurred)
+
+2. **Areas** table: This table contains information about different areas in New York.
+   - *area_id* (unique identifier for each area)
+   - *area_name* (name of the area)
+
+Assuming this structure, you can use the following SQL query to find the amount of crimes in each area of New York:
+
+```sql
+SELECT
+    A.area_name,
+    COUNT(C.crime_id) AS crime_count
+FROM
+    Areas A
+JOIN
+    Crimes C ON A.area_id = C.area_id
+GROUP BY
+    A.area_name
+ORDER BY
+    crime_count DESC;
+```
+
+This query performs the following actions:
+
+- Joins the `Crimes` and `Areas` tables on their common `area_id` column to combine the area information with each crime record.
+- Groups the results by `area_name`, which means the query will calculate (using `COUNT`) the total number of crimes for each distinct area.
+- Orders the final result in descending order of `crime_count`, so the areas with the most crimes appear first.
+
+This query assumes that the database is using a schema similar to the simplified one described above and that the actual database names (`Crimes` and `Areas`) and column names (`crime_id`, `area_id`, `crime_type`, `area_name`) correspond to the structure described. Adjustments may be needed depending on the actual database schema."," Here is the SQL query to get the amount of crimes in each area of New York:
+
+```sql
+SELECT Area_Name, COUNT(Crime_ID) AS Crime_Count
+FROM nyc_crime_data
+GROUP BY Area_Name
+ORDER BY Crime_Count DESC;
+```
+
+In this query:
+
+- We use the `SELECT` statement to specify the columns we want to see in the result: `Area_Name` and the count of `Crime_ID` (we alias it as `Crime_Count`).
+- We use the `FROM` clause to specify the table we are querying from: `nyc_crime_data`.
+- We use the `GROUP BY` clause to group the rows by the `Area_Name` column, allowing us to count the number of crimes per area.
+- We use the `COUNT()` aggregation function to count the number of `Crime_ID` in each group (i.e., each area).
+- We use the `ORDER BY` clause combined with `DESC` to sort the rows in descending order by `Crime_Count`, so the areas with the most crimes come first in the result."," Here's an SQL query that can be used to fulfill the request:
+
+```
+SELECT Area_Name, COUNT(*) AS ""Number Of Crimes""
+FROM nyc_crime_data
+GROUP BY Area_Name
+ORDER BY ""Number Of Crimes"" DESC;
+```
+
+This query selects the Area_Name and counts the number of occurrences for each area using the COUNT() function. The GROUP BY clause is used to group the result by Area_Name. Finally, the ORDER BY clause with the DESC keyword is used to sort the results in descending order of the number of crimes, so the areas with the most crimes are displayed first.
+
+This query will give the amount of crimes in each area of New York as requested. The result will be a list of area names along with the corresponding number of crimes, sorted in descending order of the number of crimes:
+
+Area_Name       Number Of Crimes
+-------         -----------------
+Brooklyn        2
+Queens          1
+Bronx           2"
+Give the amount of crimes in each area of Philly,"SELECT
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 AS `Area_#`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10
+ORDER BY
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To fulfill this request, you would first need a table with information on crimes in Philadelphia, which should include data such as the area where the crime happened and the crime type. Let's assume the database table is named `philly_crimes` and it has at least two columns: `area` and `crime_id` (or something equivalent representing the number of crimes).
+
+Assuming you want to count the total number of crimes for each area (not distinguishing by crime type), the following SQL query would accomplish this:
+
+```sql
+SELECT 
+    area,
+    COUNT(*) AS total_crimes
+FROM 
+    philly_crimes
+GROUP BY 
+    area
+ORDER BY 
+    total_crimes DESC;
+```
+
+In this query:
+
+- `SELECT area, COUNT(*) AS total_crimes`: selects the `area` column and counts the number of records (i.e., crimes) for each `area`. The count is given an alias `total_crimes` for clarity.
+- `FROM philly_crimes`: specifies the table from which to retrieve the data.
+- `GROUP BY area`: groups the results by the `area` column so that the count of crimes is specific to each area.
+- `ORDER BY total_crimes DESC`: orders the results by the `total_crimes` column in descending order, so the areas with the most crimes are listed first.
+
+If you have more detailed data and you want to include information such as crime type or time when the crime happened, you could adjust the SELECT statement accordingly. For instance, if there is a `crime_type` column you want to include:
+
+```sql
+SELECT 
+    area,
+    crime_type,
+    COUNT(*) AS total_crimes
+FROM 
+    philly_crimes
+GROUP BY 
+    area, crime_type
+ORDER BY 
+    total_crimes DESC;
+```
+
+This query would provide a breakdown of the total number of crimes within each area and separated by crime type."," Here's an SQL query to retrieve the number of crimes in each area of Philly:
+
+```sql
+SELECT Area_#, COUNT(*) AS Number_of_Crimes
+FROM philly_crime_data
+GROUP BY Area_#
+ORDER BY Number_of_Crimes DESC;
+```
+
+This query groups the records by Area_# and counts the number of rows for each area. The result will list the areas and their corresponding crime counts, ordered in descending order by the Number_of_Crimes."," To October 2020; 10:20 PM; 22; 25,7300 BSET; 75.18939858° W; 39.97463294° N
+7; 3,150,572; February 22, 2024; 4:48 PM; 'Warning, Cnt Leaving Scene; 16; 7500 BLOCK C AT LIGHT BLUE BANNER; 75.1528093147740218° W; 39.12294989966° N
+10; 3,152,300; February 21, 2024; 6:27 PM; Assault, with Victim Property, No Response; 22; 2100 N BROAD ST; 75.1558174° W; 39.98472636° N
+11; 3,154,370; February 21, 2024; 11:43 PM; Aggravated Assault, Violent, No Firearm; 24; 3300 N BROAD ST, 4600 BLOCK BARNETT ST; 75.165401° W; 39.9903026228° N
+12; 3,152,406; February 22, 2024; 10:40 PM; Vandalism; 22; 600 BROAD ST; 75.164479° W; 40.0000518246742° N
+
+SQL query:
+
+SELECT Area_, COUNT(*) AS num_crimes
+FROM philly_crime_data
+GROUP BY Area_
+ORDER BY num_crimes DESC;"
+"For each coordinate in latitude and longitude of Atlanta spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+  Latitude,
+  Longitude,
+  Most_Common_Crime_Type,
+  count
+FROM (
+  SELECT
+    (
+      FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+    ) + 33.64 AS Latitude,
+    (
+      FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+    ) + -84.55 AS Longitude,
+    Crime_Type AS Most_Common_Crime_Type,
+    COUNT(*) AS count,
+    ROW_NUMBER() OVER(PARTITION BY
+      (
+        FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+      ) + 33.64,
+      (
+        FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+      ) + -84.55
+    ORDER BY COUNT(*) DESC
+    ) AS crime_rank
+  FROM
+    `atlanta_crime_data`
+  GROUP BY
+    Latitude,
+    Longitude,
+    Crime_Type
+) AS ranked_crimes
+WHERE
+  crime_rank = 1
+ORDER BY
+  Latitude ASC,
+  Longitude ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," To fulfill this request, you need to perform the following steps:
+
+1. Generate a list of coordinates with 0.01-degree intervals in the latitude and longitude of Atlanta.
+2. Join the generated list of coordinates with the existing crime database
+3. Group the result by the generated coordinates
+4. For each group, find the most common crime type and its count
+
+Here's an example SQL query that implements the above steps:
+
+```sql
+
+WITH latitude_ranges AS (
+  SELECT generate_series(Latitude_Boundary_Low_Atlanta, Latitude_Boundary_High_Atlanta, 0.01) AS Latitude
+  FROM Crime_Data
+),
+
+longitude_ranges AS (
+  SELECT generate_series(Longitude_Boundary_Low_Atlanta, Longitude_Boundary_High_Atlanta, 0.01) AS Longitude
+  FROM Crime_Data
+),
+
+latitude_longitude_coordinates AS (
+  SELECT l.Latitude, l.Longitude FROM latitude_ranges l, longitude_ranges l2
+)
+
+SELECT
+  c.Latitude,
+  c.Longitude,
+  cm.Crime_Type,
+  COUNT(cm.Crime_Type) AS Count
+FROM
+  latitude_longitude_coordinates c,
+  Crime_Data cm
+WHERE
+  ROUND(c.Latitude) = ROUND(cm.Latitude)
+  AND ROUND(c.Longitude) = ROUND(cm.Longitude)
+GROUP BY
+  c.Latitude,
+  c.Longitude,
+  cm.Crime_Type
+ORDER BY
+  Count DESC
+```
+
+In this query, we use the `generate_series` function to create a list of latitude and longitude coordinates with 0.01-degree intervals. Then, we join the generated list of coordinates with the existing crime data using the `ROUND` function to ensure that the coordinates match.
+
+For each group of data, the query calculates the most common crime type and counts its occurrences. Finally, the result is ordered in descending order of the counts.
+
+Note: Make sure to replace `Latitude_Boundary_Low_Atlanta`, `Latitude_Boundary_High_Atlanta`, `Longitude_Boundary_Low_Atlanta`, and `Longitude_Boundary_High_Atlanta` with the actual minimum and maximum latitude and longitude ranges for Atlanta in your database."," ```sql
+WITH grid AS (
+  SELECT
+    FLOOR(Latitude / 0.01) * 0.01 AS lat_start,
+    FLOOR(Latitude / 0.01) * 0.01 + 0.01 AS lat_end,
+    FLOOR(Longitude / 0.01) * 0.01 AS lon_start,
+    FLOOR(Longitude / 0.01) * 0.01 + 0.01 AS lon_end
+  FROM atlanta_crime_data
+),
+crime_coord_count AS (
+  SELECT
+    grid.lat_start,
+    grid.lat_end,
+    grid.lon_start,
+    grid.lon_end,
+    dc.Crime_Type,
+    COUNT(*) AS count
+  FROM grid
+  INNER JOIN atlanta_crime_data dc ON
+    dc.Latitude >= grid.lat_start AND
+    dc.Latitude < grid.lat_end AND
+    dc.Longitude >= grid.lon_start AND
+    dc.Longitude < grid.lon_end
+  GROUP BY grid.lat_start, grid.lat_end, grid.lon_start, grid.lon_end, dc.Crime_Type
+),
+max_count_per_coord AS (
+  SELECT
+    lat_start,
+    lat_end,
+    lon_start,
+    lon_end,
+    MAX(count) AS max_count
+  FROM crime_coord_count
+  GROUP BY lat_start, lat_end, lon_start, lon_end
+)
+SELECT
+  ccc.lat_start,
+  ccc.lat_end,
+  ccc.lon_start,
+  ccc.lon_end,
+  ccc.Crime_Type,
+  ccc.count
+FROM crime_coord_count ccc
+INNER JOIN max_count_per_coord mcpc ON
+  ccc.lat_start = mcpc.lat_start AND
+  ccc.lat_end = mcpc.lat_end AND
+  ccc.lon_start = mcpc.lon_start AND
+  ccc.lon_end = mcpc.lon_end AND
+  ccc.count = mcpc.max_count
+ORDER BY lat_start, lat_end, lon_start, lon_end;
+```
+
+This SQL query does the following:
+1. Creates a ""grid"" virtual table that breaks down the latitude and longitude into 0.01-degree spaced coordinates.
+2. Calculates the count of each crime type for each 0.01-degree spaced coordinate square (score) by joining the generated grid with the crime data.
+3. Finds the maximum count of crime for each 0.01-degree space grid.
+4. Selects the most common crime type and its count for each coordinate.
+
+Note: If there is a tie for the most common crime type in a specific coordinate, this query will return all the tied crime types along with their counts."," Here's an SQL query to fulfill the request:
+
+```sql
+WITH lng AS (
+    SELECT FLOOR(Longitude/0.01) * 0.01 AS GridLongitude, Crime_Type, COUNT(*) AS NumCrimes
+    FROM atlanta_crime_data
+    GROUP BY GridLongitude, Crime_Type
+), lat AS (
+    SELECT FLOOR(Latitude/0.01) * 0.01 AS GridLatitude, Crime_Type, COUNT(*) AS NumCrimes
+    FROM atlanta_crime_data
+    GROUP BY GridLatitude, Crime_Type
+)
+SELECT COALESCE(lng.GridLongitude, lat.GridLatitude) AS Grid_Longitude,
+       COALESCE(lat.GridLatitude, lng.GridLongitude) AS Grid_Latitude,
+       CASE WHEN lng.NumCrimes > lat.NumCrimes THEN lng.Crime_Type ELSE lat.Crime_Type END AS Most_Common_Crime_Type,
+       GREATEST(lng.NumCrimes, lat.NumCrimes) AS Crime_Count
+FROM lng
+FULL OUTER JOIN lat ON lng.GridLongitude = lat.GridLatitude
+ORDER BY Grid_Longitude, Grid_Latitude;
+```
+
+This query uses two Common Table Expressions (CTEs) to calculate the most common crime type for each 0.01-degree grid cell, initially for latitude and then for longitude. Then, the final result is obtained by combining the two CTEs with a full outer join on the corresponding grid cell, and selecting the coordinate, most common crime type, and its count for each grid cell. If the most common crime type is the same for both latitude and longitude, it is selected; otherwise, the most common crime type by count is chosen. The result is ordered by grid longitude and latitude to ensure the output is satisfactory."
+"For each coordinate in latitude and longitude of Atlanta spaced by 0.01 degrees, give the total crime count.","SELECT
+  (
+    FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+  ) + 33.64 AS `Latitude`,
+  (
+    FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+  ) + -84.55 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  (
+    FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+  ) + 33.64,
+  (
+    FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+  ) + -84.55
+ORDER BY
+  (
+    FLOOR(((`atlanta_crime_data`.`Latitude` - 33.64) / 0.01)) * 0.01
+  ) + 33.64 ASC,
+  (
+    FLOOR(((`atlanta_crime_data`.`Longitude` - -84.55) / 0.01)) * 0.01
+  ) + -84.55 ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," To fulfill this request, we'll first need a table that contains information about crimes, including the latitude, longitude, and a reference to the crime incident (e.g., crime ID or similar identifier). Assuming the table is named ""crimes"" and has the columns ""latitude"", ""longitude"", and ""crime_id"", the SQL query would look like this:
+
+```sql
+SELECT 
+  floor(latitude * 100) / 100 AS latitude,
+  floor(longitude * 100) / 100 AS longitude,
+  COUNT(*) AS total_crime_count
+FROM crimes
+WHERE latitude BETWEEN (33.7490 - 0.01) AND (33.7490 + 0.01)
+  AND longitude BETWEEN (-84.3880 - 0.01) AND (-84.3880 + 0.01)
+GROUP BY latitude, longitude
+ORDER BY latitude, longitude;
+```
+
+Please note that the range for latitude and longitude was hardcoded based on the assumed center coordinates of Atlanta (33.7490, -84.3880). You may need to adjust this range or use a more dynamic approach based on the specific requirements and limitations of your problem.
+
+This query considers a 0.01-degree deviation on both sides of the Atlanta's center point for grouping results, and uses the `COUNT(*)` function to count the total number of crimes for each group. The `FLOOR()` function is used to round down the latitude and longitude to the nearest 0.01 degrees. Finally, the result set is ordered by latitude and longitude."," To fulfill the request, we can write an SQL query that uses a combination of common table expressions (CTEs) and cross joins to generate a sequence of latitudes and longitudes spaced by 0.01 degrees around Atlanta's coordinates, and then find the total crime count for each generated point.
+
+Before starting, we need to know Atlanta's central longitude and latitude to generate a grid around it. According to several sources, Atlanta's central longitude is -84.387982 and latitude is 33.749041.
+
+Here's the SQL query for the given schema and data:
+
+```sql
+WITH longitudes AS (
+    SELECT (longitude_grid + (level - 1) * 0.01) AS grid_longitude
+    FROM (
+        SELECT generate_series(-84.387982, -84.377982, 0.01) AS longitude_grid
+    ) t1
+),
+latitudes AS (
+    SELECT (latitude_grid + (level - 1) * 0.01) AS grid_latitude
+    FROM (
+        SELECT generate_series(33.749041, 33.769041, 0.01) AS latitude_grid
+    ) t2
+),
+coordinates AS (
+    SELECT lng.grid_longitude, lat.grid_latitude
+    FROM longitudes lng
+    CROSS JOIN latitudes lat
+),
+crime_count AS (
+    SELECT c.grid_longitude, c.grid_latitude, COUNT(*) AS crime_count
+    FROM coordinates c
+    JOIN atlanta_crime_data acd
+    ON c.grid_longitude BETWEEN acd.Longitude AND acd.Longitude + 0.02
+    AND c.grid_latitude BETWEEN acd.Latitude AND acd.Latitude + 0.02
+    GROUP BY 1, 2
+)
+SELECT * FROM crime_count;
+```
+
+This SQL query performs the following steps:
+1. Generates a sequence of longitudes that covers all the latitude values for Atlanta, spaced by 0.01 degrees.
+2. Generates a sequence of latitudes that covers all the longitude values for Atlanta, spaced by 0.01 degrees.
+3. Forms a `coordinates` table using a cross join with the longitudes and latitudes lists to create all possible coordinate pairs within the generated range.
+4. Counts the number of crimes for each coordinate point by joining the `crime_count` table with the `atlanta_crime_data` table, considering an additional 0.01 degrees around each point.
+5. Selects the results from the crime_count table, which includes the coordinates and their corresponding crime count.
+
+Note: The `generate_series` function is not a standard SQL function and may not be available in some relational databases. In this example, it is assumed to be available. Otherwise, you may need to find an alternative way to generate the series of longitudes and latitudes in your database. Also, the approximate 0.01-degree difference in longitude and latitude is factored into the spatial condition of the next query. This will not result in a perfect grid due to the curvature of the Earth, but it works for the purpose of this estimation."," Here is a SQL query that will fulfill the request:
+
+```
+SELECT
+  FLOOR(Latitude) AS Latitude,
+  FLOOR(Longitude) AS Longitude,
+  COUNT(Crime_ID) AS Total_Crime_Count
+FROM
+  atlanta_crime_data
+WHERE
+  Latitude BETWEEN 33.77 AND 33.78
+  AND Longitude BETWEEN -84.39 AND -84.38
+GROUP BY
+  FLOOR(Latitude),
+  FLOOR(Longitude)
+HAVING
+  (Latitude % 0.01 = 0) AND (Longitude % 0.01 = 0);
+```
+This SQL query groups the crimes by their rounded down latitude and longitude, with each interval being 0.01 degrees square. It then counts the number of crimes for each coordinate. The WHERE clause ensures the latitude is between the approximate decimals of 33.77N and 33.78N and the longitude is between -84.39W and -84.38W, which roughly correspond to the city of Atlanta.
+Note that we use FLOOR() to round down to the closest whole number of 0.01Latitude, and the HAVING clause ensures that only coordinates spaced by 0.01 degrees intervals are considered. The % operator is used to filter out the coordinate offsets that are not exactly divisible by 0.01, which is necessary because the FLOOR() function will round down to the next lowest coordinate if the latitude is not divisible. Adjust the latitude and longitude limits in the WHERE clause as necessary to fit your data."
+"For each coordinate in latitude and longitude of LA spaced by 0.01 degrees, give the total crime count.","SELECT
+  FLOOR((`la_crime_data`.`Latitude` / 0.01)) * 0.01 AS `Latitude`,
+  (
+    FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.01)) * 0.01
+  ) + -118.66 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  FLOOR((`la_crime_data`.`Latitude` / 0.01)) * 0.01,
+  (
+    FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.01)) * 0.01
+  ) + -118.66
+ORDER BY
+  FLOOR((`la_crime_data`.`Latitude` / 0.01)) * 0.01 ASC,
+  (
+    FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.01)) * 0.01
+  ) + -118.66 ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," Assuming you have a table named ""Crimes"" with columns ""Latitude"", ""Longitude"" and ""Crime_ID"", you can write an SQL query like this using CROSS JOIN to create a grid of latitudes and longitudes and then LEFT JOIN them with your Crime table to get the total crime count for each coordinate:
+
+```sql
+WITH grid AS (
+  SELECT
+    CROSSJOIN(Lat_pt) AS Lat,
+    CROSSJOIN(Lon_pt) AS Lon
+  FROM (
+    SELECT DISTINCT Lat FROM (
+      SELECT FLOOR(Latitude / 0.01) * 0.01 AS Lat FROM Crimes WHERE Latitude BETWEEN 33.72 AND 34.31
+    ) AS LA_Latitudes
+  ) AS LA_Latitudes_Uniq,
+  (
+    SELECT DISTINCT Lon FROM (
+      SELECT FLOOR(Longitude / 0.01) * 0.01 AS Lon FROM Crimes WHERE Longitude BETWEEN -118.78 AND -118.29
+    ) AS LA_Longitudes
+  ) AS LA_Longitudes_Uniq
+)
+
+SELECT
+  g.Lat,
+  g.Lon,
+  COUNT(c.Crime_ID) AS Crime_Count
+FROM
+  grid g
+  LEFT JOIN Crimes c
+  ON g.Lat BETWEEN (FLOOR(c.Latitude / 0.01) * 0.01) AND ((FLOOR(c.Latitude / 0.01) * 0.01) + 0.01)
+  AND g.Lon BETWEEN (FLOOR(c.Longitude / 0.01) * 0.01) AND ((FLOOR(c.Longitude / 0.01) * 0.01) + 0.01)
+GROUP BY
+  g.Lat,
+  g.Lon;
+```
+
+In the above SQL query:
+
+1. The CROSS JOIN generates a grid of all possible latitude and longitude combinations within the specified range.
+2. The LEFT JOIN matches crimes within 0.01 degrees of each grid point.
+3. COUNT() calculates the number of crimes for each latitude and longitude pair.
+4. The final result is grouped by latitude and longitude, showing the total crime count for each coordinate.
+
+Please note that this query assumes the ""Crimes"" table contains valid latitude and longitude values for Los Angeles within the specified range. You may need to adjust the range values according to your data."," ```sql
+SELECT 
+  FLOOR(Latitude) + (0.01 * ROUND((Latitude - FLOOR(Latitude)) * 100)) AS Coordinate_Latitude,
+  FLOOR(Longitude) + (0.01 * ROUND((Longitude - FLOOR(Longitude)) * 100)) AS Coordinate_Longitude,
+  COUNT(Crime_ID) AS Crime_Count
+FROM la_crime_data
+WHERE Area_Name = 'LA'
+GROUP BY Coordinate_Latitude, Coordinate_Longitude;
+```
+
+This query calculates and groups the latitude and longitude values by interval of 0.01 degrees as requested. Then, it counts the total crimes in each group. The `FLOOR` function is used to get the integer part of the latitude and longitude, and the `ROUND` function is used to calculate the remainder, which is then multiplied by 0.01 to get the fraction part. The `COUNT` function is used to get the total number of crimes in each group. Finally, the `GROUP BY` clause is used to group the results by the coordinate."," Here, details of various crimes reported in the area of Los Angeles, California. The 'Crime_ID' table contains a unique identifier for each record, 'Report_#' is the report number, 'Date_Reported' is the date the report was made to the police, 'Crime_Date' is the date the crime occurred, 'Crime_Time' is the time the crime occurred, 'Crime_Type' represents the type of crime, 'Area_Name' is the area where the crime occurred, 'Vict_Age' is the approximate age of the victim, 'Vict_Sex' is the gender of the victim, 'Weapon_Desc' describes any weapons used in the crime, 'Address' is the specific address where the crime happened, 'Latitude' and 'Longitude' are the geographic coordinates of the crime, 'Crime_Date' is the date of the crime,
+
+Given the schema of the table, we can write an SQL query to select the latitude and longitude coordinates and the total count of crimes in the area of LA spaced by 0.01 degrees. Here is the SQL query to perform this:
+
+```
+SELECT 
+  FLOOR(Latitude) / 0.01 AS LatBucket,
+  FLOOR(Longitude) / 0.01 AS LongBucket,
+  COUNT(*) as Crime_Count
+FROM
+  la_crime_data
+GROUP BY FLOOR(Latitude) / 0.01, FLOOR(Longitude) / 0.01;
+```
+
+This SQL query will group the crimes by their latitude and longitude coordinates, with each coordinate bucket representing a 0.01-degree range. The FLOOR function ensures that each crime is assigned to the specified latitude and longitude bucket. The query also computes the count of crimes (`COUNT(*)`) for each combination of latitude and longitude (LatBucket, LongBucket) and orders the result-set by latitude (`LatBucket`) and longitude (`LongBucket`)."
+"For each coordinate in latitude and longitude of LA spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+  Latitude,
+  Longitude,
+  Most_Common_Crime_Type,
+  count
+FROM (
+  SELECT
+    FLOOR((`la_crime_data`.`Latitude` / 0.015)) * 0.015 AS Latitude,
+    (
+      FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.015)) * 0.015
+    ) + -118.66 AS Longitude,
+    Crime_Type AS Most_Common_Crime_Type,
+    COUNT(*) AS count,
+    ROW_NUMBER() OVER(PARTITION BY
+      FLOOR((`la_crime_data`.`Latitude` / 0.015)) * 0.015,
+      (
+        FLOOR(((`la_crime_data`.`Longitude` - -118.66) / 0.015)) * 0.015
+      ) + -118.66
+    ORDER BY COUNT(*) DESC
+    ) AS crime_rank
+  FROM
+    `la_crime_data`
+  GROUP BY
+    Latitude,
+    Longitude,
+    Crime_Type
+) AS ranked_crimes
+WHERE
+  crime_rank = 1
+ORDER BY
+  Latitude ASC,
+  Longitude ASC;","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," To fulfill this request, you'll first need a table containing crime data with latitude, longitude, and crime_type columns. Let's call this table `crimes`. The SQL query will group the data by latitude and longitude (rounded to 2 decimal places to account for 0.01 degrees), and then for each group, it will find the most common crime_type and its count.
+
+Here's an example SQL query that would do this:
+
+```sql
+WITH rounded_crimes AS (
+  SELECT
+    ROUND(latitude, 2) AS lat,
+    ROUND(longitude, 2) AS lon,
+    crime_type,
+    COUNT(*) AS crime_count
+  FROM
+    crimes
+  WHERE
+    latitude BETWEEN 33.75  AND 34.25
+    AND longitude BETWEEN -118.70 AND -118.15
+  GROUP BY
+    lat, lon, crime_type
+)
+, ranked_crimes AS (
+  SELECT
+    lat,
+    lon,
+    crime_type,
+    crime_count,
+    RANK() OVER (PARTITION BY lat, lon ORDER BY crime_count DESC) AS rank
+  FROM
+    rounded_crimes
+)
+SELECT
+  lat,
+  lon,
+  crime_type,
+  crime_count
+FROM
+  ranked_crimes
+WHERE
+  rank = 1
+ORDER BY
+  lat,
+  lon;
+```
+
+This query assumes that the `crimes` table exists with `latitude`, `longitude`, and `crime_type` columns. It first creates a derived table (`rounded_crimes`) that includes the rounded latitude and longitude and a count of crimes for each combination of latitude, longitude, and crime_type.
+
+Then, the query defines a second derived table (`ranked_crimes`) that adds a rank based on the `crime_count`, partitioned by the rounded latitude and longitude.
+
+Finally, the main query selects the coordinates, crime_type, and crime_count from the `ranked_crimes` table where the `rank` is 1 (indicating the most common crime). The result is ordered by latitude and longitude.
+
+Note that this query assumes that coordinates are between 33.75° to 34.25° latitude and -118.70° to -118.15° longitude, which roughly corresponds to a specific area in Los Angeles. Adjust the latitude and longitude ranges in the `WHERE` clause if you need a different area."," Here's a sample SQL query that fulfills the natural language request. Note that the specific method of calculating the most common crime type might differ depending on the SQL implementation (such as PostgreSQL, MySQL, etc.) used.
+
+```sql
+WITH
+  CrimeRates AS (
+    SELECT
+      FLOOR(Latitude * 100) / 100 AS LatGroup, -- Group LA by 0.01 degrees of latitude
+      FLOOR(Longitude * 100) / 100 AS LongGroup, -- Group LA by 0.01 degrees of longitude
+      Crime_Type,
+      COUNT(*) AS CrimeCount
+    FROM la_crime_data
+    WHERE Area_Name = 'Los Angeles' -- Filter for LA only
+    GROUP BY LatGroup, LongGroup, Crime_Type
+  ),
+  MaxCrimes AS (
+    SELECT
+      LatGroup,
+      LongGroup,
+      MAX(CrimeCount) AS MaxCrimeCount
+    FROM CrimeRates
+    GROUP BY LatGroup, LongGroup
+  )
+SELECT
+  c.LatGroup,
+  c.LongGroup,
+  c.Crime_Type,
+  c.CrimeCount
+FROM CrimeRates c
+JOIN MaxCrimes m ON c.LatGroup = m.LatGroup AND c.LongGroup = m.LongGroup AND c.CrimeCount = m.MaxCrimeCount;
+```
+
+This query consists of two common table expressions (CTEs):
+
+1. `CrimeRates`: This CTE calculates the floor of Latitude and Longitude (multiplied by 100 to accommodate the grouping by 0.01 degrees) and groups the crime records by these latitude and longitude groups, as well as by Crime_Type. The COUNT() function totals the number of occurrences for each crime type within each group.
+
+2. `MaxCrimes`: This CTE calculates the maximum crime count for each latitude and longitude group. It does this by grouping the crime rates by Latitude and Longitude groups.
+
+Finally, the query selects the latitude group, longitude group, crime type, and crime count for each combination of latitude and longitude groups that have the maximum crime count. We achieve this by joining the `MaxCrimes` CTE to the `CrimeRates` CTE on Latitude and Longitude groups, and by matching the maximum crime count from `MaxCrimes` to the corresponding crime count in `CrimeRates`.
+
+Please note that there might be multiple crime types with the same maximum count per group. The above query retrieves all those combinations. If you would like to limit the output to one entry per group, additional logic would be required to arbitrarily select one of the most common crime types (e.g., by selecting the one with the lowest alphabetical value)."," To fulfill the request, we will need to use SQL to first create ranges for latitude and longitude from each center point, and then aggregate the data to determine the most common crime type and its count within these ranges. Let's assume that our 'LA' Spaced Coordinates range from 33.0000° N to 35.0000° N for latitude, and from -120.0000° W to -119.0000° W for longitude.
+
+SQL Query:
+
+```SQL
+SELECT 
+    FLOOR(Latitude) as StartLat,
+    CEIL(Latitude + 0.01) as EndLat,
+    FLOOR(Longitude) as StartLon,
+    CEIL(Longitude + 0.01) as EndLon,
+    Crime_Type,
+    COUNT(Crime_Type) as Crime_Count
+FROM la_crime_data
+WHERE Latitude >= 33.0000
+AND Latitude < 35.01
+AND Longitude >= -120.0000
+AND Longitude < -118.99
+GROUP BY StartLat, EndLat, StartLon, EndLon, Crime_Type
+ORDER BY Crime_Count DESC;
+```
+
+In this SQL query, we create ranges for latitude and longitude using `FLOOR` and `CEIL` functions and group the data by these ranges. We then select the most common crime type and its count within each range. The `ORDER BY` clause at the end orders the results by crime count in descending order. Note that the ranges are slightly adjusted to capture the terminal points of the 0.01 degree ranges.
+
+Please ensure that the ranges for latitude and longitude suit your requirements and adjust them accordingly if needed."
+"For each coordinate in latitude and longitude of New York spaced by 0.01 degrees, give the total crime count.","SELECT
+  (
+    FLOOR(((`nyc_crime_data`.`Latitude` - 40.49) / 0.01)) * 0.01
+  ) + 40.49 AS `Latitude`,
+  (
+    FLOOR(((`nyc_crime_data`.`Longitude` - -74.27) / 0.01)) * 0.01
+  ) + -74.27 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  (
+    FLOOR(((`nyc_crime_data`.`Latitude` - 40.49) / 0.01)) * 0.01
+  ) + 40.49,
+  (
+    FLOOR(((`nyc_crime_data`.`Longitude` - -74.27) / 0.01)) * 0.01
+  ) + -74.27
+ORDER BY
+  (
+    FLOOR(((`nyc_crime_data`.`Latitude` - 40.49) / 0.01)) * 0.01
+  ) + 40.49 ASC,
+  (
+    FLOOR(((`nyc_crime_data`.`Longitude` - -74.27) / 0.01)) * 0.01
+  ) + -74.27 ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Here's an SQL query that gives the crime count for New York for each pair of latitude and longitude spaced 0.01 degrees apart:
+
+```sql
+SELECT 
+CASE 
+    WHEN latitude % 0.01 = 0 THEN ROUND(latitude, 2)
+    ELSE ROUND(latitude - (latitude % 0.01), 2)
+END AS rounded_latitude,
+CASE 
+    WHEN longitude % 0.01 = 0 THEN ROUND(longitude, 2)
+    ELSE ROUND(longitude - (longitude % 0.01), 2)
+END AS rounded_longitude,
+COUNT(*) AS total_crime_count
+FROM crimes
+WHERE ST_PointType(ST_SetSRID(ST_Point(longitude, latitude), 4326)) = ST_SetSRID(ST_Point(longitude, latitude), 4326)
+AND ST_Within(ST_SetSRID(ST_Point(longitude, latitude), 4326), (ST_Dump(ST_AsText(ST_Transform(ST_SetSRID(ST_Point(-73.958998, 40.763731), 4326), 3857)))), 'geom')) AS b)
+GROUP BY rounded_latitude, rounded_longitude
+ORDER BY rounded_latitude, rounded_longitude
+```
+
+This query uses PostGIS, an extension to the PostgreSQL database for handling spatial data, which provides several useful functions. Here's the breakdown of the query:
+
+1. We use `ROUND()` to round both latitude and longitude values to the nearest 0.01 degrees by subtracting the remainder when divided by 0.01.
+2. The `WHERE` clause filters only the crimes that fall within New York's bounding box using the bounding box coordinates `(-73.958998, 40.763731)`.
+3. We utilize PostGIS's `ST_Point`, `ST_SetSRID`, `ST_Transform`, and `ST_Dump` functions to transform the geometries from `4326` (WGS84) to `3857` (Web Mercator) and extract the bounding box geometries as polygons from the New York polygon stored in the `b` subquery.
+4. Finally, we group the count by the rounded latitude and longitude values and order the result by latitude and longitude.
+
+Note: This solution assumes that the `crimes` table has columns `latitude` and `longitude` storing the coordinates of the crimes that occurred in New York. You will need to adjust the table and column names accordingly in the query."," To fulfill the natural language request, we need to perform the following steps in our SQL query:
+
+1. Group the NYC crime data by latitude and longitude, ensuring we use fixed-point arithmetic or a function to approximate the actual coordinates spaced every 0.01 degrees.
+
+2. Sum the total count of crimes within each group.
+
+Here's a sample SQL query that you might use to accomplish this:
+
+```sql
+SELECT
+    FLOOR(Latitude * 100) / 100 AS Lat_Rounded,
+    FLOOR(Longitude * 100) / 100 AS Lon_Rounded,
+    COUNT(*) AS Crime_Count
+FROM
+    nyc_crime_data
+GROUP BY
+    Lat_Rounded,
+    Lon_Rounded
+ORDER BY
+    Lat_Rounded,
+    Lon_Rounded;
+```
+
+In this query, the `FLOOR` function is used to divide the latitude and longitude into increments of 0.01 degrees by multiplying them by 100, rounding down to the nearest integer, and then dividing by 100 to get a rounded-down value at 0.01 degrees. The `COUNT(*)` function gives the total count of crimes for each distinct latitude-longitude group.
+
+It's important to note that the query above might not be the most efficient solution for large datasets, as it would generate a large number of rows due to the fine granularity of latitude and longitude values. You may consider using GIS functions if your database supports geospatial data types and queries, which can be more efficient for this kind of task. You would also need to ensure that the database is properly indexed to speed up the grouping and counting process."," Here is a possible SQL query that fulfills the request:
+
+```sql
+WITH 
+latitude_ranges AS (
+    SELECT DISTINCT 
+        FLOOR(Latitude * 100) / 100 AS lat_range
+    FROM 
+        nyc_crime_data
+),
+longitude_ranges AS (
+    SELECT DISTINCT 
+        FLOOR(Longitude * 100) / 100 AS lon_range
+    FROM 
+        nyc_crime_data
+),
+latitude_longitude_ranges AS (
+    SELECT 
+        CONCAT('(', FORMAT(lat_range, '9999.999° N; 799999° W.999,999° W.'
+```
+The query generates two CTEs (`latitude_ranges` and `longitude_ranges`) that calculate the lower bounds of the latitude and longitude ranges by rounding down the values and dividing by 100. A third CTE, `latitude_longitude_ranges`, combines the ranges using the CONCAT function and formats them with two decimal places. Finally, the outer SELECT query counts the total number of crimes for each combined latitude and longitude range by joining the CTEs with the original `nyc_crime_data` table."
+"For each coordinate in latitude and longitude of New York spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+  Latitude,
+  Longitude,
+  Most_Common_Crime_Type,
+  count
+FROM (
+  SELECT
+    FLOOR((Latitude - 40.49) / 0.01) * 0.01 + 40.49 AS Latitude,
+    FLOOR((Longitude - -74.27) / 0.01) * 0.01 - 74.27 AS Longitude,
+    Crime_Type AS Most_Common_Crime_Type,
+    COUNT(*) AS count,
+    ROW_NUMBER() OVER(PARTITION BY
+      FLOOR((Latitude - 40.49) / 0.01) * 0.01 + 40.49,
+      FLOOR((Longitude - -74.27) / 0.01) * 0.01 - 74.27
+    ORDER BY COUNT(*) DESC
+    ) AS crime_rank
+  FROM
+    nyc_crime_data
+  WHERE
+    Latitude != 0
+    AND Longitude != 0
+  GROUP BY
+    Latitude,
+    Longitude,
+    Crime_Type
+) AS ranked_crimes
+WHERE
+  crime_rank = 1
+ORDER BY
+  Latitude ASC,
+  Longitude ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Assuming you have a table named ""CrimeData"" with columns ""latitude"", ""longitude"", and ""crime_type"", you can use the following SQL query:
+
+```
+WITH CrimeRate AS (
+  SELECT
+    FLOOR(latitude * 100) AS lat_group,
+    FLOOR(longitude * 100) AS long_group,
+    crime_type,
+    COUNT(*) AS crime_count
+  FROM
+    CrimeData
+  GROUP BY
+    lat_group,
+    long_group,
+    crime_type
+),
+MaxCrimeRates AS (
+  SELECT
+    lat_group,
+    long_group,
+    crime_type,
+    ROW_NUMBER() OVER (
+      PARTITION BY lat_group, long_group
+      ORDER BY crime_count DESC, crime_type -- add this to handle ties
+    ) AS rn
+  FROM
+    CrimeRate
+)
+SELECT
+  (lat_group / 100.0) AS latitude,
+  (long_group / 100.0) AS longitude,
+  crime_type,
+  crime_count
+FROM
+  MaxCrimeRates
+WHERE
+  rn = 1
+ORDER BY
+  latitude,
+  longitude;
+```
+
+This query first rounds the latitude and longitude values to the nearest 0.01 degrees using the FLOOR() function and multiplies them by 100, effectively creating groups for each coordinate spaced 0.01 degrees. Then, it finds the count of each crime_type for each group in the CrimeRate CTE (Common Table Expression).
+
+In the MaxCrimeRates CTE, it finds the rows with the maximum count per group using the ROW_NUMBER() function. If multiple crime_types have the same maximum count for a group, they are sorted in the order provided by the PARTITION BY clause.
+
+Finally, the main SELECT statement fetches the latitude, longitude, crime_type, and crime_count from the MaxCrimeRates CTE, filtering only the rows with the highest crime count (i.e., rn = 1). The result set is ordered by latitude and longitude."," To fulfill the given request, we would need to use a combination of SQL statements that allow us to group the data by the required increments and aggregate based on crime types. Given the requirement to space coordinates by 0.01 degrees, we will use the FLOOR function to group the latitude and longitude into 0.01 degree increments.
+
+However, it's important to note that the COUNT and the mode (most common) of crime types will result in aggregate modes, which are not easily obtainable with standard SQL functions alone due to the requirement to get the most common item within subgroups (0.01 degree increments). An ideal solution might require experimenting with different database-specific extensions and functions for calculating multimodal statistics or using a programming environment for post-processing.
+
+For demonstration, I'll provide an SQL query that approximates your request within its constraints. This query will calculate the most common crime type within each 0.01 degree latitude and longitude group for New York. The query focuses on aggregating crime types but keeping in mind that SQL might not directly support getting the most common crime type per group in a simple group by; thus, the solution could be database-specific or might need to incorporate external processing or extensions.
+
+```sql
+SELECT 
+    FLOOR(Latitude * 100) / 100 AS GroupedLatitude, 
+    FLOOR(Longitude * 100) / 100 AS GroupedLongitude,
+    V1.Crime_Type AS MostCommonCrimeType,
+    V1.CrimeCount
+FROM
+    (SELECT 
+        Crime_Type, 
+        FLOOR(Latitude * 100) / 100 AS LatGroup,
+        FLOOR(Longitude * 100) / 100 AS LongGroup,
+        COUNT(*) AS CrimeCount
+     FROM nyc_crime_data
+     WHERE Area_Name = 'New York'
+     GROUP BY Crime_Type, LatGroup, LongGroup
+     ORDER BY LatGroup, LongGroup, CrimeCount DESC) AS V1
+JOIN
+    (SELECT 
+        Latitude, 
+        Longitude, 
+        FLOOR(Latitude * 100) / 100 AS LatGroup,
+        FLOOR(Longitude * 100) / 100 AS LongGroup
+     FROM nyc_crime_data
+     WHERE Area_Name = 'New York') AS V2
+ON V1.LatGroup = V2.LatGroup AND V1.LongGroup = V2.LongGroup
+GROUP BY GroupedLatitude, GroupedLongitude;
+```
+
+This query attempts to group the data by 0.01-degree increments in latitude and longitude (using basic arithmetic operations and the FLOOR function) and counts occurrences of each crime type within these groups, then tries to join this result itself to ensure it's considering each 0.01 degree bin. However, this approach does not directly resolve the most common crime type per group in a single SQL statement due to SQL's limitations in handling such statistical computations directly.
+
+For a more precise and database-accurate solution, consider using a programming language like Python with a library like Pandas for data manipulation, along with SQL for data extraction. This would allow you to leverage statistical functions or libraries designed for such calculations, providing a more accurate and potentially more efficient solution."," To fulfill the natural language request, we can accomplish this by using the following SQL query:
+
+```sql
+SELECT 
+    FLOOR(Latitude) AS lat_floor,
+    FLOOR(Longitude) AS long_floor,
+    Crime_Type,
+    COUNT(Crime_Type) AS Crime_Count
+FROM 
+    nyc_crime_data
+GROUP BY 
+    lat_floor, long_floor, Crime_Type
+ORDER BY 
+    lat_floor, long_floor, Crime_Count DESC
+```
+
+This query groups the crime data by FLOOR of latitude and longitude (which will assist in achieving the 0.01 degree grouping effect as needed). It also groups by Crime_Type, which allows us to count the occurrences of each crime type. The ORDER BY clause is used to order rows first by lat_floor, then by long_floor, and finally by Crime_Count in descending order ensures that the most common crime type appears first.
+
+Please note that this solution is an approximation to fulfill the requirements based on the database design. The real implementation depends on how precise you need the calculation to be, and the use of PostGIS or a similar extension might be more suitable for precise geo-spatial calculations.
+
+For an exact solution for a ""0.01-degree"" latitude and longitude grouping, create a custom function, or perform lat/long calculations in your programming code to calculate the correct grouping boundaries using spherical coordinates and the Haversine formula. You can then join the calculated dimensions with your crime data to arrive at the exact solution. Building such custom code solutions is beyond the basic SQL query capabilities due to Earth's curvature consideration, which is not accounted for in the simplified query above."
+"For each coordinate in latitude and longitude of Philly spaced by 0.01 degrees, give the total crime count.","SELECT
+  (
+    FLOOR(((`philly_crime_data`.`Latitude` - 39.86) / 0.01)) * 0.01
+  ) + 39.86 AS `Latitude`,
+  (
+    FLOOR(((`philly_crime_data`.`Longitude` - -75.28) / 0.01)) * 0.01
+  ) + -75.28 AS `Longitude`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  (
+    FLOOR(((`philly_crime_data`.`Latitude` - 39.86) / 0.01)) * 0.01
+  ) + 39.86,
+  (
+    FLOOR(((`philly_crime_data`.`Longitude` - -75.28) / 0.01)) * 0.01
+  ) + -75.28
+ORDER BY
+  (
+    FLOOR(((`philly_crime_data`.`Latitude` - 39.86) / 0.01)) * 0.01
+  ) + 39.86 ASC,
+  (
+    FLOOR(((`philly_crime_data`.`Longitude` - -75.28) / 0.01)) * 0.01
+  ) + -75.28 ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To fulfill the request, I will provide an example SQL query using generic SQL syntax. However, the specific syntax might vary depending on the database system (e.g., MySQL, PostgreSQL, SQL Server, etc.) you're using. The query will assume you have a table named ""Crimes"" with columns for the latitude and longitude of each recorded crime, as well as any additional identifier needed to count them.
+
+Please note that you cannot query for ""each coordinate in latitude and longitude of Philly spaced by 0.01 degrees"" directly in SQL since it's not designed to generate data on the fly. Instead, you can either:
+
+1. Use a data generation expression (like a numbers or tally table) to create the required latitudes and longitudes, assuming you know the boundaries of Philly. However, this method may lead to a large dataset for the boundaries, even if densly populated.
+2. Or, query the actual crimes recorded within each 0.01-degree square and count them.
+
+For the second approach, here's an example SQL query for counting the number of crimes per 0.01-degree latitude and longitude square in Philadelphia, assuming you have the boundary values for latitude and longitude of Philadelphia, and that your table's latitude and longitude are in decimal degrees:
+
+```sql
+SELECT
+    FLOOR(c.latitude * 100) / 100 AS lat_grid,
+    FLOOR(c.longitude * 100) / 100 AS long_grid,
+    COUNT(*) AS crime_count
+FROM
+    Crimes c
+WHERE
+    c.latitude BETWEEN ? AND ? -- replace these placeholders with the minimum and maximum latitude for Philadelphia
+    AND c.longitude BETWEEN ? AND ? -- replace these placeholders with the minimum and maximum longitude for Philadelphia
+GROUP BY
+    lat_grid,
+    long_grid
+ORDER BY
+    lat_grid,
+    long_grid;
+```
+
+Please replace the placeholders with the actual minimum and maximum latitude and longitude values for Philadelphia before running the query. This SQL query uses FLOOR to group the latitude and longitude values into 0.01-degree squares, counts the number of rows (crimes) in each group, and orders the result by the grid.
+
+Please note that this example query assumes you are using a relational database system that follows this syntax, such as PostgreSQL or SQL Server. The query may need to be adjusted for SQL dialects like MySQL or Oracle."," To fulfill the request, the following SQL query can be used. This query assumes that the geographical area for a single crime entry is defined by one set of latitude and longitude values. It also assumes that the crime count should be categorized by pairs of latitude and longitude values spaced by 0.01 degrees. We will use SQL's ROUND() function to round the latitude and longitude values to the nearest 0.01 degrees:
+
+```sql
+SELECT
+  ROUND(Latitude, 2) AS Rounded_Latitude,
+  ROUND(Longitude, 2) AS Rounded_Longitude,
+  COUNT(Crime_ID) AS Crime_Count
+FROM philly_crime_data
+GROUP BY
+  Rounded_Latitude,
+  Rounded_Longitude
+ORDER BY
+  Rounded_Latitude,
+  Rounded_Longitude;
+```
+
+This query will give you the total crime count for each 0.01-degree latitude and longitude grid in Philadelphia. The results will be rounded to two decimal places and then grouped by these rounded coordinates. Note that this query may not provide perfect results depending on the actual spatial distribution of crimes, as the 0.01-degree grid may cover a large area in reality. However, it should provide a reasonable approximation based on the provided schema."," To fulfill the request, you can use the following SQL query:
+
+```sql
+SELECT
+    FLOOR(Longitude * 100) / 100 AS Longitude_Floor,
+    FLOOR(Latitude * 100) / 100 AS Latitude_Floor,
+    COUNT(*) AS Total_Crime_Count
+FROM
+    philly_crime_data
+GROUP BY
+    Longitude_Floor,
+    Latitude_Floor;
+```
+
+This query groups the rows based on the latitude and longitude values rounded down to the nearest multiple of 0.01 degrees. Then, it calculates the number of crime records (`COUNT(*)`) per group and returns the rounded latitude and longitude coordinates along with the total crime count.
+
+Note that the ""FLOOR"" function is used to round down the longitude and latitude values when multiplied by 100. This effectively groups the coordinates spaced by 0.01 degrees. Depending on the precision requirements or the SQL dialect you are using, you might need to adjust the query accordingly."
+"For each coordinate in latitude and longitude of Philly spaced by 0.01 degrees, give the most common crime type and its count","SELECT
+    Latitude,
+    Longitude,
+    Most_Common_Crime_Type,
+    count
+FROM (
+    SELECT
+        FLOOR((Latitude - 39.86) / 0.01) * 0.01 + 39.86 AS Latitude,
+        FLOOR((Longitude + 75.28) / 0.01) * 0.01 - 75.28 AS Longitude,
+        Crime_Type AS Most_Common_Crime_Type,
+        COUNT(*) AS count,
+        ROW_NUMBER() OVER(PARTITION BY
+            FLOOR((Latitude - 39.86) / 0.01) * 0.01 + 39.86,
+            FLOOR((Longitude + 75.28) / 0.01) * 0.01 - 75.28
+            ORDER BY COUNT(*) DESC
+        ) AS crime_rank
+    FROM
+        philly_crime_data
+    WHERE
+        Latitude != 0
+        AND Longitude != 0
+    GROUP BY
+        FLOOR((Latitude - 39.86) / 0.01) * 0.01 + 39.86,
+        FLOOR((Longitude + 75.28) / 0.01) * 0.01 - 75.28,
+        Crime_Type
+) AS ranked_crimes
+WHERE
+    crime_rank = 1
+ORDER BY
+    Latitude ASC,
+    Longitude ASC;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," ```sql
+WITH CoordinateGrid AS (
+  SELECT
+    FLOOR(Latitude/0.01) * 0.01 AS GridLatitude,
+    FLOOR(Longitude/0.01) * 0.01 AS GridLongitude
+  FROM CrimeData  -- Assuming the table is named CrimeData and contains Latitude and Longitude columns
+),
+CrimeTally AS (
+  SELECT
+    CG.GridLatitude,
+    CG.GridLongitude,
+    CD.CrimeType,
+    COUNT(*) AS CrimeCount
+  FROM
+    CoordinateGrid CG
+  JOIN
+    CrimeData CD
+  ON
+    CG.GridLatitude = FLOOR(CD.Latitude/0.01) * 0.01
+    AND CG.GridLongitude = FLOOR(CD.Longitude/0.01) * 0.01
+  GROUP BY
+    CG.GridLatitude,
+    CG.GridLongitude,
+    CD.CrimeType
+),
+MaxCrimeCount AS (
+  SELECT
+    GridLatitude,
+    GridLongitude,
+    MAX(CrimeCount) AS MaxCrimeCount
+  FROM
+    CrimeTally
+  GROUP BY
+    GridLatitude, GridLongitude
+)
+SELECT
+  CT.GridLatitude,
+  CT.GridLongitude,
+  CT.CrimeType,
+  CT.CrimeCount
+FROM
+  CrimeTally CT
+JOIN
+  MaxCrimeCount MCC
+ON
+  CT.GridLatitude = MCC.GridLatitude
+  AND CT.GridLongitude = MCC.GridLongitude
+  AND CT.CrimeCount = MCC.MaxCrimeCount
+ORDER BY
+  CT.GridLatitude, CT.GridLongitude, CT.CrimeCount DESC;
+```
+
+This SQL query creates a grid of coordinates spaced by 0.01 degrees and then calculates the most common crime type and its count for each coordinate. Note that this solution assumes the existence of a table named `CrimeData` with columns `Latitude`, `Longitude`, and `CrimeType`. If the table name or column names differ, you need to adjust the query accordingly."," SELECT pcd.Latitude, pcd.Longitude, ct.Crime_Type, COUNT(ct.Crime_ID) AS Crime_Count
+FROM (
+  SELECT DISTINCT latitude, longitude
+  FROM philly_crime_data
+) AS pcd
+CROSS JOIN (
+  SELECT Crime_Type, Crime_ID
+  FROM philly_crime_data
+) AS ct
+WHERE ct.Longitude BETWEEN pcd.Longitude - 0.005 AND pcd.Longitude + 0.005
+  AND ct.Latitude BETWEEN pcd.Latitude - 0.005 AND pcd.Latitude + 0.005
+GROUP BY pcd.Latitude, pcd.Longitude, ct.Crime_Type
+ORDER BY Crime_Count DESC, pcd.Latitude, pcd.Longitude, ct.Crime_Type;
+
+This query first creates a temporary result set that contains all the distinct latitude and longitude values from philly_crime_data. Then, it joins each coordinate with all the crime types and their associated Crime_IDs. After that, it filters out the crime records that fall within the 0.01-degree range around each coordinate. Finally, it groups the result by latitude, longitude, and crime type, and sorts it by the crime count in descending order and the geographical location. Note that the boundaries are a little bit inclusive due to the definition of the 0.01 degree range.
+
+There are a couple of issues with this query:
+
+1. Joining each coordinate with all crime types and IDs is not the most efficient way of solving the problem. A better approach would be to group the crime data by latitude and longitude and then compute the most common crime type for each group.
+
+2. The CROSS JOIN operation is not very efficient, especially with large datasets. This can be slow and can lead to memory issues. Instead, consider using a more efficient method, such as a correlated subquery or a window function, to compute the most common crime type for each coordinate range.
+
+An improved solution could look like this:
+
+```
+WITH crime_group AS (
+  SELECT
+    FLOOR(Longitude / 0.01) * 0.01 AS lon_group,
+    FLOOR(Latitude / 0.01) * 0.01 AS lat_group,
+    Crime_Type
+  FROM
+    philly_crime_data
+),
+crime_counts AS (
+  SELECT
+    lon_group AS Longitude,
+    lat_group AS Latitude,
+    Crime_Type,
+    COUNT(*) AS Crime_Count
+  FROM
+    crime_group
+  GROUP BY
+    lon_group,
+    lat_group,
+    Crime_Type
+),
+max_crime_counts AS (
+  SELECT
+    Latitude,
+    Longitude,
+    MAX(Crime_Count) AS Max_Crime_Count
+  FROM
+    crime_counts
+  GROUP BY
+    Latitude,
+    Longitude
+)
+SELECT
+  c.Latitude,
+  c.Longitude,
+  c.Crime_Type,
+  c.Crime_Count
+FROM
+  crime_counts c
+JOIN max_crime_counts mmc
+  ON c.Latitude = mmc.Latitude
+  AND c.Longitude = mmc.Longitude
+  AND c.Crime_Count = mmc.Max_Crime_Count
+ORDER BY
+  c.Longitude,
+  c.Latitude;
+```"," Here's an SQL query that fulfills the request:
+
+```sql
+SELECT 
+    FLOOR(latitude / 0.01) * 0.01 AS lat_floor,
+    FLOOR(longitude / 0.01) * 0.01 AS long_floor,
+    Crime_Type,
+    COUNT(Crime_Type) AS count
+FROM
+    philly_crime_data
+GROUP BY
+    lat_floor, long_floor, Crime_Type
+ORDER BY
+    count DESC
+```
+
+This query will group the data by rounded (down) latitude and longitude (by 0.01 degrees), then count the occurrence of each crime type within each rounded coordinate group. The results will be ordered in descending order based on the count to display the most common crime type first."
+Give the total count of each crime type in Atlanta,"SELECT
+  `atlanta_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `atlanta_crime_data`.`Crime_Type`
+ORDER BY
+  `atlanta_crime_data`.`Crime_Type` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," SELECT crime_type, COUNT(*)
+FROM crimes_table
+WHERE city = 'Atlanta'
+GROUP BY crime_type;"," Here's an SQL query that will fulfill the request to get the total count of each crime type in Atlanta:
+
+```sql
+SELECT Crime_Type, COUNT(*) AS Total_Count
+FROM atlanta_crime_data
+WHERE Area_Name = 'Atlanta'
+GROUP BY Crime_Type
+ORDER BY Total_Count DESC;
+```
+
+This query will select the crime types and count the number of occurrences of each crime type in the `atlanta_crime_data` table where the `Area_Name` is 'Atlanta'. It then groups the results by `Crime_Type` and orders them in descending order by the count. This way, you'll get a listing of each crime type along with its total count in Atlanta, with the most common crimes appearing first."," Here is an SQL query to get the total count of each crime type in Atlanta:
+
+```sql
+SELECT Crime_Type, COUNT(*) AS Total_Count
+FROM atlanta_crime_data
+WHERE Area_Name LIKE '%Atlanta%'
+GROUP BY Crime_Type;
+```
+
+This query assumes that the `Area_Name` field contains information relevant to the location of the crime in the format `""<Area_Name>, <City>, <State>""`, where `""Atlanta""` will be a part of the string for the relevant rows. 
+
+In this case, the WHERE clause uses the `LIKE` operator and the wildcard character `%` to check if the `Area_Name` contains the string ""Atlanta"" anywhere within it. If the structure of `Area_Name` is different, you may need to adjust the WHERE clause accordingly.
+
+The query groups the results by the `Crime_Type`, and uses the COUNT(*) function to count the total number of occurrences for each crime type. The result will include the crime type and the corresponding total count."
+"For each crime type in Atlanta, give its total count, last reported date, last reported area, most common area for this crime type, and percentage increase in this crime type by week.","SELECT
+    a.Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(a.Crime_Date) AS Last_Date_Reported,
+    MAX(a.Area_Name) AS Last_Area_Reported,
+    ANY_VALUE(b.Most_Common_Area) AS Most_Prevalent_Area,
+    IFNULL((SUM(CASE WHEN a.Crime_Date >= (SELECT MAX(Crime_Date) FROM atlanta_crime_data) - INTERVAL 1 WEEK THEN 1 ELSE 0 END) / COUNT(*)) * 100, 0) AS Crime_Increase_Proportion
+FROM
+    atlanta_crime_data a
+LEFT JOIN (
+    SELECT
+        Crime_Type,
+        Area_Name AS Most_Common_Area
+    FROM (
+        SELECT
+            Crime_Type,
+            Area_Name,
+            ROW_NUMBER() OVER(PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS crime_rank
+        FROM
+            atlanta_crime_data
+        GROUP BY
+            Crime_Type, Area_Name
+    ) ranked_areas
+    WHERE
+        crime_rank = 1
+) b ON a.Crime_Type = b.Crime_Type
+GROUP BY
+    a.Crime_Type
+ORDER BY
+    a.Crime_Type ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," Here's an SQL query that attempts to fulfill the request. This query assumes that you have a table ""crimes"" with columns ""crime_type"", ""reported_date"", ""reported_area"", and ""atlanta"" (a boolean column that indicates if the crime was reported in Atlanta or not).
+
+```sql
+WITH crime_count AS (
+  SELECT
+    crime_type,
+    COUNT(*) as count,
+    MAX(reported_date) AS last_reported_date,
+    MIN(reported_area) as last_reported_area,
+    atlanta
+  FROM
+    crimes
+  GROUP BY
+    crime_type, atlanta
+),
+
+popular_crime_area AS (
+  SELECT
+    crime_type,
+    atlanta,
+    reported_area,
+    ROW_NUMBER() OVER (
+      PARTITION BY crime_type, atlanta
+      ORDER BY COUNT(*) DESC
+    ) as rank
+  FROM
+    crimes
+  GROUP BY
+    crime_type, atlanta, reported_area
+),
+
+crime_by_week AS (
+  SELECT
+    crime_type,
+    atlanta,
+    DATE_TRUNC('week', reported_date) AS week,
+    COUNT(*) AS count
+  FROM
+    crimes
+  GROUP BY
+    crime_type, atlanta, week
+)
+
+SELECT
+  cc.`crime_type`,
+  cc.count,
+  cc.last_reported_date,
+  cc.last_reported_area,
+  pca.reported_area AS most_common_area,
+  (cb1.count - COALESCE(cb2.count, 0)) / COALESCE(cb2.count, 1) * 100 AS percentage_increase
+FROM
+  crime_count cc
+JOIN
+  popular_crime_area pca ON cc.crime_type = pca.crime_type
+JOIN
+  crime_by_week cb1 ON cc.crime_type = cb1.crime_type AND cc.atlanta = cb1.atlanta
+LEFT JOIN
+  crime_by_week cb2 ON cc.crime_type = cb2.crime_type AND cc.atlanta = cb2.atlanta AND cb1.week - 1 = cb2.week
+WHERE
+  cc.atlanta = true
+ORDER BY
+  cc.crime_type
+```
+
+This query does the following:
+
+1. ""crime_count"" CTE calculates the total count, last reported date, last reported area, and filters by Atlanta.
+2. ""popular_crime_area"" CTE finds the most common area for each type of crime.
+3. ""crime_by_week"" CTE calculates the number of crimes for each type by week.
+4. The main SELECT query brings together the results from the previous CTEs and calculates the percentage increase in each crime type by week, excluding the first week since percentage increase cannot be calculated for the first week.
+
+Please adjust this query to your database schema and the specific requirements of your application, as this is a general approach that may need refinement."," Here is an SQL query that fulfills the given natural language request:
+
+```sql
+WITH crime_counts AS (
+    SELECT
+        Crime_Type,
+        COUNT(*) AS Total_Count,
+        LAST_VALUE(Report_#) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Last_Reported_Report_Num,
+        LAST_VALUE(Reported_Date) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Last_Reported_Date,
+        LAST_VALUE(Area_Name) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Last_Reported_Area,
+        FIRST_VALUE(Area_Name) OVER (PARTITION BY Crime_Type ORDER BY COUNT(*) DESC) AS Most_Common_Area
+    FROM atlanta_crime_data
+    GROUP BY Crime_Type
+),
+percentage_increase AS (
+    SELECT
+        Crime_Type,
+        (SUM(CASE WHEN Crime_Date::DATE - LAG(Crime_Date::DATE) OVER (PARTITION BY Crime_Type ORDER BY Crime_Date::DATE) = 1 THEN 1 ELSE 0 END)::FLOAT / COUNT(*) * 100 AS Weekly_Percentage_Increase
+    FROM atlanta_crime_data
+    GROUP BY Crime_Type
+)
+
+SELECT
+    d.Crime_Type,
+    d.Total_Count,
+    d.Last_Reported_Date,
+    d.Last_Reported_Area,
+    d.Most_Common_Area,
+    p.Weekly_Percentage_Increase
+FROM crime_counts d
+JOIN percentage_increase p
+ON d.Crime_Type = p.Crime_Type;
+```
+
+This query first defines a `crime_counts` Common Table Expression (CTE) that calculates the total count of each crime type, its last reported date, last reported area, and the most common area for each crime type. It then defines a `percentage_increase` CTE that calculates the weekly percentage increase for each crime type. Finally, the main query joins these two CTEs by crime type and selects the relevant columns from `crime_counts` and `percentage_increase`."," Here is an SQL query to fulfill the request:
+
+```sql
+WITH crime_by_type AS (
+  SELECT 
+    Crime_Type,
+    COUNT(*) AS Total_Count,
+    MAX(Crime_Date) AS Last_Reported_Date,
+    MAX(Area_Name) OVER(PARTITION BY Crime_Type ORDER BY Crime_Date DESC) AS Last_Reported_Area,
+    Area_Name AS Most_Common_Area,
+    COUNT(Area_Name) OVER(PARTITION BY Crime_Type, Area_Name) AS Area_Count
+  FROM 
+    Atlanta_Crime_Data
+  WHERE
+    Area_Name LIKE '%Atlanta%'
+  GROUP BY
+    Crime_Type,
+    Area_Name
+),
+crime_with_max_area_count AS (
+  SELECT
+    Crime_Type,
+    MAX(Area_Count) AS Max_Area_Count
+  FROM
+    crime_by_type
+  GROUP BY
+    Crime_Type
+),
+top_crimes_with_max_area_count AS (
+  SELECT
+    *
+  FROM
+    crime_by_type AS cbt
+    JOIN crime_with_max_area_count AS cmac
+    ON cbt.Crime_Type = cmac.Crime_Type
+      AND cbt.Area_Count = cmac.Max_Area_Count
+),
+crime_weekly_change AS (
+  SELECT
+    Crime_Type,
+    EXTRACT(WEEK FROM Crime_Date) AS Week,
+    COUNT(*) AS Weekly_Count,
+    COUNT(*) - LAG(COUNT(*)) OVER(PARTITION BY Crime_Type
+      ORDER BY EXTRACT(WEEK FROM Crime_Date)) AS Weekly_Change
+  FROM
+    atlanta_crime_data
+  GROUP BY
+    Crime_Type,
+    Week
+),
+crime_weekly_percentage_change AS (
+  SELECT
+    Crime_Type,
+    Week,
+    (Weekly_Change / LAG(Weekly_Count) OVER(PARTITION BY Crime_Type
+      ORDER BY Week)) * 100 AS Percentage_Change
+  FROM
+    crime_weekly_change
+)
+
+SELECT
+  tcw.Crime_Type,
+  tcw.Total_Count,
+  tcw.Last_Reported_Date,
+  tcw.Last_Reported_Area,
+  tcw.Most_Common_Area,
+  cwp.Week,
+  cwp.Percentage_Change
+FROM
+  top_crimes_with_max_area_count AS tcw
+  LEFT JOIN crime_weekly_percentage_change AS cwp
+  ON tcw.Crime_Type = cwp.Crime_Type
+ORDER BY
+  tcw.Crime_Type;
+```
+
+This query first calculates the total count, last reported date, last reported area, and most common area for each crime type in Atlanta. Then it identifies the top area for each crime type based on the maximum area count. Next, it calculates the weekly change in number of reported crimes for each crime type and subsequently computes the percentage increase in these crimes by week. Finally, it joins the top crimes with the most common area and the crime weekly percentage change to output the requested data."
+Give the total count of each crime type in LA,"SELECT
+  `la_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `la_crime_data`
+GROUP BY
+  `la_crime_data`.`Crime_Type`
+ORDER BY
+  `la_crime_data`.`Crime_Type` ASC","la_crime_data (Crime_ID, Report_#, Date_Reported, Crime_Date, Crime_Time, Crime_Type, Area_Name, Vict_Age, Vict_Sex, Weapon_Desc, Address, Latitude, Longitude)","2; 200,106,753; September 2, 2020; August 2, 2020; 1,800; BURGLARY FROM VEHICLE; Central; 47; M; 1000 S FLOWER ST; 34.04440000° N; 118.26280000° W
+3; 200,320,258; November 11, 2020; April 11, 2020; 1,700; BIKE - STOLEN; Southwest; 19; X; 1400 W 37TH ST; 34.02100000° N; 118.30020000° W
+4; 200,907,217; October 5, 2023; October 3, 2020; 2,037; SHOPLIFTING-GRAND THEFT ($950.01 & OVER); Van Nuys; 19; M; 14000 RIVERSIDE DR; 34.15760000° N; 118.43870000° W
+5; 220,614,831; August 18, 2022; August 17, 2020; 1,200; THEFT OF IDENTITY; Hollywood; 28; M; 1900 TRANSIENT; 34.09440000° N; 118.32770000° W
+6; 231,808,869; April 4, 2023; January 12, 2020; 2,300; THEFT OF IDENTITY; Southeast; 41; M; 9900 COMPTON AV; 33.94670000° N; 118.24630000° W"," SELECT crime_type, COUNT(*) AS total_count
+FROM crimes_in_la
+GROUP BY crime_type;"," Here is an SQL query to fulfill the requested natural language request:
+
+```sql
+SELECT Crime_Type, COUNT(*) as Total 
+FROM la_crime_data 
+WHERE Area_Name = 'Los Angeles'
+GROUP BY Crime_Type;
+```
+
+This query will count the total occurrences of each crime type in Los Angeles and return the results grouped by the crime type. The query filters the crime data by area name to target crimes that occurred in LA."," ```sql
+SELECT Crime_Type, COUNT(*) as Total_Count 
+FROM la_crime_data 
+GROUP BY Crime_Type
+ORDER BY Total_Count DESC;
+```"
+Give the total count of each crime type in New York,"SELECT
+  `nyc_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `nyc_crime_data`.`Crime_Type`
+ORDER BY
+  `nyc_crime_data`.`Crime_Type` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Here's an SQL query to fetch the total count of each crime type in New York:
+
+```sql
+SELECT crime_type, COUNT(*) AS total_count
+FROM crime_data
+WHERE location = 'New York'
+GROUP BY crime_type;
+```
+
+In this query, you would need to replace `crime_data` with the actual table name and `location`, `crime_type` with the actual column names that hold the information regarding the location of the crime and its type, respectively.
+
+This query fetches the crime count by grouping the data based on the `crime_type` and then counting the occurrences for each type of crime in the specified location, which is 'New York' in this case."," To fulfill the given natural language request, you can use the following SQL query:
+
+```
+SELECT Crime_Type, COUNT(*) AS Total_Count
+FROM nyc_crime_data
+WHERE Area_Name = 'New York'
+GROUP BY Crime_Type;
+```
+
+This query selects the crime type and the count of each crime type in the New York area by grouping the data based on the Crime_Type column."," To write an SQL query that gives the total count of each crime type in New York, you can use the following query:
+
+```sql
+SELECT Crime_Type, COUNT(*) AS Total_Count
+FROM nyc_crime_data
+WHERE Area_Name IN ('Bronx', 'Brooklyn', 'Queens')
+GROUP BY Crime_Type;
+```
+
+This query filters the nyc_crime_data table by the Area_Name column for 'Bronx', 'Brooklyn', and 'Queens', and then groups the data by Crime_Type, counting the total occurrences of each crime type in those areas. The output will be a table with two columns, Crime_Type and Total_Count, showing the total count for each crime type in New York."
+Give the total count of each crime type in Philly,"SELECT
+  `philly_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  `philly_crime_data`.`Crime_Type`
+ORDER BY
+  `philly_crime_data`.`Crime_Type` ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," ```sql
+SELECT crime_type, COUNT(*) AS total_count
+FROM crime_data
+WHERE location = 'Philly'
+GROUP BY crime_type;
+```
+
+In this SQL query:
+- We are selecting the `crime_type` column and counting the number of rows for each `crime_type` using the `COUNT(*)` function. We are giving the count an alias of `total_count` for a clear understanding of the result.
+- The `FROM` clause specifies the table `crime_data` that we need to query.
+- The `WHERE` clause filters the rows for the location 'Philly', ensuring that we count only the crimes in Philadelphia.
+- Finally, the `GROUP BY` clause groups the results by `crime_type`, which allows us to count the occurrences of each crime type in Philadelphia."," To fulfill this request, you can use the SQL `COUNT()` function along with `GROUP BY` to count the total number of each crime type in the `philly_crime_data` table. Here's the SQL query:
+
+```sql
+SELECT Crime_Type, COUNT(*) AS Total_Count
+FROM philly_crime_data
+GROUP BY Crime_Type
+ORDER BY Total_Count DESC;
+```
+
+This query will retrieve the total count of each unique `Crime_Type` and order the results in descending order of the count."," To fulfill your request, we can use the SQL `GROUP BY` and `COUNT` clauses to count the total number of each crime type in Philly. The query is as follows:
+
+```sql
+SELECT Crime_Type, COUNT(*) AS Total_Count
+FROM philly_crime_data
+GROUP BY Crime_Type
+ORDER BY Total_Count DESC;
+```
+
+This query breaks down like this:
+
+- `SELECT Crime_Type`: This selects the crimes and types we're interested in – the types of crime are what we want to count.
+- `COUNT(*) AS Total_Count`: This counts the number of entries for each type of crime. The `as Total_Count` part renames the column header to something more understandable.
+- `FROM philly_crime_data`: This tells SQL that we're working with the `philly_crime_data` table.
+- `GROUP BY Crime_Type`: This groups the data by the `Crime_Type` column, so we get a separate count for each different type of crime.
+- `ORDER BY Total_Count DESC;`: This orders the results by the total count in descending order (most common crime types at the top).
+
+When you run this query, the result will be a table with a row for each crime type and a column for the total number of instances of that crime type in the `philly_crime_data` table. Each table entry will correspond to a crime type from the 'top entries' of the table you provided. 
+
+Note: The address and geographic data (latitude and longitude) are not relevant to the result you're looking for based on your requirements."
+"For each area in Atlanta, give count of each crime type.","SELECT
+  `atlanta_crime_data`.`Area_Name` AS `Area_Name`,
+  `atlanta_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  `atlanta_crime_data`.`Area_Name`,
+  `atlanta_crime_data`.`Crime_Type`
+ORDER BY
+  `atlanta_crime_data`.`Area_Name` ASC,
+  `atlanta_crime_data`.`Crime_Type` ASC","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," ```sql
+SELECT A.area, C.crime_type, COUNT(*) AS crime_count
+FROM Areas A
+JOIN Crimes C ON A.area_id = C.area_id
+WHERE A.city = 'Atlanta'
+GROUP BY A.area, C.crime_type
+ORDER BY A.area, C.crime_type;
+```
+
+This SQL query selects the crime type and its count for each area in Atlanta. The `JOIN` clause joins the `Areas` and `Crimes` tables based on the matching area ID. The `WHERE` clause filters the results to include only crimes that occurred in Atlanta, and the `GROUP BY` clause groups the results by the area and crime type. Finally, the `ORDER BY` clause sorts the results first by the area and then by the crime type."," ```sql
+SELECT 
+    Area_Name, 
+    Crime_Type, 
+    COUNT(*) AS Crime_Count
+FROM 
+    atlanta_crime_data
+GROUP BY 
+    Area_Name, 
+    Crime_Type
+ORDER BY 
+    Area_Name, 
+    Crime_Type;
+```
+
+This query will return the count of each crime type for each area within Atlanta from the `atlanta_crime_data` table. The result will be ordered by the `Area_Name` and `Crime_Type` so it will be easier to read the output."," You can use the following SQL query to fulfill the request:
+
+```sql
+SELECT 
+    Area_Name,
+    Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM 
+    atlanta_crime_data
+WHERE
+    Area_Name IN (SELECT DISTINCT Area_Name FROM atlanta_crime_data)
+GROUP BY
+    Area_Name,
+    Crime_Type
+ORDER BY
+    Area_Name,
+    Crime_Count DESC;
+```
+
+This query will display the total count of each crime type within each area in Atlanta. The ""WHERE"" and ""GROUP BY"" clauses ensure that results are only considered for areas in Atlanta, and the ""ORDER BY"" clause sorts the results by area and descending order of crime count."
+"For each area in New York, give count of each crime type.","SELECT
+  `nyc_crime_data`.`Crime_Type` AS `Crime_Type`,
+  `nyc_crime_data`.`Area_Name` AS `Area_Name`,
+  COUNT(*) AS `count`
+FROM
+  `nyc_crime_data`
+GROUP BY
+  `nyc_crime_data`.`Crime_Type`,
+  `nyc_crime_data`.`Area_Name`
+ORDER BY
+  `nyc_crime_data`.`Crime_Type` ASC,
+  `nyc_crime_data`.`Area_Name` ASC","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," Here's an SQL query that fulfills the request:
+
+```sql
+SELECT 
+    area, 
+    crime_type, 
+    COUNT(*) as crime_count
+FROM 
+    crimes_table     -- Replace with your actual table name
+WHERE 
+    state = 'New York'
+GROUP BY 
+    area, crime_type
+ORDER BY 
+    area, crime_type;
+```
+
+This query selects the columns `area`, `crime_type`, and `COUNT(*)` (which counts the rows per group based on `area` and `crime_type`) from your `crimes_table` (replace with your actual table name). It filters rows with only those belonging to the ""New York"" state using the `WHERE` clause.
+
+The query groups the results by `area` and `crime_type`, and orders them first by `area` and then by `crime_type`. You can directly use this query on your SQL database to get the desired result. Make sure to replace `crimes_table` with the actual table name containing your data."," To fulfill the request, we need to write an SQL query that groups the crimes by area and crime type, and then counts the number of occurrences for each combination. Here is the SQL query:
+
+```sql
+SELECT Area_Name, Crime_Type, COUNT(*) AS Crime_Count
+FROM nyc_crime_data
+GROUP BY Area_Name, Crime_Type
+ORDER BY Area_Name, Crime_Type;
+```
+
+This query selects the `Area_Name` and `Crime_Type` columns, and then uses the `COUNT(*)` function to count the number of rows for each combination of area and crime type. The `GROUP BY` clause groups the results by area and crime type. Finally, the `ORDER BY` clause sorts the results by area and crime type, respectively."," Here's an SQL query to fulfill the request:
+
+```sql
+SELECT Area_Name, Crime_Type, COUNT(*) AS Crime_Count
+FROM nyc_crime_data
+WHERE Area_Name LIKE '%New York%'
+GROUP BY Area_Name, Crime_Type;
+```
+
+This query selects the `Area_Name` and `Crime_Type` columns from the `nyc_crime_data` table. It then filters the data with the `WHERE` clause to only include rows where `Area_Name` contains 'New York'. The `GROUP BY` clause groups the results by `Area_Name` and `Crime_Type`, and the `COUNT(*) AS Crime_Count` counts the number of rows in each group, giving the crime count for each crime type in each area."
+"For each area in Philly, give count of each crime type.","SELECT
+  `philly_crime_data`.`Crime_Type` AS `Crime_Type`,
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 AS `Area_#`,
+  COUNT(*) AS `count`
+FROM
+  `philly_crime_data`
+GROUP BY
+  `philly_crime_data`.`Crime_Type`,
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10
+ORDER BY
+  `philly_crime_data`.`Crime_Type` ASC,
+  FLOOR((`philly_crime_data`.`Area_#` / 10)) * 10 ASC","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," Here is an SQL query that can be used to fulfill the request:
+
+```sql
+SELECT
+    Area.name AS Area,
+    CrimeType.type AS CrimeType,
+    COUNT(*) AS CrimeCount
+FROM
+    Crime
+JOIN Area ON Crime.area_id = Area.id
+JOIN CrimeType ON Crime.type_id = CrimeType.id
+WHERE
+    Area.name = 'Philly'
+GROUP BY
+    Area.name,
+    CrimeType.type
+ORDER BY
+    CrimeType.type;
+```
+
+This query assumes that there exist two tables, `Area` and `CrimeType`, which store information about each specific area and crime type, respectively. The `Crime` table holds information about individual crimes, with references to the `Area` and `CrimeType` tables. The query joins these tables based on their respective IDs and filters the results to only include records from the 'Philly' area. Then, the results are grouped by both the area and crime type, with a count of crimes for each combination. Finally, the output is ordered by crime type for easier analysis."," SELECT Area_#, Crime_Type, COUNT(*) AS Crime_Count
+FROM philly_crime_data
+GROUP BY Area_#, Crime_Type
+ORDER BY Area_#, Crime_Type;"," Here is a SQL query that fulfills the given request:
+
+```sql
+SELECT Area_#, Crime_Type, COUNT(*) AS Crime_Count
+FROM philly_crime_data
+GROUP BY Area_#, Crime_Type
+ORDER BY Area_#;
+```
+
+This SQL query selects the `Area_#` column and the `Crime_Type` column from the `philly_crime_data` table, and then groups the rows based on `Area_#` and `Crime_Type`. The `COUNT(*)` function is then used to count the number of crimes for each group. The result is ordered by the `Area_#` column to display the counts for each area in the desired order."
+Give count of each crime type for each day of the week in Atlanta.,"SELECT
+  DAYOFWEEK(acd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(acd.Crime_Date) AS Crime_Day_Name,
+  acd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM
+  atlanta_crime_data acd
+WHERE
+  DAYOFWEEK(acd.Crime_Date) IS NOT NULL
+GROUP BY
+  DAYOFWEEK(acd.Crime_Date),
+  DAYNAME(acd.Crime_Date),
+  acd.Crime_Type
+ORDER BY
+  Crime_Day_Number,
+  acd.Crime_Type;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," ```sql
+
+SELECT 
+
+    DAYNAME(crime_date) AS day_of_week, 
+
+    crime_type, 
+
+    COUNT(*) AS crime_count
+
+FROM 
+
+    CrimesTable
+
+WHERE 
+
+    city = 'Atlanta'
+
+GROUP BY 
+
+    DAYNAME(crime_date), 
+
+    crime_type
+
+ORDER BY 
+
+    day_of_week, 
+
+    crime_type;
+
+```
+
+This SQL query assumes that there is a table named `CrimesTable` with at least two columns: `crime_date` (a date or datetime type that holds the date of the crime) and `crime_type` (a string or variable type that holds the type of crime).
+
+The query does the following:
+
+- It filters the crime records to only include crimes that occurred in Atlanta.
+- It groups the records by the day of the week (`DAYNAME(crime_date)`) and the crime type (`crime_type`).
+- It counts the number of crimes for each group.
+- Finally, it orders the result set by the day of the week and the crime type alphabetically."," To fulfill the given request, we will write an SQL query that groups the data by `Area_Name`, `Crime_Type`, and the name of the day extracted from `Day_Occurred`. We can use the built-in `DAYNAME()` function for this purpose. Finally, we will count the number of occurrences for each group. The following SQL query achieves this:
+
+```sql
+SELECT 
+    Area_Name,
+    Crime_Type,
+    DAYNAME(Crime_Date) AS Day_of_the_Week,
+    COUNT(*) AS Crime_Count
+FROM 
+    atlanta_crime_data
+WHERE 
+    Area_Name = 'Atlanta'
+GROUP BY 
+    Area_Name, Crime_Type, Day_of_the_Week
+ORDER BY 
+    Crime_Type, Day_of_the_Week;
+```
+
+This query will return the count of each crime type for each day of the week, showing only data from the area named ""Atlanta"". The result set will be sorted by `Crime_Type` and `Day_of_the_Week` to make it more readable."," Here is an SQL query that fulfills the requested task:
+
+```sql
+SELECT 
+  Crime_Type, 
+  DAYOFWEEK(Crime_Date) AS Day_of_Week,  
+  COUNT(Crime_ID) AS Crime_Count
+FROM 
+  atlanta_crime_data 
+WHERE 
+  Area_Name = 'Atlanta'
+GROUP BY 
+  Crime_Type, 
+  DAYOFWEEK(Crime_Date) 
+ORDER BY 
+  Day_of_Week, 
+  Crime_Count DESC;
+```
+
+This query uses the GROUP BY statement to arrange the crime types and days of the week, while counting their occurrences using COUNT(). The WHERE condition filters the data for incidents that occurred in Atlanta. The DAYOFWEEK() function is used to extract the day of the week from the date data, with Sunday represented as 1 and Saturday as 7. The query results are sorted first by the day of the week, and then in descending order of the crime count.
+
+Please note that the DAYOFWEEK() function returns an integer value representing the day of the week. If you need the day of the week in a more human-readable format, you may need to create a case statement or use a separate function based on your DBMS.
+
+Note: The DAYOFWEEK function is available in MySQL. Different DBMS might have different functions for extracting the day of the week from a date. You may need to adapt the query depending on the specific DBMS you are using."
+Give count of each crime type for each hour of the day in Atlanta.,"SELECT
+  CASE
+    WHEN HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s')) = 0 THEN 24
+    ELSE HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s'))
+  END AS `Crime_Hour`,
+  `atlanta_crime_data`.`Crime_Type` AS `Crime_Type`,
+  COUNT(*) AS `count`
+FROM
+  `atlanta_crime_data`
+GROUP BY
+  CASE
+    WHEN HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s')) = 0 THEN 24
+    ELSE HOUR(STR_TO_DATE(`atlanta_crime_data`.`Crime_Time`, '%H:%i:%s'))
+  END,
+  `atlanta_crime_data`.`Crime_Type`
+ORDER BY
+  `Crime_Hour` ASC,
+  `Crime_Type` ASC;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," To fulfill the request, you would need to aggregate data based on the location (Atlanta) and the crime type, grouped by hour of the day. Assuming we have a table named ""crimes"" with columns for the crime type, date and time of the crime (which we assume includes a DateTime or similar field that we could extract the hour from), and a city location field, the SQL query would look something like this:
+
+```sql
+SELECT
+  DATE_FORMAT(crime_date_time, '%H') AS hour_of_day,
+  crime_type,
+  COUNT(*) AS count_of_crime
+FROM
+  crimes
+WHERE
+  city = 'Atlanta'
+GROUP BY
+  hour_of_day,
+  crime_type
+ORDER BY
+  hour_of_day;
+```
+
+Note that the exact SQL syntax for DATE_FORMAT could vary depending on your SQL database system. For example, MySQL has `DATE_FORMAT`, while SQL Server has the `FORMAT` function and PostgreSQL has to_char.
+
+Make sure to group by both the hour and the crime type, and then order by the hour if you want the results sorted in chronological order. This query returns each hour with the count of each crime type that occurred during that hour specifically in Atlanta."," You can achieve the desired result with the following SQL query:
+
+```sql
+SELECT 
+    Crime_Type,
+    EXTRACT(HOUR FROM Crime_Time) AS Crime_Hour,
+    COUNT(Crime_ID) AS Crime_Count
+FROM 
+    atlanta_crime_data
+WHERE 
+    Area_Name = 'Atlanta'
+GROUP BY 
+    Crime_Type,
+    Crime_Hour
+ORDER BY 
+    Crime_Hour,
+    Crime_Type;
+```
+
+This query groups the crime data by `Crime_Type` and the hour of the day (extracted from `Crime_Time` using the `EXTRACT` function), and then counts the occurrences of each crime type for each hour in Atlanta. The results are ordered by the hour and crime type."," Here is an SQL query that can fulfill the natural language request:
+```sql
+SELECT 
+    Crime_Type,
+    EXTRACT(Hour FROM Crime_Time) AS Hour_of_Day,
+    COUNT(*) AS Number_of_Crimes
+FROM atlanta_crime_data
+WHERE Area_Name = 'Atlanta'
+GROUP BY Crime_Type, EXTRACT(Hour FROM Crime_Time)
+ORDER BY Crime_Type, Hour_of_Day
+```
+
+This query selects the Crime_Type and extracts the hour part of the Crime_Time column to group the counts by hour of the day. The COUNT function is used to count the number of crimes for each combination of Crime_Type and hour of the day. The WHERE clause filters the results to only include crimes that occurred in Atlanta. Finally, the results are ordered by Crime_Type and hour of the day."
+Give count of each crime type for each month in Atlanta.,"SELECT
+    MONTH(acd.Crime_Date) AS Month,
+    acd.Crime_Type AS Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    atlanta_crime_data acd
+GROUP BY
+    MONTH(acd.Crime_Date),
+    acd.Crime_Type
+ORDER BY
+    MONTH(acd.Crime_Date),
+    acd.Crime_Type;","atlanta_crime_data (Crime_ID, Report_#, Day_Occurred, Crime_Date, Crime_Time, Crime_Type, Area_Name, Address, Longitude, Latitude)","2; 203,581,144; Wednesday; December 23, 2020;  17:16; LARCENY-FROM VEHICLE; Midtown; 736 W PEACHTREE ST NW; 84.38777100° W; 33.77476400° N
+3; 203,581,174; Saturday; December 19, 2020; 21:50; LARCENY-FROM VEHICLE; Lindbergh/Morosgo; 2399 PIEDMONT RD NE; 84.36693800° W; 33.81989200° N
+4; 203,581,238; Wednesday; December 23, 2020; 18:05; AUTO THEFT; Buckhead Village; 339 BUCKHEAD AVE NE; 84.37650600° W; 33.83793500° N
+5; 203,581,247; Wednesday; December 23, 2020; 18:12; LARCENY-NON VEHICLE; Berkeley Park; 1801 HOWELL MILL RD NW; 84.41284600° W; 33.80423000° N
+6; 203,581,253; Wednesday; December 23, 2020; 18:00; AGG ASSAULT; Browns Mill Park; 585 MCWILLIAMS RD SE; 84.36820700° W; 33.68756600° N"," Here's an SQL query that can help solve the problem:
+
+```SQL
+SELECT
+  YEAR(crime_date) AS year,
+  MONTH(crime_date) AS month,
+  crime_type,
+  COUNT(*) AS crime_count
+FROM
+  crimes
+WHERE
+  city = 'Atlanta'
+GROUP BY
+  year,
+  month,
+  crime_type
+ORDER BY
+  year,
+  month,
+  crime_type;
+```
+
+This query counts the number of each type of crime in each month for the city of Atlanta. The `YEAR()` and `MONTH()` functions are used to extract the year and month from the `crime_date` field, respectively. The `GROUP BY` clause is used to group the results by year, month, and crime type. Finally, the `ORDER BY` clause is used to sort the results in ascending order by year, month, and crime type."," ```sql
+SELECT
+    Crime_Type,
+    EXTRACT(MONTH FROM Crime_Date) AS Month,
+    COUNT(*) AS Crime_Count
+FROM
+    atlanta_crime_data
+WHERE
+    Area_Name = 'Atlanta'
+GROUP BY
+    Crime_Type,
+    Month
+ORDER BY
+    Crime_Type,
+    Month;
+```
+
+This SQL query selects the Crime_Type and the month extracted from the Crime_Date for each crime record that is in the 'Atlanta' area. It then counts the number of crimes for each combination of Crime_Type and month. The results are grouped by Crime_Type and month and ordered accordingly."," To fulfill your request, you can use the following SQL query:
+
+```sql
+SELECT 
+  DATE_FORMAT(Crime_Date, '%Y-%m') AS Month,
+  Crime_Type,
+  COUNT(*) AS Count
+FROM 
+  atlanta_crime_data
+WHERE 
+  Area_Name LIKE '%Atlanta%'
+GROUP BY
+  Month,
+  Crime_Type
+ORDER BY
+  Month,
+  Crime_Type;
+```
+
+This query will extract the month from Crime_Date (using `DATE_FORMAT()`) and group the records based on this month and Crime_Type. Then, it counts the number of records for each crime type in each month for Atlanta. 
+Note: The LIKE operator is used in WHERE clause to filter records with Area_Name containing 'Atlanta'. The '%' wildcard before and after 'Atlanta' ensures that it will match any record with 'Atlanta' anywhere in the Area_Name column.
+
+Also note that this query assumes the Crime_Date column in atlanta_crime_data table stores the date in a recognized format by the DBMS (e.g., standard MySQL date format). If not, you may have to alter the DATE_FORMAT() function to suit your DBMS."
+Give count of each crime type for each day of the week in New York.,"SELECT
+  DAYOFWEEK(ncd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(ncd.Crime_Date) AS Crime_Day_Name,
+  ncd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM
+  nyc_crime_data ncd
+WHERE
+  DAYOFWEEK(ncd.Crime_Date) IS NOT NULL
+GROUP BY
+  DAYOFWEEK(ncd.Crime_Date),
+  DAYNAME(ncd.Crime_Date),
+  ncd.Crime_Type
+ORDER BY
+  Crime_Day_Number,
+  ncd.Crime_Type;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," To fulfill this request, we'll assume that you have a table with crime data that includes columns for the crime type, crime date, and city. Below is an example of the table structure:
+
+```
+CREATE TABLE crimes (
+  id INT PRIMARY KEY,
+  crime_type VARCHAR(255),
+  crime_date DATE,
+  city VARCHAR(255)
+);
+```
+
+Now, you can use the following SQL query to get the count of each crime type for each day of the week in New York:
+
+```sql
+SELECT
+  EXTRACT(DOW FROM crime_date) AS day_of_week,
+  crime_type,
+  COUNT(*) AS crime_count
+FROM
+  crimes
+WHERE
+  city = 'New York'
+GROUP BY
+  day_of_week, crime_type
+ORDER BY
+  day_of_week, crime_type;
+```
+
+This query will group the data by day of the week (`EXTRACT(DOW FROM crime_date)` with values ranging from 0 for Sunday to 6 for Saturday) and crime type, and will count the occurrences of each type of crime for each day. It also filters the data to only consider crimes that occurred in New York (`WHERE city = 'New York'`). Finally, the results are ordered by day of the week and crime type.
+
+Note: The exact SQL syntax for extracting the day of the week from a date and counting the rows may vary slightly depending on your SQL database management system."," To fulfill the request, we can write an SQL query using the `COUNT()` function and `GROUP BY` clause. We also need to extract the day of the week from the `Crime_Date` column using the `DAYOFWEEK()` function.
+
+Assuming the New York area code is 11, the SQL query would look like this:
+
+```sql
+SELECT
+    DAYNAME(Crime_Date) AS 'Day of the Week',
+    Crime_Type,
+    COUNT(*) AS 'Crime Count'
+FROM
+    nyc_crime_data
+WHERE
+    Area_Name = 'New York'
+GROUP BY
+    Day_of_the_Week,
+    Crime_Type
+ORDER BY
+    Day_of_the_Week,
+    Crime_Type;
+```
+
+This query extracts the day of the week from the `Crime_Date` column using the `DAYNAME()` function. It then counts the occurrences of each crime type (`Crime_Type`) for each day of the week, filtering the records by the `Area_Name` (New York) with `WHERE` clause. The query outputs a list of days, crime types, and their respective counts, ordered by the day of the week and crime type."," To fulfill this request, you can write an SQL query that will:
+
+1. Extract the day of the week from the Crime_Date.
+2. Group the records by the day of the week and Crime_Type.
+3. Count the number of occurrences of each Crime_Type for each day of the week.
+
+Here is a SQL query that does this:
+
+```sql
+SELECT 
+    EXTRACT(DOW FROM Crime_Date) AS Day_of_the_Week,
+    Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    nyc_crime_data
+GROUP BY
+    Day_of_the_Week,
+    Crime_Type
+ORDER BY
+    Day_of_the_Week,
+    Crime_Type;
+```
+
+This query will give you the desired result, i.e., the count of each crime type for each day of the week in New York. Note that the functions used to extract the day of the week from the date (`EXTRACT(DOW FROM Crime_Date)`) may vary depending on the database management system. In this case, it is written for PostgreSQL.
+
+The result will look something like this:
+
+```
+| Day_of_the_Week | Crime_Type         | Crime_Count |
+|-----------------|--------------------|-------------|
+|               0 | FELONY ASSAULT    |      X      |
+|               0 | FELONY             |      Y      |
+|               1 | FORGERY            |      Z      |
+|               1 | MURDER             |      W      |
+|           ...   | ...                |    ...      |
+```
+
+In this table, `Day_of_the_Week` is an integer value representing the day of the week (e.g., 0 for Monday, 1 for Tuesday, etc.), `Crime_Type` is the type of crime, and `Crime_Count` is the number of occurrences of each Crime_Type for each Day_of_the_Week. The ellipsis notation (...) represents additional rows in the table.
+
+You can also modify the query to match the day of the week with its name by using a CASE statement or mapping table, if your database management system supports that."
+Give count of each crime type for each hour of the day in New York.,"SELECT
+  HOUR(ncd.Crime_Time) + 1 AS Hour,
+  ncd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Count
+FROM
+  nyc_crime_data ncd
+GROUP BY
+  Hour,
+  ncd.Crime_Type
+ORDER BY
+  Hour ASC,
+  ncd.Crime_Type ASC;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," To fulfill this request, we would need a table that contains information about crimes, including the crime type, the time of the crime, and the location (specifically, for New York). Assuming we have a table named ""crimes"" with the following columns:
+
+- `crime_type`: Type of the crime
+- `crime_time`: The time the crime was reported
+- `location`: The location of the crime
+
+We can write an SQL query to count the number of each crime type for each hour of the day in New York by extracting the hour from the `crime_time` timestamp and grouping by the extracted hour and `crime_type`. The query would look something like this:
+
+```sql
+SELECT
+  EXTRACT(HOUR FROM crime_time) AS crime_hour,
+  crime_type,
+  COUNT(*) AS count
+FROM
+  crimes
+WHERE
+  location = 'New York'
+GROUP BY
+  EXTRACT(HOUR FROM crime_time),
+  crime_type
+ORDER BY
+  crime_hour ASC,
+  crime_type;
+```
+
+Please note that the function `EXTRACT(HOUR FROM crime_time)` is used here and may vary depending on the SQL dialect. If you're using a different SQL dialect (e.g., MySQL), you may need to use a different function to extract the hour from the `crime_time` column, like `HOUR(crime_time)`."," SELECT 
+    Crime_Type,
+    EXTRACT(HOUR FROM Crime_Time) AS Hour_Of_Day,
+    COUNT(*) AS Crime_Count
+FROM 
+    nyc_crime_data
+WHERE 
+    Area_Name = 'New York'
+GROUP BY 
+    Crime_Type, Hour_Of_Day
+ORDER BY 
+    Crime_Type, Hour_Of_Day;"," Here is the SQL query to fulfill the request:
+
+```SQL
+SELECT 
+  Crime_Type, 
+  EXTRACT(HOUR FROM Crime_Time) AS Hour_of_the_day,
+  COUNT(*) as Crime_Count
+FROM nyc_crime_data
+WHERE Area_Name = 'New York'
+GROUP BY Crime_Type, Hour_of_the_day
+ORDER BY Crime_Type, Hour_of_the_day;
+```
+
+Explanation:
+1. The `Crime_Type` is selected directly from the table.
+2. From the `Crime_Time` column, we use the `EXTRACT` function to get the hour of the day and create a new column `Hour_of_the_day`.
+3. We use `COUNT(*)` to count the number of crime events for each `Crime_Type` and `Hour_of_the_day`.
+4. The `WHERE` clause is used to filter the rows where the `Area_Name` is 'New York'.
+5. `GROUP BY` clause is used to group the data by `Crime_Type` and `Hour_of_the_day`. 
+6. Finally, the result is ordered by `Crime_Type` and `Hour_of_the_day`.
+
+Please ensure that your SQL flavor supports the specific date/time functions used in the query. Some SQL flavors might require different functions for date/time manipulation."
+Give count of each crime type for each month in New York.,"SELECT
+    MONTH(ncd.Crime_Date) AS Month,
+    ncd.Crime_Type AS Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    nyc_crime_data ncd
+GROUP BY
+    MONTH(ncd.Crime_Date),
+    ncd.Crime_Type
+ORDER BY
+    MONTH(ncd.Crime_Date),
+    ncd.Crime_Type;","nyc_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Class, Crime_Type, Area_Name, Latitude, Longitude)","2; 262102261; January 18, 2023; 2:00 PM; FELONY; FORGERY; BRONX; 40.83585867° N; 73.87212505° W
+3; 267972239; July 5, 2023; 12:15 AM; FELONY; FELONY ASSAULT; BRONX; 40.83150000° N; 73.86340000° W
+4; 263141402H1; June 2, 2023; 10:16 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+5; 269307857H1; April 6, 2023; 12:20 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; BROOKLYN; ; 
+6; 277525074H3; November 14, 2023; 7:05 AM; FELONY; MURDER & NON-NEGL. MANSLAUGHTER; QUEENS; ; "," To fulfill this request, you can use the following SQL query. This query assumes that you have a table named `crimes` with columns `crime_type`, `date`, and `city`. Here, `crime_type` stores the type of crime, `date` stores the date the crime occurred (assumed to be in the format 'YYYY-MM-DD'), and `city` stores the name of the city where the crime happened.
+
+```SQL
+SELECT 
+    crime_type, 
+    EXTRACT(YEAR FROM date) AS year, 
+    EXTRACT(MONTH FROM date) AS month,
+    COUNT(*) AS num_occurrences
+FROM 
+    crimes
+WHERE 
+    city = 'New York'
+GROUP BY 
+    crime_type,
+    year,
+    month
+ORDER BY 
+    year, 
+    month;
+```
+
+This SQL query does the following:
+
+1. Selects the `crime_type` and extracts `year` and `month` from the `date` column using the `EXTRACT()` function.
+2. Counts the number of occurrences of each crime type (`COUNT(*)`) for each combination of month and year.
+3. Filters the data to include only crimes that occurred in New York (`WHERE city = 'New York'`).
+4. Groups the results by `crime_type`, `year`, and `month` so that you get a count of each crime type for each month.
+5. Orders the results first by `year` and then by `month`.
+
+By running this query, you will get a list of each crime type along with the year, month, and the number of times that crime occurred in New York for each month."," To fulfill the request, you can use the following SQL query:
+
+```sql
+SELECT 
+    Crime_Type,
+    YEAR(Crime_Date) AS Year,
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Count
+FROM nyc_crime_data
+WHERE Area_Name = 'New York'
+GROUP BY Crime_Type, Year, Month
+ORDER BY Year, Month, Crime_Type;
+```
+
+This query will give you the count of each crime type for each month in New York. The `YEAR()` and `MONTH()` functions extract the year and month from the `Crime_Date` column, respectively.
+
+Here's a breakdown of the query:
+
+1. `SELECT Crime_Type, YEAR(Crime_Date) AS Year, MONTH(Crime_Date) AS Month, COUNT(*) AS Count`: This part selects the columns to be displayed in the resulting table: 
+   - `Crime_Type` is the crime type.
+   - `YEAR(Crime_Date)` is the year extracted from the `Crime_Date` column, and it is renamed to `Year`.
+   - `MONTH(Crime_Date)` is the month extracted from the `Crime_Date` column, and it is renamed to `Month`.
+   - `COUNT(*)` counts the number of occurrences of each crime type in the selected year and month, and this column is named `Count`.
+2. `FROM nyc_crime_data`: Specifies the table from which to retrieve the data.
+3. `WHERE Area_Name = 'New York'`: This condition filters the records by the area name, selecting only New York records.
+4. `GROUP BY Crime_Type, Year, Month`: This groups the results by crime type, year, and month, which allows the query to count the occurrences of each crime type in each month.
+5. `ORDER BY Year, Month, Crime_Type`: This part sorts the result by year, month, and crime type. This is optional, but it can help to read the data in a more organized way."," Here's an SQL query to fulfill the natural language request:
+
+```sql
+SELECT 
+  Crime_Type, 
+  DATE_FORMAT(Crime_Date, '%Y-%m') AS Month, 
+  COUNT(*) AS Total_Count
+FROM 
+  nyc_crime_data
+WHERE 
+  Area_Name = 'New York'
+GROUP BY
+  Crime_Type, 
+  DATE_FORMAT(Crime_Date, '%Y-%m')
+ORDER BY
+  Month,
+  Crime_Type;
+```
+
+This SQL query will give you the count of each crime type for each month in New York. The query is written in MySQL syntax:
+
+1. We first select the columns Crime_Type and Crime_Date, and count the number of occurrences of each crime type in the NYC area.
+2. Then, we format Crime_Date column to display Year-Month format for easier comparison.
+3. We then filter out the data for the area named 'New York' using WHERE clause.
+4. The GROUP BY clause is then used to group the rows by crime type and month.
+5. Finally, the results are ordered by Month and Crime_Type for easier readability."
+Give count of each crime type for each day of the week in Philly.,"SELECT
+  DAYOFWEEK(pcd.Crime_Date) AS Crime_Day_Number,
+  DAYNAME(pcd.Crime_Date) AS Crime_Day_Name,
+  pcd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Crime_Count
+FROM
+  philly_crime_data pcd
+GROUP BY
+  DAYOFWEEK(pcd.Crime_Date),
+  DAYNAME(pcd.Crime_Date),
+  pcd.Crime_Type
+ORDER BY
+  Crime_Day_Number,
+  pcd.Crime_Type;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To write an SQL query to fulfill the above request, we need to assume we have a table named `Crimes` with at least two columns: `CrimeType` (which indicates the crime type) and `Date` (which indicates the date the crime occurred). Additionally, we need the date in the table to contain the day of the week information. Here's a SQL query that accomplishes this:
+
+```sql
+SELECT
+    CrimeType,
+    EXTRACT(DOW FROM Date) AS DayOfWeek, -- Extracts the day of the week from the date
+    COUNT(*) AS CrimeCount
+FROM
+    Crimes
+WHERE
+    City = 'Philly' -- Filters results for only Philly
+GROUP BY
+    CrimeType,
+    DayOfWeek
+ORDER BY
+    CrimeType,
+    DayOfWeek;
+```
+
+In this query, we use `EXTRACT(DOW FROM Date)` to get the numeric representation of the day of the week. Based on the ISO 8601 standard, Sunday is 0 and Saturday is 6.
+
+Note that the exact syntax for extracting the day of the week may vary depending on the database system being used. For example, in MySQL, you can alternatively use `DAYOFWEEK(Date)` instead of `EXTRACT(DOW FROM Date)`.
+
+Before running this query, make sure to replace `DOW` with the appropriate length of day numbers based on the database system being used.
+
+Also, the names of the columns `CrimeType`, `Crime` and `Date` are placeholders, so you should use the correct column names in the actual database schema. The column `City` is used to filter out the crimes that occurred specifically in Philly. If the column is named differently or more details (like year, month, etc.) are required in the output, modifications to the query will be necessary."," Here's an SQL query that fulfills the request:
+
+```sql
+SELECT 
+    Crime_Type,
+    DAYNAME(Crime_Date) AS Day_Of_Week,
+    COUNT(*) AS Crime_Count
+FROM 
+    philly_crime_data
+WHERE 
+    City = 'Philly' -- Assuming there is a 'City' column; else, remove the WHERE clause
+GROUP BY 
+    Crime_Type,
+    DAYNAME(Crime_Date)
+ORDER BY 
+    Crime_Type, 
+    DAYOFWEEK(Crime_Date)
+```
+
+This query will return the crime type, the day of the week (using `DAYNAME` function), and the count of crimes for each combination of crime type and day of the week, where the city column is 'Philly'. If there's no 'City' column, you can remove the WHERE clause to get the crime data for all cities. The `DAYNAME` function is used to convert the `Crime_Date` column to the name of the day. Additionally, the `ORDER BY` clause sorts the result by the crime type and the day of the week using the `DAYOFWEEK` function.
+
+If the city information is stored in the `Area_#` or `Address` columns, you'll need to adjust the WHERE clause accordingly, like this:
+
+```sql
+WHERE 
+    Area_# LIKE '%Philly%'
+```
+
+or
+
+```sql
+WHERE 
+    Address LIKE '%Philly%'
+```
+
+If the 'Area_#' or 'Address' column format is different, adjust the pattern to match the desired filter."," Here is the SQL query to fulfill the request:
+
+```sql
+SELECT 
+    DATEPART(dw, Crime_Date) AS Day_of_Week,
+    Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    philly_crime_data
+WHERE
+    DATEPART(dw, Crime_Date) BETWEEN 1 AND 7
+GROUP BY 
+    DATEPART(dw, Crime_Date),
+    Crime_Type
+ORDER BY
+    Day_of_Week,
+    Crime_Type;
+```
+
+In this query, we use the `DATEPART` function to extract the day of week from `Crime_Date` column. We select the subquery's result along with the `Crime_Type` column and count all rows by grouping by day of week and `Crime_Type`. The WHERE clause is used to exclude entries with no valid day (in case there are non-date values in the database). Finally, the result set is ordered by day of week and then crime type.
+
+This query assumes that the SQL Server uses Sunday as the first day of the week (i.e., SET DATEFIRST 7). If your SQL Server has a different setting, please modify the query accordingly.
+
+Please note that the given database schema represents a single table (`philly_crime_data`) that logs all crimes in Philly, and the seven actual days of the week (Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday) are included in the result set using the `DATEPART` function combination to obtain a numeric value for the day of week (1-7, where Sunday is 1 and Saturday is 7)."
+Give count of each crime type for each hour of the day in Philly.,"SELECT
+  HOUR(pcd.Crime_Time) + 1 AS Hour,
+  pcd.Crime_Type AS Crime_Type,
+  COUNT(*) AS Count
+FROM
+  philly_crime_data pcd
+GROUP BY
+  Hour,
+  pcd.Crime_Type
+ORDER BY
+  Hour ASC,
+  pcd.Crime_Type ASC;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To fulfill this request, we need to write an SQL query that groups the data by both the type of crime and the hour of the day. Assuming we have a table named `crimes` with columns for the crime type and the timestamp when the crime occurred, the following SQL query could be used:
+
+```sql
+SELECT 
+    crime_type,
+    EXTRACT(HOUR FROM crime_time) AS hour_of_day,
+    COUNT(*) AS crime_count
+FROM
+    crimes
+WHERE
+    city = 'Philly'
+GROUP BY
+    crime_type,
+    hour_of_day
+ORDER BY
+    crime_type,
+    hour_of_day;
+```
+
+In this query:
+
+- `crime_type` is the column that holds the type of crime.
+- `crime_time` is the column that holds the timestamp for when the crime occurred.
+- `EXTRACT(HOUR FROM crime_time)` is a function that extracts the hour part from the `crime_time` timestamp.
+- `city = 'Philly'` is the condition to filter the records for the city of Philadelphia.
+- `GROUP BY crime_type, hour_of_day` groups the results by each type of crime and for each hour of the day.
+- `COUNT(*) AS crime_count` calculates the count of crimes for each type and for each hour.
+- `ORDER BY crime_type, hour_of_day` orders the result set first by `crime_type` and then by `hour_of_day`.
+
+Assuming the `crime_time` column is of a type that supports date and time functions like `TIMESTAMP` or `DATETIME`, this query should provide the count of each crime type for each hour of the day in Philadelphia."," You can use the following SQL query to fulfill the request:
+
+```sql
+SELECT 
+    Crime_Type, 
+    EXTRACT(HOUR FROM Crime_Time) AS Hour_Of_Day,
+    COUNT(*) AS Crime_Count
+FROM 
+    philly_crime_data
+GROUP BY 
+    Crime_Type,
+    EXTRACT(HOUR FROM Crime_Time)
+ORDER BY 
+    Crime_Type,
+    Hour_Of_Day;
+```
+
+This SQL query does the following:
+1. It extracts the hour from the `Crime_Time` column using the `EXTRACT()` function.
+2. It groups the result by `Crime_Type` and the extracted hour.
+3. It then counts the number of occurrences for each `Crime_Type` at each hour using the `COUNT(*)` function.
+4. Finally, it orders the result by `Crime_Type` and `Hour_Of_Day`.
+
+Make sure to replace `Crime_Time` with the actual column name for the time part of your timestamp, if it is different in your schema."," To answer the given request, you can use the following SQL query:
+
+```sql
+SELECT 
+    Crime_Type, 
+    EXTRACT(HOUR FROM Crime_Time) AS Hour_of_Day, 
+    COUNT(*) AS Crime_Count
+FROM 
+    philly_crime_data
+WHERE 
+    Area_# = 'Philly' -- assuming this represents the area, adjust as needed
+GROUP BY 
+    Crime_Type, Hour_of_Day
+ORDER BY 
+    Hour_of_Day, Crime_Type;
+```
+
+This query produces a count of each crime type (`Crime_Type`) that occurred during each hour of the day (`Hour_of_Day`) in Philly (`Area_# = 'Philly'`). The `EXTRACT(HOUR FROM Crime_Time)` function extracts the hour from the `Crime_Time` field.
+
+Please note that I have assumed 'Philly' as the placeholder for the Philly area code. If there is a specific identifier or value that represents the Philly area, please replace 'Philly' in the `WHERE` clause with that value."
+Give count of each crime type for each month in Philly.,"SELECT
+    MONTH(pcd.Crime_Date) AS Month,
+    pcd.Crime_Type AS Crime_Type,
+    COUNT(*) AS Crime_Count
+FROM
+    philly_crime_data pcd
+GROUP BY
+    MONTH(pcd.Crime_Date),
+    pcd.Crime_Type
+ORDER BY
+    MONTH(pcd.Crime_Date),
+    pcd.Crime_Type;","philly_crime_data (Crime_ID, Report_#, Crime_Date, Crime_Time, Crime_Type, Area_#, Address, Longitude, Latitude)","3; 3,150,622; February 21, 2024; 11:43 PM; Thefts; 22; 2100 BLOCK N BROAD ST; 75.15560059° W; 39.98584130° N
+4; 3,152,195; February 21, 2024; 11:41 PM; Aggravated Assault No Firearm; 35; 5900 BLOCK MASCHER ST; 75.12240260° W; 40.04046800° N
+5; 3,177,713; February 21, 2024; 11:39 PM; Vandalism/Criminal Mischief; 2; 5300 BLOCK E ROOSEVELT BLVD; 75.08699032° W; 40.03096295° N
+6; 3,173,754; February 21, 2024; 11:31 PM; Vandalism/Criminal Mischief; 22; 1900 BLOCK N 27TH ST C; 75.17817850° W; 39.98460303° N
+7; 3,178,567; February 21, 2024; 11:28 PM; Other Assaults; 15; 5200 BLOCK MARLOW ST; 75.07448745° W; 40.02040272° N"," To fulfill the request, we need to make a few assumptions:
+1. The data is stored in a table named ""crimes"",
+2. The table contains columns ""crime_type"" for the type of crime, ""date"" for the date of the crime, and ""location"" for the location of the crime.
+
+Next, let's write a SQL query to give the count of each crime type for each month in Philly:
+
+```sql
+SELECT 
+    DATE_FORMAT(date, '%Y-%m') AS month,
+    crime_type,
+    COUNT(*) as count
+FROM 
+    crimes
+WHERE 
+    location = 'Philly'
+GROUP BY 
+    month, 
+    crime_type
+ORDER BY 
+    month, 
+    crime_type;
+```
+
+This query selects the month and crime type, and counts the number of records (count) for each combination of month and crime type, filtering by the location 'Philly'. The results are then grouped by month and crime type, and ordered by month and crime type for clarity. `DATE_FORMAT(date, '%Y-%m')` is used to format the date in the format ""Year-Month"". Note that the exact date format function might vary based on your DBMS (Database Management System). For example, in PostgreSQL, you would use `TO_CHAR(date, 'YYYY-MM')`."," To fulfill this request, you can write the following SQL query:
+
+```sql
+SELECT
+    Crime_Type,
+    YEAR(Crime_Date) AS Year,
+    MONTH(Crime_Date) AS Month,
+    COUNT(*) AS Count
+FROM
+    philly_crime_data
+GROUP BY
+    Crime_Type,
+    YEAR(Crime_Date),
+    MONTH(Crime_Date)
+ORDER BY
+    Year,
+    Month;
+```
+
+This query will give you the count of each crime type for each month in Philly, grouped by the year, month, and crime type, and ordered by the year and month."," To fulfill the given natural language request, we need to write an SQL query that groups the data by Crime_Type and by month, extracting the month from the Crime_Date column. The SQL COUNT function can be used to get the count of each crime type for each month.
+
+Here's the SQL query to achieve this:
+
+```sql
+SELECT
+    Crime_Type,
+    EXTRACT(YEAR FROM Crime_Date) AS Year,
+    EXTRACT(MONTH FROM Crime_Date) AS Month,
+    COUNT(*) AS Count
+FROM
+    philly_crime_data
+WHERE
+    Area_# = 'Philly'  -- Assuming 'Area_#' column stores area information, we filter for Philadelphia
+GROUP BY
+    Crime_Type,
+    Year,
+    Month
+ORDER BY
+    Year,
+    Month,
+    Crime_Type;
+```
+
+This query extracts the year and month from the Crime_Date column and groups the data by Crime_Type, Year, and Month. It then returns the count of each crime type for each month in Philly, ordered by year, month, and crime type."
